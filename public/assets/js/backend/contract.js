@@ -106,6 +106,24 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     extend:'data-area=\'["100%","100%"]\'',
 
                                 },
+                                {
+                                    name:'initiate',
+                                    text:'发起签约',
+                                    title:'发起签约',
+                                    classname: 'btn btn-xs btn-info btn-view btn-ajax',
+                                    icon: 'fa ',
+                                    url: 'contract/initiate',
+                                    refresh:true,
+                                },
+                                {
+                                    name:'contractdel',
+                                    text:'删除',
+                                    title:'删除',
+                                    classname: 'btn btn-xs btn-info btn-view btn-ajax',
+                                    icon: 'fa ',
+                                    url: 'contract/del',
+                                    refresh:true,
+                                },
                                 // {
                                 //     name:'getcontract',
                                 //     text:'查询',
@@ -121,6 +139,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
                                     var that = $.extend({},this);
                                     var table = $(that.table).clone(true);
+                                    if(row.state != '待发起'){
+                                        $(table).data(
+                                            "operate-contractdel",null);
+                                        $(table).data(
+                                            "operate-initiate",null);
+                                    }else{
+                                        $(table).data(
+                                            "operate-signing",null);
+
+                                    }
+
                                     if(row.state == '已撤销'){
                                         $(table).data(
                                             "operate-revoke",null);

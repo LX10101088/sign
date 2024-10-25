@@ -11,6 +11,8 @@ use app\common\controller\Commoninfo;
 use app\common\controller\Commonsignature;
 use app\common\controller\Commonuser;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\exception\PDOException;
 use think\exception\ValidateException;
@@ -23,7 +25,7 @@ use think\response\Json;
  */
 class Contract extends Backend
 {
-    protected $noNeedLogin = ['cancel','revoke'];
+    protected $noNeedLogin = ['cancel','revoke','initiate'];
 
     /**
      * Contract模型对象
@@ -505,5 +507,62 @@ class Contract extends Backend
 
         return $this->view->fetch();
 
+    }
+
+    /**
+     * 删除
+     *
+     * @param $ids
+     * @return void
+     * @throws DbException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     */
+    public function del($ids = null)
+    {
+        if (false === $this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ?: $this->request->post("ids");
+        if (empty($ids)) {
+            $this->error(__('Parameter %s can not be empty', 'ids'));
+        }
+        $pk = $this->model->getPk();
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            $this->model->where($this->dataLimitField, 'in', $adminIds);
+        }
+        $list = $this->model->where($pk, 'in', $ids)->select();
+
+        $count = 0;
+        Db::startTrans();
+        try {
+            $commoncontract = new Commoncontract();
+            foreach ($list as $item) {
+                $commoncontract->delcontract($item['id']);
+                $count += 1;
+            }
+            Db::commit();
+        } catch (PDOException|Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage());
+        }
+        if ($count) {
+            $this->success();
+        }
+        $this->error(__('No rows were deleted'));
+    }
+
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月25月 10:50:52
+     * ps:发起签署
+     */
+    public function initiate($ids=null){
+        $commoncontract = new Commoncontract();
+        $commoncontract->initiatesign($ids);
+        $this->success('发起成功');
     }
 }
