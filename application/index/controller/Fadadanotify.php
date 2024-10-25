@@ -2,6 +2,7 @@
 
 namespace app\index\controller;
 
+use app\api\controller\Csms;
 use app\api\controller\Fadada;
 use app\api\controller\Lovesigning;
 use app\common\controller\Common;
@@ -71,7 +72,7 @@ class Fadadanotify extends Frontend
                 case 'sign-task-finished':
                     //签署完成
                     $res = json_decode($rest['bizContent'],true);
-                    $this->contract($res);
+                    $this->contract($res,1);
                     break;
                 case 'sign-task-expire':
                     $res = json_decode($rest['bizContent'],true);
@@ -147,12 +148,17 @@ class Fadadanotify extends Frontend
      * time:2024年9月19月 10:06:56
      * ps:合同操作
      */
-    public function contract($res){
+    public function contract($res,$state = 0){
         if($res['signTaskId']){
             $contract = Db::name('contract')->where('taskId','=',$res['signTaskId'])->find();
             if($contract){
                 $commoncontract = new Commoncontract();
                 $commoncontract->getapicontract($contract['id'],1);
+                if($state == 1){
+                    //签署完成合同
+                    $sms = new Csms();
+                    $sms->contractfinish($contract['id']);
+                }
             }
         }
         return true;

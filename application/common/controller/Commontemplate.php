@@ -3,6 +3,7 @@
 namespace app\common\controller;
 
 
+use app\api\controller\Csms;
 use app\api\controller\Fadada;
 use app\api\controller\Lovesigning;
 use think\Controller;
@@ -43,6 +44,9 @@ class Commontemplate extends Controller
             $acedit['usetemplate'] = $account['usetemplate'] +1;
             $acedit['updatetime'] = time();
             Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($acedit);
+            //发送短信
+            $sms = new Csms();
+            $sms->addtemplate($ids);
         }
 
         return $ids;

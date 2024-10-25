@@ -4,6 +4,7 @@ namespace app\common\controller;
 
 
 use app\admin\model\AuthGroupAccess;
+use app\api\controller\Csms;
 use app\api\controller\Fadada;
 use app\api\controller\Lovesigning;
 use fast\Random;
@@ -77,6 +78,9 @@ class Commonenter extends Controller
             $this->addmember($ecId);
             $common = new Common();
             $common->adduseraccount($enterId,'enterprise');
+            //发送短信
+            $sms = new Csms();
+            $sms->newenter($enterId);
 //            else{
 //                //身份证号信息没有就使用信息查询
 //                $custom = Db::name('custom')->where('phone','=',$enter['legalPhone'])->find();

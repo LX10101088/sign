@@ -9,6 +9,7 @@ use app\api\model\user;
 use app\api\model\verification;
 use app\common\library\Sms as Smslib;
 use think\Controller;
+use think\Db;
 
 class Csms extends Controller
 {
@@ -37,17 +38,183 @@ class Csms extends Controller
 
     /**
      * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月25月 13:06:38
+     * ps:添加模版
+     */
+    public function addtemplate($temId){
+        $templateId = '304696';
+        $template = Db::name('template')->where('id','=',$temId)->find();
+        if($template){
+            $plate = Db::name('platform_setup')->where('enterprise_id','=',0)->field('informphone')->find();
+
+            $name = '平台';
+            if($template['type'] == 'custom'){
+                $custom = Db::name('custom')->where('id','=',$template['type_id'])->field('name')->find();
+                if($custom['name']){
+                    $name = $custom['name'];
+                }
+
+            }else{
+
+                $enter = Db::name('enterprise')->where('id','=',$template['type_id'])->field('name')->find();
+                $name = $enter['name'];
+            }
+            if($plate['informphone']){
+                $content = $name.'##'.$template['name'];
+                $this->sendSMS($plate['informphone'],$content,$templateId,'【易网签】');
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月25月 13:06:38
+     * ps:启用模版
+     */
+    public function templateopen($temId){
+        $templateId = '304698';
+        $template = Db::name('template')->where('id','=',$temId)->find();
+        $sign = $this->sign;
+        $platformId = 0;
+
+        if($template){
+            $phone = '';
+            $name = '平台';
+            if($template['type'] == 'custom'){
+                $custom = Db::name('custom')->where('id','=',$template['type_id'])->field('phone,name')->find();
+                if($custom['phone']){
+                    $phone = $custom['phone'];
+                }
+                $name = $custom['name'];
+            }else{
+                $plate = Db::name('platform_setup')->where('enterprise_id','=',$template['type_id'])->field('informphone,smsign')->find();
+                if($plate['informphone']){
+                    $phone = $plate['informphone'];
+                }
+                $enter = Db::name('enterprise')->where('id','=',$template['type_id'])->field('name')->find();
+                $name = $enter['name'];
+                if($plate['smsign']){
+                    $sign =$plate['smsign'];
+                }
+                if($plate){
+                    $platformId = $template['type_id'];
+                }
+            }
+            if($phone){
+                $content = $name.'##'.$template['name']."##".$platformId;
+                $this->sendSMS($phone,$content,$templateId,$sign);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月25月 13:06:25
+     * ps:发起合同
+     */
+    public function initiatecontract($contractId){
+        $templateId = '304697';
+        $signing = Db::name('contract_signing')->where('contract_id','=',$contractId)->select();
+        $contract = Db::name('contract')->where('id','=',$contractId)->field('initiateType,initiate_id,contractName')->find();
+        $name = '平台';
+        $sign = $this->sign;
+        $platformId = 0;
+        if($contract['initiateType'] == 'enterprise'){
+            $plat = Db::name('platform_setup')->where('enterprise_id','=',$contract['initiate_id'])->field('smsign')->find();
+            if($plat['smsign']){
+                $sign = $plat['smsign'];
+            }
+            $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->field('name')->find();
+            if($enter['name']){
+                $name = $enter['name'];
+            }
+            if($plat){
+                $platformId = $contract['initiate_id'];
+            }
+        }
+        $content = $name."##".$contract['contractName']."##".$platformId;
+        foreach($signing as $k=>$v){
+            $custom = Db::name('custom')->where('id','=',$v['custom_id'])->field('phone')->find();
+            if($custom['phone']){
+
+                $this->sendSMS($custom['phone'],$content,$templateId,$sign);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月25月 13:06:08
+     * ps:合同完成
+     */
+    public function contractfinish($contractId){
+        $templateId = '304711';
+        $contract = Db::name('contract')->where('id','=',$contractId)->field('initiateType,initiate_id,contractName')->find();
+        $sign = $this->sign;
+        $platformId = 0;
+        $phone = '';
+        if($contract['initiateType'] == 'enterprise'){
+            $plat = Db::name('platform_setup')->where('enterprise_id','=',$contract['initiate_id'])->field('informphone,smsign')->find();
+            if($plat['smsign']){
+                $sign = $plat['smsign'];
+            }
+            $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->field('name')->find();
+            if($enter['name']){
+                $name = $enter['name'];
+            }
+            if($plat){
+                $platformId = $contract['initiate_id'];
+            }
+            if($plat['informphone']){
+                $phone = $plat['informphone'];
+            }
+
+        }else{
+            $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->field('name')->find();
+            $name = $custom['name'];
+            $phone = $custom['phone'];
+        }
+        $content = $name.'##'.$contract['contractName'].'##'.$platformId;
+        if($phone){
+            $this->sendSMS($custom['phone'],$content,$templateId,$sign);
+        }
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月25月 13:07:56
+     * ps:新企业注册
+     */
+    public function newenter($enterId){
+        $templateId = '304712';
+        $plat = Db::name('platform_setup')->where('enterprise_id','=',0)->field('informphone,smsign')->find();
+
+        $enter = Db::name('enterprise')->where('id','=',$enterId)->find();
+
+        $this->sendSMS($plat['informphone'],$enter['name'],$templateId,$this->sign);
+
+    }
+    /**
+     * Created by PhpStorm.
      * User: lang
      * time:2021年1月23日 14:08:51
      * ps:短信通知通用模板（根据$type类型选择模板id）新的
      * url:{{URL}}/
      */
-    function sendSMS($phone, $content, $templateId)
+    function sendSMS($phone, $content, $templateId,$sign)
     {
     
         $data['accesskey'] = $this->accesskey;
         $data['secret'] = $this->secret;
-        $data['sign'] = $this->sign;
+        $data['sign'] =$sign;
         $data['templateId'] = $templateId;
         $data['mobile'] = $phone;
         $data['content'] = urlencode($content);

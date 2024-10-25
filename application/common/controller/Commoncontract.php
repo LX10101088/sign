@@ -3,6 +3,7 @@
 namespace app\common\controller;
 
 
+use app\api\controller\Csms;
 use app\api\controller\Fadada;
 use app\api\controller\Lovesigning;
 use think\Controller;
@@ -992,6 +993,8 @@ class Commoncontract extends Controller
         $fadada = new Fadada();
         $fadada->startfill($contract['taskId']);
         //发送短信验证码
+        $sms = new Csms();
+        $sms->initiatecontract($ids);
         return true;
 
     }

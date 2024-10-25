@@ -2,6 +2,7 @@
 
 namespace app\admin\controller;
 
+use app\api\controller\Csms;
 use app\common\controller\Backend;
 use app\common\controller\Commoncontract;
 use app\common\controller\Commoninfo;
@@ -219,6 +220,13 @@ class Template extends Backend
                 $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
                 $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
                 $row->validateFailException()->validate($validate);
+            }
+            if($this->auth->usertype != 'custom'){
+                if($row['state'] != 2){
+                    //发送短信
+                    $sms = new Csms();
+                    $sms->templateopen($row['id']);
+                }
             }
             $result = $row->allowField(true)->save($params);
             Db::commit();
