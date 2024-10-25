@@ -82,11 +82,12 @@ class Counterpart extends Backend
             }else if($v['custom']['attestation'] == 2){
                 $list[$k]['custom']['attestation'] = '已认证';
             }
+
             $contract = Db::name('contract as c')
-                ->join('contract_signing','c.id = contract_signing')
-                ->where('initiateType','=',$v['type'])
+                ->join('contract_signing','c.id = contract_signing.contract_id')
+                ->where('initiateType','=',$v['ownerType'])
                 ->where('initiate_id','=',$v['owner_id'])
-                ->where('contract_signing.type_id','=',$v['typeId'])
+                ->where('contract_signing.type_id','=',$v['type_id'])
                 ->order('c.id desc')
                 ->find();
             $list[$k]['contractNo'] = $contract['contractNo'];

@@ -25,7 +25,7 @@ use think\response\Json;
  */
 class Contract extends Backend
 {
-    protected $noNeedLogin = ['cancel','revoke','initiate'];
+    protected $noNeedLogin = ['cancel','revoke','initiate','del'];
 
     /**
      * Contract模型对象
@@ -66,12 +66,10 @@ class Contract extends Backend
         if($this->auth->usertype == 'custom'){
             $enterId = $this->getenter();
             $list = $this->model
-                ->with(['signing'])
                 ->where($where)
-                ->where('contract.deletetime','=',0)
+                ->where('deletetime','=',0)
                 ->where('initiateType','=','enterprise')
                 ->where('initiate_id','=',$enterId)
-//                ->group('signing.contract_id')
                 ->order($sort, $order)
                 ->paginate($limit);
         }elseif($this->auth->usertype == 'service'){

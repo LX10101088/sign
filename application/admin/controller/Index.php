@@ -155,6 +155,15 @@ class Index extends Backend
         $this->view->assign('background', $background);
         $this->view->assign('title', __('Login'));
         Hook::listen("admin_login_init", $this->request);
+        $GET = $_GET;
+        if(isset($GET['platformId'])){
+            $platformId = $_GET['platformId'];
+        }else{
+            $platformId = 0;
+        }
+        $platform = Db::name('platform_setup')->where('enterprise_id','=',$platformId)->find();
+        $this->view->assign('platform',$platform);
+
         return $this->view->fetch();
     }
 

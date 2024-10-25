@@ -183,7 +183,7 @@ class Csms extends Controller
         }
         $content = $name.'##'.$contract['contractName'].'##'.$platformId;
         if($phone){
-            $this->sendSMS($custom['phone'],$content,$templateId,$sign);
+            $this->sendSMS($phone,$content,$templateId,$sign);
         }
     }
 

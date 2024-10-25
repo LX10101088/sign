@@ -18,6 +18,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             var table = $("#table");
             $(".btn-add").data("area", ['100%', '100%']);
             $(".btn-edit").data("area", ['100%', '100%']);
+
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
@@ -110,7 +111,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     name:'initiate',
                                     text:'发起签约',
                                     title:'发起签约',
-                                    classname: 'btn btn-xs btn-info btn-view btn-ajax',
+                                    classname: 'btn btn-xs btn-success btn-view btn-ajax',
                                     icon: 'fa ',
                                     url: 'contract/initiate',
                                     refresh:true,
@@ -119,7 +120,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     name:'contractdel',
                                     text:'删除',
                                     title:'删除',
-                                    classname: 'btn btn-xs btn-info btn-view btn-ajax',
+                                    classname: 'btn btn-xs btn-success btn-view btn-ajax',
                                     icon: 'fa ',
                                     url: 'contract/del',
                                     refresh:true,
@@ -193,7 +194,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'macf', title: __('抄送方'), operate: false},
 
                         // {field: 'template_id', title: __('Template_id')},
-                        {field: 'contract.state', title: __('State'),searchList: {"0":__('待签约'),"1":__('签约中'),"2":__('已签约'),"3":__('已过期'),"7":__('已撤销'),"10":__('待发起')}},
+                        {field: 'state', title: __('State'),searchList: {"0":__('待签约'),"1":__('签约中'),"2":__('已签约'),"3":__('已过期'),"7":__('已撤销'),"10":__('待发起')}},
                         {field: 'template', title: __('Template'),searchList: {"0":__('否'),"1":__('是')}},
                         {field: 'signingTime', title: __('SigningTime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
 
