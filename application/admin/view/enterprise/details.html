@@ -1,0 +1,195 @@
+
+<script type="text/javascript" src="/assets/js/jquery.js"></script>
+
+<style>
+    /* 新-订单详情页面 */
+    .new_order_show{
+        width: calc(100% - 15px);
+        min-width: 1200px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        background-color: #fff;
+        /* margin-bottom: 15px; */
+    }
+    .new_order_show .title_box{
+        display: flex;
+        padding: 10px 15px;
+        box-sizing: border-box;
+        border-bottom: 1px solid #ebebeb;
+    }
+    .new_order_show .title_box .strp{
+        width: 4px;
+        height: 16px;
+        background-color: #18bc9c;
+        margin: 10px 7px 10px 0;
+    }
+    .new_order_show .title_box .title{
+        width: calc(100% - 100px);
+        font-size: 16px;
+        color: #000;
+        line-height: 36px;
+        margin-left: 8px;
+        font-weight: bold;
+    }
+    .new_order_show .con_box .con .right img{
+        height: 50px;
+    }
+    /* 新-运单发布、编辑页面 */
+    .new_waybill_box{
+        width: 100%;
+        min-width: 1200px;
+        padding: 30px 30px 40px 30px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+    .new_waybill_box .section{
+        margin: 20px 0;
+    }
+    .new_waybill_box .waybill_row{
+        /* border: 1px solid #dcdfe6; */
+        display: flex;
+        margin-bottom: 5px;
+    }
+    .new_waybill_box .waybill_row .waybill_col{
+        /* border-right: 1px solid #dcdfe6; */
+        display: flex;
+    }
+    .new_waybill_box .waybill_row .waybill_col:last-child{
+        border-right: none;
+    }
+    .new_waybill_box .waybill_row .waybill_col .title{
+        width: 80px;
+        min-width: 80px;
+        height: 32px;
+        font-size: 13px;
+        line-height: 32px;
+        color: #333;
+        text-align: right;
+    }
+    .new_waybill_box .waybill_row .waybill_col .title span{
+        color: #e74c3c;
+        margin-right: 5px;
+        font-size: 16px;
+    }
+    .new_waybill_box .waybill_row .waybill_col .input{
+        width: calc(100% - 80px);
+        height: 32px;
+        font-size: 13px;
+        line-height: 30px;
+        color: #333;
+        border: none;
+        padding: 0 5px;
+        margin: 0;
+        border: 1px solid #dcdfe6;
+        box-sizing: border-box;
+    }
+    .new_waybill_box{margin-bottom: 10px;min-width: 950px;width: 950px;padding: 10px 20px;}
+    .new_order_show{min-width: 950px;width: 950px;margin-left: calc(50% - 475px);}
+    .title{width: 110px!important;}
+    .input{width: calc(100% - 110px)!important;}
+</style>
+
+
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="new_order_show">
+        <div class="title_box">
+            <div class="strp"></div>
+            <div class="title" style="width: calc(100% - 100px)!important;">账户信息</div>
+            {if $enter.attestation eq 0}
+            <a href="enterprise/attestation?ids={$enter.id}" data-area='["100%","100%"]' title="企业认证" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">企业认证</a>
+
+            <a href="enterprise/edit?ids={$enter.id}" data-area='["100%","100%"]' title="修改信息" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">修改信息</a>
+            {/if}
+
+            <a href="goods/servicepackage?ids={$enter.id}" data-area='["100%","100%"]' title="订购" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">订购</a>
+
+        </div>
+        <div class="new_waybill_box">
+            <div class="section">
+                <div class="waybill_row">
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">购买合同份数：</div>
+                        <div class="input">{$account.contractnum}</div>
+                    </div>
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">剩余合同份数：</div>
+                        <div class="input">{$account.contract}</div>
+                    </div>
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">使用合同份数：</div>
+                        <div class="input">{$account.usecontract}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="waybill_row">
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">购买模板数量：</div>
+                        <div class="input">{$account.templatenum}</div>
+                    </div>
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">剩余模版数量：</div>
+                        <div class="input">{$account.template}</div>
+                    </div>
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">使用模版数量：</div>
+                        <div class="input">{$account.usetemplate}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="new_order_show" id="khlxqy">
+        <div class="title_box">
+            <div class="strp"></div>
+            <div class="title">企业信息</div>
+        </div>    
+        <div class="new_waybill_box">
+            <div class="section">
+                <div class="waybill_row">
+                    <div class="waybill_col col-sm-6">
+                        <div class="title">企业名称：</div>
+                        <div class="input">{$enter.name}</div>
+                    </div>
+                    <div class="waybill_col col-sm-6">
+                        <div class="title">营业执照号：</div>
+                        <div class="input">{$enter.proveNo}</div>
+                    </div>
+                </div>
+            </div>
+        </div>            
+    </div>
+    
+    <div class="new_order_show">
+        <div class="title_box">
+            <div class="strp"></div>
+            <div class="title">法人信息</div>
+        </div>    
+        <div class="new_waybill_box">
+            <div class="section">
+                <div class="waybill_row">
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">姓名：</div>
+                        <div class="input">{$enter.legalName}</div>
+                    </div>
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">手机号：</div>
+                        <div class="input">{$enter.legalPhone}</div>
+                    </div>
+                    <div class="waybill_col col-sm-4">
+                        <div class="title">身份证号：</div>
+                        <div class="input">{$enter.legalNo}</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>            
+    </div>
+
+
+</form>
+<script type="text/javascript" src="/assets/js/jquery.js"></script>
+

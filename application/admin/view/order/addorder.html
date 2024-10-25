@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title></title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+
+
+	<script type="text/javascript" src="/assets/js/jquery.js"></script>
+
+	<style>
+		p,h1,button{margin: 0;padding: 0;}
+		body{background-color: #f1f4f6!important;}
+
+		.new_order_show{min-width: 950px;width: 950px;margin-left: calc(50% - 475px);margin-top: 20px;}
+
+		.new_recharge_box{min-width: 950px;width: 950px;margin-left: calc(50% - 475px);padding: 20px 40px;box-sizing: border-box;margin-top: 0;}
+
+		/* 新-订单详情页面 */
+		.new_order_show{
+			width: calc(100% - 15px);
+			min-width: 1200px;
+			box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			background-color: #fff;
+			/* margin-bottom: 15px; */
+		}
+		.new_order_show .title_box{
+			display: flex;
+			padding: 10px 15px;
+			box-sizing: border-box;
+			border-bottom: 1px solid #ebebeb;
+		}
+		.new_order_show .title_box .strp{
+			width: 4px;
+			height: 16px;
+			background-color: #18bc9c;
+			margin: 10px 7px 10px 0;
+		}
+		.new_order_show .title_box .title{
+			width: calc(100% - 100px);
+			font-size: 16px;
+			color: #000;
+			line-height: 36px;
+			margin-left: 8px;
+			font-weight: bold;
+		}
+		.new_order_show .title_box .btnaa{
+			width: 60px;
+			text-align: center;
+			font-size: 13px;
+			color: #fff;
+			background-color: #18bc9c;
+			line-height: 28px;
+			height: 28px;
+			border-radius: 4px;
+			margin-top: 4px;
+		}
+		.new_order_show .con_box{
+			padding: 0 15px 1px;
+			box-sizing: border-box;
+		}
+		.new_order_show .con_box .con{
+			display: flex;
+			margin: 30px 0;
+		}
+		.new_order_show .con_box .con .list_null{
+			width: 100%;
+			font-size: 13px;
+			color: #333;
+			line-height: 18px;
+			text-align: center;
+		}
+		.new_order_show .con_box .con .list{
+			display: flex;
+		}
+		.new_order_show .con_box .con .left{
+			width: 90px;
+			font-size: 13px;
+			color: #999;
+			line-height: 18px;
+		}
+		.new_order_show .con_box .con .right{
+			width: calc(100% - 90px);
+			font-size: 13px;
+			color: #333;
+			line-height: 18px;
+		}
+		.new_order_show .con_box .con .right img{
+			height: 50px;
+		}
+		.new_order_show .con_box .con .center1{
+			width: 100%;
+			font-size: 13px;
+			color: #999;
+			line-height: 18px;
+			text-align: center;
+		}
+		.new_order_show .con_box .con .center2{
+			width: 100%;
+			font-size: 13px;
+			color: #333;
+			line-height: 18px;
+			text-align: center;
+		}
+
+
+		.new_recharge_box{
+			width: calc(100% - 40px);
+			margin: 20px;
+			background-color: #fff;
+			min-width: 800px;
+			padding: 20px;
+			box-sizing: border-box;
+		}
+		.new_recharge_box .top{
+			width: 100%;
+			font-size: 18px;
+			color: #000;
+			font-weight: bold;
+			line-height: 30px;
+			text-align: center;
+		}
+		.new_recharge_box .title_box{
+			width: 100%;
+			font-size: 16px;
+			color: #000;
+			font-weight: bold;
+			line-height: 30px;
+		}
+		.new_recharge_box .one_box{
+			width: 100%;
+		}
+		.new_recharge_box .one_box .con{
+			width: 100%;
+			/* max-width: 700px; */
+			display: flex;
+			font-size: 14px;
+			color: #333;
+			line-height: 20px;
+			margin: 15px 0;
+			padding: 0 40px;
+		}
+		.new_recharge_box .one_box .con .name{
+			width: 70px;
+			color: #999;
+		}
+		.new_recharge_box .one_box .con .text1{
+			width: calc(33% - 50px);
+
+		}
+		.new_recharge_box .one_box .con .text2{
+			width: calc(100% - 50px);
+		}
+		.new_recharge_box .one_box .con .text3{
+			width: calc(33% - 50px);
+			font-size: 20px;
+			color: #18bc9c;
+			font-weight: bold;
+		}
+		.new_recharge_box .two_box{
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.new_recharge_box .two_box .con{
+			width: 100%;
+			display: flex;
+			margin-bottom: 40px;
+		}
+		.new_recharge_box .two_box .con .left{
+			width: 100px;
+			font-size: 14px;
+			color: #333;
+			line-height: 46px;
+		}
+		.new_recharge_box .two_box .con .right{
+			width: calc(100% - 100px);
+		}
+		.new_recharge_box .two_box .con .right .radio_box{
+			width: 100%;
+			display: flex;
+			margin-bottom: 20px;
+		}
+		.new_recharge_box .two_box .con .right .input{
+			width: 240px;line-height: 20px;color: #18bc9c;font-size: 20px;border: 1px solid #ebebeb;padding: 8px;box-sizing: border-box;font-weight: bold
+		}
+		.new_recharge_box .two_box .con .right .radio{
+			width: 20px;
+			height: 20px;
+			margin-right: 10px;
+			margin-top: 9px;
+		}
+		.new_recharge_box .two_box .con .right .text{
+			width: 200px;
+			font-size: 14px;
+			color: #333;
+			line-height: 36px;
+			border: 1px solid #ebebeb;
+			text-align: center;
+			background-color: #f1f4f6;
+		}
+		.new_recharge_box .con_four_btn{
+			width: 140px;
+			line-height: 36px;
+			background-color: #18bc9c;
+			text-align: center;
+			font-size: 14px;
+			color: #fff;
+			border: none;
+			margin-left: calc(50% - 70px);
+			border-radius: 4px;
+		}
+
+	</style>
+
+
+
+</head>
+<body id="index_box_id">
+
+<div class="new_recharge_box">
+	<div class="one_box">
+		<div class="con">
+			<div class="name">商品名称:</div>
+			<div class="text1">{$goods.name}</div>
+			<div class="name">单价:</div>
+			<div class="text1">{$goods.price}元</div>
+
+		</div>
+
+		<div class="con">
+
+			<div class="name">订单总价:</div>
+			<div class="text1" id="ddzj">{$goods.price}元</div>
+		</div>
+	</div>
+</div>
+<div class="new_recharge_box">
+	<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+		<div class="two_box">
+			<div class="con">
+				<div class="left">购买数量</div>
+				<div class="right">
+					<input onchange="price()" class="input" type="number" value="1" placeholder="请输入个数" name="number" id="number" />
+				</div>
+			</div>
+
+		</div>
+		<div class="con_four_btn" onclick="qrorder()">确认订单</div>
+
+	</form>
+	<!--		<button onclick="bank()" class="con_four_btn">立即充值</button>-->
+
+</div>
+<input id="price" value="{$goods.price}" style="display: none">
+<input id="totalprice" value="{$goods.price}" style="display: none">
+<input id="goodsId" value="{$goods.id}" style="display: none">
+<input id="enterId" value="{$enterId}" style="display: none">
+
+<script language="JavaScript" type="text/javascript">
+
+	function price(){
+		var price = document.getElementById("price").value;
+		var number = document.getElementById("number").value;
+		if(number < 1){
+			document.getElementById('number').value = 1;
+			document.getElementById('totalprice').value = 1*price;
+			document.getElementById('ddzj').innerText = 1*price;
+		}
+		document.getElementById('ddzj').innerText = number*price;
+		document.getElementById('totalprice').value = number*price;
+
+	}
+
+	function qrorder(){
+		var number = document.getElementById("number").value;
+		var goodsId = document.getElementById("goodsId").value;
+		var enterId = document.getElementById("enterId").value;
+		$.ajax({
+			url: "{:URL('order/qrorder')}",/*传向后台服务器文件*/
+			type: 'POST',    /*传递方法 */
+			data: {number: number,goodsId:goodsId,enterId:enterId},  /*要带的值，在这里只能带一个formdata ，不可以增加其他*/
+			dataType: 'json',  //传递数据的格式
+			async: false, //这是重要的一步，防止重复提交的
+			cache: false,  //设置为false，上传文件不需要缓存。
+
+			success: function (g) {
+				if(g.code == 200){
+					window.location.href = 'payment?orderId='+g.orderId;
+				}
+			}
+		});
+	}
+
+
+</script>
+</body>
+</html>

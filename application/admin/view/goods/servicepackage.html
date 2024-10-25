@@ -1,0 +1,175 @@
+<script type="text/javascript" src="/assets/js/jquery.js"></script>
+
+<style>
+
+    .data_box{border: 1px solid #ebebeb;width: calc(100% - 40px)!important;margin: 20px;padding: 0!important;}
+    .data_con{width: 260px!important;}
+    .new_index_box .data_box .data_con .con .two {margin-top: 20%;}
+
+    .new_order_show .title_box{
+        display: flex;
+        padding: 10px 15px;
+        box-sizing: border-box;
+        border-bottom: 1px solid #ebebeb;
+    }
+
+    .new_order_show .title_box .title{
+        width: calc(100% - 100px);
+        font-size: 16px;
+        color: #000;
+        line-height: 36px;
+        margin-left: 8px;
+        font-weight: bold;
+    }
+
+    .new_waybill_box .waybill_row .waybill_col .title{
+        width: 80px;
+        min-width: 80px;
+        height: 32px;
+        font-size: 13px;
+        line-height: 32px;
+        color: #333;
+        text-align: right;
+    }
+
+    /* 新首页 */
+    .new_index_box{
+        width: calc(100% - 50px);
+        background-color: #fff;
+        margin: 10px 25px;
+    }
+
+    .new_index_box .infor_box .img_box img{
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .new_index_box .title_box{
+        width: 100%;
+        padding: 15px 15px 15px 0;
+        display: flex;
+        border-bottom: 1px solid #ebebeb;
+    }
+    .new_index_box .title_box .title{
+        width: 50%;
+        padding-left: 24px;
+        border-left: 4px solid #18bc9c;
+        color: #333333;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .new_index_box .news_list li{
+        max-width: 400px;
+        line-height: 24px;
+        color: #FF602E;
+        font-size: 14px;
+        list-style-type: none;
+        text-overflow:ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+
+    .new_index_box .num_box .num_con .one{
+        font-size: 14px;
+        color: #999;
+        line-height: 16px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    .new_index_box .num_box .num_con .two{
+        font-size: 22px;
+        color: #000;
+        line-height: 16px;
+        text-align: center;
+    }
+    .new_index_box .data_box{
+        width: 100%;
+        display: flex;
+        padding: 15px;
+        box-sizing: border-box;
+    }
+    .new_index_box .data_box .data_con{
+        width: calc(100% / 4);
+        margin-right: 15px;
+        position: relative;
+    }
+    .new_index_box .data_box .data_con:last-child{
+        margin: 0;
+    }
+    .new_index_box .data_box .data_con .bg_img{
+        width: 100%;
+    }
+    .new_index_box .data_box .data_con .con{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9;
+    }
+    .new_index_box .data_box .data_con .con .one{
+        margin-top: calc(23% - 24px);
+        font-size: 14px;
+        color: #fff;
+        line-height: 16px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    .new_index_box .data_box .data_con .con .two{
+        font-size: 22px;
+        color: #fff;
+        line-height: 16px;
+        text-align: center;
+        text-shadow: -1px -1px 4px #46766E;
+    }
+
+    /* 财务数据增加内容 */
+    .new_index_box .new_con{
+        width: 60%;
+        padding: 0 40px;
+        box-sizing: border-box;
+    }
+    .new_index_box .new_con p{
+        width: 100%;
+        font-size: 13px;
+        color: #333;
+        line-height: 16px;
+        margin-top: 11px;
+    }
+    .new_index_box .new_con p span{
+        float: right;
+        color: darkblue;
+        text-decoration: underline;
+    }
+
+</style>
+
+
+<div class="new_index_box" style="margin-top: -20px;">
+    <div style="padding-bottom: 1px;">
+        <div class="title_box" style="padding: 10px 15px;">
+            <div class="title" style="padding-left: 15px;"></div>
+        </div>
+        {foreach name="goods" item="vo" key="key"}
+        <div class="data_box">
+            <div class="data_con">
+                <img class="bg_img" src="{$vo.image}" alt="">
+                <div class="con">
+                    <div class="one"></div>
+                    <div class="two"></div>
+                </div>
+            </div>
+            <div class="new_con">
+                <p style="font-size: 16px;color: #000;line-height: 36px;font-weight: bold;">{$vo.name}￥{$vo.price}</p>
+                <p style="padding-left: 28px;">合同份数：{$vo.contract}&nbsp;<span style="font-size: 20px">
+                        <a title="确认订单信息" data-area='["100%","100%"]'  class="btn btn-success btn-dialog btn-change "  href="order/addorder?goodsId={$vo.id}">购买</a>
+                    </span></p>
+                <p style="padding-left: 28px;">模版份数：{$vo.template}&nbsp;<span></span></p>
+
+            </div>
+        </div>
+        {/foreach}
+    </div>
+</div>

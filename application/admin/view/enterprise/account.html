@@ -1,0 +1,364 @@
+    <script type="text/javascript" src="/assets/js/jquery.js"></script>
+
+    <style>
+        .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+            padding: 0;
+        }
+        .is-dialog,.content{background-color: #f1f4f6!important;}
+
+        .data_box{border: 1px solid #ebebeb;width: calc(100% - 40px)!important;margin: 20px;padding: 0!important;}
+        .data_con{width: 260px!important;}
+        .new_index_box .data_box .data_con .con .two {margin-top: 20%;}
+
+
+        .new_waybill_box{margin-bottom: 10px;min-width: 50px;width: 100%;padding: 10px 20px;}
+        .new_order_show{min-width: 50px;width: 100%;}
+        .new_order_show .title_box{
+            display: flex;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #ebebeb;
+        }
+        .new_order_show .title_box .strp{
+            width: 4px;
+            height: 16px;
+            background-color: #18bc9c;
+            margin: 10px 7px 10px 0;
+        }
+        .new_order_show .title_box .title{
+            width: calc(100% - 100px);
+            font-size: 16px;
+            color: #000;
+            line-height: 36px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .new_waybill_box .section{
+            margin: 20px 0;
+        }
+        .new_waybill_box .waybill_row{
+            /* border: 1px solid #dcdfe6; */
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .new_waybill_box .waybill_row .waybill_col{
+            /* border-right: 1px solid #dcdfe6; */
+            display: flex;
+        }
+        .new_waybill_box .waybill_row .waybill_col .title{
+            width: 80px;
+            min-width: 80px;
+            height: 32px;
+            font-size: 13px;
+            line-height: 32px;
+            color: #333;
+            text-align: right;
+        }
+        .new_waybill_box .waybill_row .waybill_col .input{
+            width: calc(100% - 80px);
+            height: 32px;
+            font-size: 13px;
+            line-height: 30px;
+            color: #333;
+            border: none;
+            padding: 0 5px;
+            margin: 0;
+            border: 1px solid #dcdfe6;
+            box-sizing: border-box;
+        }
+        /* 新首页 */
+        .new_index_box{
+            width: calc(100% - 50px);
+            background-color: #fff;
+            margin: 10px 25px;
+        }
+        .new_index_box .flex_box{
+            width: 100%;
+            display: flex;
+        }
+        .new_index_box .infor_box{
+            padding: 15px;
+            box-sizing: border-box;
+            border-right: 1px solid #f5f5f5;
+        }
+        .new_index_box .infor_box .left{
+            min-width: 200px;
+        }
+        .new_index_box .infor_box .img_box{
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px calc(50% - 50px);
+        }
+        .new_index_box .infor_box .img_box img{
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .new_index_box .infor_box .name{
+            font-size: 14px;
+            color: #333;
+            line-height: 20px;
+            text-align: center;
+        }
+        .new_index_box .infor_box .renz_img{
+            height: 20px;
+        }
+        .new_index_box .infor_box .text_box{
+            width: 100%;
+            font-size: 14px;
+            color: #333;
+            line-height: 20px;
+            margin: 15px 0;
+        }
+
+        .new_index_box .title_box{
+            width: 100%;
+            padding: 15px 15px 15px 0;
+            display: flex;
+            border-bottom: 1px solid #ebebeb;
+        }
+        .new_index_box .title_box .title{
+            width: 50%;
+            padding-left: 24px;
+            border-left: 4px solid #18bc9c;
+            color: #333333;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .new_index_box .title_box .more{
+            width: 50%;
+            color: #666666;
+            font-size: 12px;
+            text-align: right;
+        }
+        .new_index_box .news_list{
+            width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .new_index_box .news_list li{
+            max-width: 400px;
+            line-height: 24px;
+            color: #FF602E;
+            font-size: 14px;
+            list-style-type: none;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .new_index_box .num_box{
+            width: 100%;
+            display: flex;
+            margin: 15px 0;
+        }
+        .new_index_box .num_box .num_con{
+            width: calc(100% / 4);
+            border-right: 1px solid #ebebeb;
+        }
+        .new_index_box .num_box .num_con:last-child{
+            border-right: none;
+        }
+        .new_index_box .num_box .num_con .one{
+            font-size: 14px;
+            color: #999;
+            line-height: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .new_index_box .num_box .num_con .two{
+            font-size: 22px;
+            color: #000;
+            line-height: 16px;
+            text-align: center;
+        }
+        .new_index_box .data_box{
+            width: 100%;
+            display: flex;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .new_index_box .data_box .data_con{
+            width: calc(100% / 4);
+            margin-right: 15px;
+            position: relative;
+        }
+        .new_index_box .data_box .data_con:last-child{
+            margin: 0;
+        }
+        .new_index_box .data_box .data_con .bg_img{
+            width: 100%;
+        }
+        .new_index_box .data_box .data_con .con{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 9;
+        }
+        .new_index_box .data_box .data_con .con .one{
+            margin-top: calc(23% - 24px);
+            font-size: 14px;
+            color: #fff;
+            line-height: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .new_index_box .data_box .data_con .con .two{
+            font-size: 22px;
+            color: #fff;
+            line-height: 16px;
+            text-align: center;
+            text-shadow: -1px -1px 4px #46766E;
+        }
+        .new_index_box .btn_box{
+            width: 100%;
+            display: flex;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .new_index_box .btn_box .btn_con{
+            width: 120px;
+            margin-right: 15px;
+        }
+        .new_index_box .btn_box .btn_con .icon{
+            width: 80px;
+            height: 80px;
+            margin: 15px calc(50% - 40px);
+        }
+        .new_index_box .btn_box .btn_con .text{
+            font-size: 14px;
+            color: #000;
+            line-height: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        /* 财务数据增加内容 */
+        .new_index_box .new_con{
+            width: 60%;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+        .new_index_box .new_con p{
+            width: 100%;
+            font-size: 13px;
+            color: #333;
+            line-height: 16px;
+            margin-top: 11px;
+        }
+        .new_index_box .new_con p span{
+            float: right;
+            color: darkblue;
+            text-decoration: underline;
+        }
+
+    </style>
+
+    <div style="display: flex;padding: 10px 25px;">
+        <div class="new_order_show">
+            <div class="title_box">
+                <div class="strp"></div>
+                <div class="title" style="width: calc(100% - 180px);">我的账户</div>
+            </div>
+
+            <div class="new_waybill_box">
+                <div class="section">
+                    <div class="waybill_row">
+                        <div class="waybill_col col-sm-10">
+                            <div class="title">{:__('名称')}：</div>
+                            <div class="input">{$enter.name}</div>
+                        </div>
+                    </div>
+                    <div class="waybill_row">
+                        <div class="waybill_col col-sm-10">
+                            <div class="title">{:__('账户编号')}：</div>
+                            <div class="input">{$account.identifier}</div>
+                        </div>
+                    </div>
+                    <div class="waybill_row">
+                        <div class="waybill_col col-sm-10">
+                            <div class="title">{:__('钱包余额')}：</div>
+                            <div class="input">{$account.balance}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="new_index_box" style="margin-top: -20px;">
+        <div style="padding-bottom: 1px;">
+            <div class="title_box" style="padding: 10px 15px;">
+                <div class="title" style="padding-left: 15px;">统计数据</div>
+            </div>
+            <div class="data_box">
+                <div class="data_con">
+                    <img class="bg_img" src="/assets/img/vaa5.png" alt="">
+                    <div class="con">
+                        <div class="one"></div>
+                        <div class="two">合同份数</div>
+                    </div>
+                </div>
+                <div class="new_con">
+                    <p style="font-size: 16px;color: #000;line-height: 36px;font-weight: bold;">总充值份数：{$account.contract}+{$account.usecontract}&nbsp;元</p>
+                    <p style="padding-left: 28px;">剩余份数：0&nbsp;元<span>
+<!--                        <a class="btn-addtabs" title="" href="">查看记录</a>-->
+                    </span></p>
+                    <p style="padding-left: 28px;">使用份数：0&nbsp;元<span>
+<!--                        <a class="btn-addtabs" title="" href="">查看记录</a>-->
+                    </span></p>
+                </div>
+            </div>
+            <div class="data_box">
+                <div class="data_con">
+                    <img class="bg_img" src="/assets/img/vaa1.png" alt="">
+                    <div class="con">
+                        <div class="one"></div>
+                        <div class="two">模版份数</div>
+                    </div>
+                </div>
+                <div class="new_con">
+                    <p style="font-size: 16px;color: #000;line-height: 36px;font-weight: bold;">总充值份数：0&nbsp;元</p>
+                    <p style="padding-left: 28px;">剩余份数：0&nbsp;元<span>
+<!--                        <a class="btn-addtabs" title="" href="">查看记录</a>-->
+                    </span></p>
+                    <p style="padding-left: 28px;">使用份数：0&nbsp;元<span>
+<!--                        <a class="btn-addtabs" title="" href="">查看记录</a>-->
+                    </span></p>
+                </div>
+            </div>
+        </div>
+
+
+
+<script>
+    $('body').on('click', '[data-tips-image]', function () {
+        var img = new Image();
+        var imgWidth = this.getAttribute('data-width') || '480px';
+        img.onload = function () {
+            var $content = $(img).appendTo('body').css({background: '#fff', width: imgWidth, height: 'auto'});
+            Layer.open({
+                type: 1, area: imgWidth, title: false, closeBtn: 1,
+                skin: 'layui-layer-nobg', shadeClose: true, content: $content,
+                end: function () {
+                    $(img).remove();
+                },
+                success: function () {
+
+                }
+            });
+        };
+        img.onerror = function (e) {
+
+        };
+        img.src = this.getAttribute('data-tips-image') || this.src;
+    });
+</script>

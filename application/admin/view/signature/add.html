@@ -1,0 +1,12 @@
+<title>添加印章</title>
+<input id="url" value="{$url}" style="display: none">
+
+<script>
+
+    var url = document.getElementById('url').value;
+    if(url){
+        window.location.href=url;
+    }else{
+        alert('暂无法查看详情。');
+    }
+</script>

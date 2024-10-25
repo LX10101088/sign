@@ -1,0 +1,50 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" class="form-control" name="row[name]" type="text">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Type')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[type]', ['1'=>__('文本'),'2'=>__('日期'),'3'=>__('图片'),'4'=>__('备注签署'),'5'=>__('个人签署区+日期'),'6'=>__('企业签署区+日期'),'7'=>__('勾选框')])}
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Describe')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-describe" class="form-control" name="row[describe]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Weight')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-weight" class="form-control" name="row[weight]" type="text">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Must')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[must]', ['1'=>__('是'),'0'=>__('否')])}
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('使用账号信息')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[self]', ['0'=>__('否'),'1'=>__('是')])}
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-primary btn-embossed disabled">{:__('OK')}</button>
+        </div>
+    </div>
+</form>

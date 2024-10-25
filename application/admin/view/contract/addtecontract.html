@@ -1,0 +1,92 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Template_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-template_id" data-source="template/index" class="form-control selectpage" name="row[template_id]" type="text" value="{$template.id|htmlentities}" disabled>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('ContractNo')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-contractNo" class="form-control" name="row[contractNo]" type="text" value="{$contractNo}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('ContractName')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-contractName" class="form-control" name="row[contractName]" type="text" value="{$template.name}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('ExpireTime')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-expireTime" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm" data-use-current="true" name="row[expireTime]" type="text" value="{$date}">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">合同填充内容:</label>
+    </div>
+    {foreach name="content" item="vo" key="key"}
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">{$vo.name}:</label>
+            <div class="col-xs-12 col-sm-8">
+                <input  class="form-control" name="{$vo.name}" type="text" value="">
+            </div>
+        </div>
+    {/foreach}
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">签约人信息:</label>
+    </div>
+    {foreach name="contentpeople" item="vo" key="key"}
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">{$vo.name}:</label>
+        </div>
+        {if $vo.type eq 5}
+        <!--个人-->
+            <div class="form-group">
+                <label class="control-label col-xs-12 col-sm-2">姓名:</label>
+                <div class="col-xs-12 col-sm-8">
+                    <input  class="form-control" name="{$vo.name}name" type="text" value="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-12 col-sm-2">手机号:</label>
+                <div class="col-xs-12 col-sm-8">
+                    <input  class="form-control" name="{$vo.name}phone" type="text" value="">
+                </div>
+            </div>
+        {else}
+        <!--企业-->
+            <div class="form-group">
+                <label class="control-label col-xs-12 col-sm-2">企业名称:</label>
+                <div class="col-xs-12 col-sm-8">
+                    <input  class="form-control" name="{$vo.name}entername" type="text" value="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-12 col-sm-2">法人/联系人姓名:</label>
+                <div class="col-xs-12 col-sm-8">
+                    <input  class="form-control" name="{$vo.name}name" type="text" value="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-12 col-sm-2">法人/联系人手机号:</label>
+                <div class="col-xs-12 col-sm-8">
+                    <input  class="form-control" name="{$vo.name}phone" type="text" value="">
+                </div>
+            </div>
+        {/if}
+
+    {/foreach}
+
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-primary btn-embossed disabled">{:__('OK')}</button>
+        </div>
+    </div>
+</form>

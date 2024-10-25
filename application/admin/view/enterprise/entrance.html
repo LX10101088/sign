@@ -1,0 +1,112 @@
+<style>
+
+	.image_box{position: relative;}
+	.img_input{width: 100%;height: 100%;position: absolute;top:0;left:0;z-index: 1;opacity: 0;}
+
+	/* 充值成功页面 */
+	.new_pay_success{width: 100%;}
+	.new_pay_success .success_top{width: 800px;margin: 100px calc(50% - 400px) 40px;}
+	.new_pay_success .success_top img{width: 70px;margin: 15px calc(50% - 35px);}
+	.new_pay_success .success_top h1{width: 100%;font-size: 24px;color: #333;line-height: 26px;text-align: center;font-weight: bold;}
+
+	.new_pay_success .success_con{width: 600px;margin: 0 calc(50% - 300px);background-color: #f9f9f9;padding: 15px 185px;box-sizing: border-box;}
+	.new_pay_success .success_con .con_one{width: 100%;display: flex;}
+	.new_pay_success .success_con .con_one p{width: 70px;font-size: 14px;color: #333;line-height: 50px;}
+	.new_pay_success .success_con .con_one h1{width: 160px;font-size: 14px;color: #333;line-height: 50px;font-weight: normal;letter-spacing: 0;}
+	.new_pay_success .success_con .con_one h2{width: 160px;font-size: 20px;color: #333;line-height: 50px;font-weight: normal;letter-spacing: 0;}
+
+	.new_pay_success .success_btn{width: 140px;line-height: 36px;background-color: #18bc9c;text-align: center;font-size: 14px;color: #fff;border-radius: 4px;margin: 40px calc(50% - 70px);}
+
+	.new_pay_success .success_form{
+		width: 800px;
+		border: 1px solid #ebebeb;
+		margin: 20px calc(50% - 400px);
+		box-sizing: border-box;
+	}
+	.new_pay_success .success_form .title0{
+		width: 100%;
+		text-align: center;
+		background-color: #f5f5f5;
+		border: 1px solid #ebebeb;
+		font-size: 18px;
+		color: #000;
+		line-height: 50px;
+		font-weight: bold;
+		box-sizing: border-box;
+	}
+	.new_pay_success .success_form .title1{
+		width: 160px;
+		text-align: center;
+	}
+	.new_pay_success .success_form .title2{
+		width: 80px;
+		text-align: center;
+	}
+
+	.new_pay_success .success_form .con1{
+		width: 240px;
+	}
+	.new_pay_success .success_form .con2{
+		width: 640px;
+	}
+
+	.new_pay_success .success_form .one{
+		width: 100%;
+	}
+	.new_pay_success .success_form .two{
+		width: 100%;
+		display: flex;
+	}
+
+	.new_pay_success .success_form .text_h30{
+		font-size: 14px;
+		line-height: 40px;
+		border: 1px solid #ebebeb;
+		padding: 0 10px;
+		box-sizing: border-box;
+	}
+	.new_pay_success .success_form .text_h60{
+		font-size: 14px;
+		line-height: 80px;
+		border: 1px solid #ebebeb;
+		padding: 0 10px;
+		box-sizing: border-box;
+	}
+	.new_pay_success .success_form .text_h90{
+		font-size: 14px;
+		line-height: 120px;
+		border: 1px solid #ebebeb;
+		padding: 0 10px;
+		box-sizing: border-box;
+	}
+
+
+</style>
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+	<div class="new_pay_success">
+
+		<div class="success_form" style="width: 600px;margin: 20px calc(50% - 300px);">
+			<div class="title0" style="width: 600px;">链接入口</div>
+			<div class="two" style="width: 600px;">
+				<div class="title1 text_h30">链接地址</div>
+				<div class="con1 text_h30" style="width: calc(100% - 162px);">{$url}</div>
+			</div>
+
+		</div>
+
+		<div class="success_form" style="width: 600px;margin: 20px calc(50% - 300px);">
+			<div class="title0" style="width: 600px;">二维码入口</div>
+
+			<div class="title1"><img style="width: 350px;height:350px;margin: 20px calc(50% + 50px);" src="{$qrcode}"></div>
+
+		</div>
+	</div>
+
+
+</form>
+<script type="text/javascript" src="/assets/js/jquery.js"></script>
+
+<script>
+
+</script>

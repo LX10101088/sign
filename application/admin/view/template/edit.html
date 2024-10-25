@@ -1,0 +1,71 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" class="form-control" name="row[name]" type="text" value="{$row.name|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('分类')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-classify_id"  data-source="temclassify/index" class="form-control selectpage" name="row[classify_id]" type="text" value="{$row.classify_id}">
+        </div>
+    </div>
+    {if $row.state eq 0}
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('File')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-file" class="form-control" size="50" name="row[file]" type="text" style="display: none" value="{$row.file}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="plupload-file" class="btn btn-danger plupload" data-input-id="c-file" data-mimetype="pdf,word,doc,docx" data-multiple="false" data-preview-id="p-file"><i class="fa fa-upload"></i> 上传</button></span>
+
+                    <!--                    <span><button type="button" id="fachoose-file" class="btn btn-primary fachoose" data-input-id="c-file" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>-->
+                </div>
+                <span class="msg-box n-right" for="c-file"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-file"></ul>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Imglist')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-imglist" class="form-control" size="50" name="row[imglist]" type="text" style="display: none" value="{$row.imglist}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="plupload-imglist" class="btn btn-danger plupload" data-input-id="c-imglist" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,pdf,word,doc,docx" data-multiple="false" data-preview-id="p-imglist"><i class="fa fa-upload"></i> 上传</button></span>
+
+                    <!--                    <span><button type="button" id="fachoose-imglist" class="btn btn-primary fachoose" data-input-id="c-imglist" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>-->
+                </div>
+                <span class="msg-box n-right" for="c-imglist"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-imglist"></ul>
+        </div>
+    </div>
+    {/if}
+    {if $userId eq ''}
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('TemplateNo')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-templateNo" class="form-control" name="row[templateNo]" type="text" value="{$row.templateNo|htmlentities}">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('State')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[state]', ['0'=>__('待创建'), '1'=>__('申请中'),'2'=>__('启用中'),'3'=>__('已停用')], $row['state'])}
+        </div>
+    </div>
+    {/if}
+
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8" >
+             <button type="submit" class="btn btn-primary btn-embossed  disabled "  >{:__('OK')}</button>
+
+        </div>
+    </div>
+</form>
