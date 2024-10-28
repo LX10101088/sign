@@ -556,11 +556,7 @@ class Contract extends Gathercontroller
         $res = $commoncontract->initiatecontract($contractId);
 
         if($res['code'] == 200){
-            //扣除账户合同份数
-            $acedit['contract'] = $account['contract'] -1;
-            $acedit['usecontract'] = $account['usecontract'] +1;
-            $acedit['updatetime'] = time();
-            Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($acedit);
+
             ajaxReturn(['code'=>200,'msg'=>'发起成功','contractId'=>$contractId,'url'=>$res['url']]);
         }else{
             ajaxReturn(['code'=>303,'msg'=>$res['msg']]);
@@ -818,10 +814,10 @@ class Contract extends Gathercontroller
         $res = $commoncontract->initiatecontractfile($contractId);
         if($res['code'] == 200){
             //扣除账户合同份数
-            $acedit['contract'] = $account['contract'] -1;
-            $acedit['usecontract'] = $account['usecontract'] +1;
-            $acedit['updatetime'] = time();
-            Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($acedit);
+//            $acedit['contract'] = $account['contract'] -1;
+//            $acedit['usecontract'] = $account['usecontract'] +1;
+//            $acedit['updatetime'] = time();
+//            Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($acedit);
             ajaxReturn(['code'=>200,'msg'=>'发起成功','contractId'=>$contractId,'url'=>$res['url']]);
         }else{
             ajaxReturn(['code'=>303,'msg'=>$res['msg']]);

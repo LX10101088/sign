@@ -127,7 +127,7 @@ class Common extends Gathercontroller
      */
     public function getprotocol(){
         $type = input('param.type');
-        $info = Db::name('information')->where('type','=',$type)->where('enterprise_id','=',$this->platformId)->order('id desc')->find();
+        $info = Db::name('information')->where('type','=',$type)->where('enterprise_id','=',0)->order('id desc')->find();
         $data = array();
         if($info){
             $data['name'] = $info['name'];

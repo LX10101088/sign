@@ -992,6 +992,14 @@ class Commoncontract extends Controller
         $contract = Db::name('contract')->where('id','=',$ids)->find();
         $fadada = new Fadada();
         $fadada->startfill($contract['taskId']);
+
+        $account = Db::name('account')->where('type','=',$contract['initiateType'])->where('type_id','=',$contract['initiate_id'])->find();
+
+        //扣除账户合同份数
+        $acedit['contract'] = $account['contract'] -1;
+        $acedit['usecontract'] = $account['usecontract'] +1;
+        $acedit['updatetime'] = time();
+        Db::name('account')->where('type','=',$contract['initiateType'])->where('type_id','=',$contract['initiate_id'])->update($acedit);
         //发送短信验证码
         $sms = new Csms();
         $sms->initiatecontract($ids);
