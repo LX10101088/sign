@@ -16,10 +16,11 @@
 
 
         .login-screen {
-            max-width: 430px;
+            max-width: 500px;
             padding: 0;
-            margin: 100px auto 0 auto;
-
+            margin: 120px auto 0 auto;
+			border-radius: 16px;
+			overflow: hidden;
         }
 
         .login-screen .well {
@@ -72,7 +73,7 @@
         }
 
         .login-head {
-            background: #1f90cb;
+            background: #4e73df;
             height: 80px;
         }
 
@@ -100,10 +101,16 @@
             position: fixed;
             z-index: -1;
             overflow: hidden;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
         }
         .bg_box img{
-            width: 1920px;
-            margin-left: calc(50% - 960px);
+            width: 100%;
+			height: 100%;
+			/* transform: translate(0, -50%); */
+            /* margin-left: calc(50% - 960px); */
         }
 
         .bot_box{
@@ -116,7 +123,9 @@
             text-align: center;
             line-height: 20px;
         }
-
+		.checkbox{
+			margin: 20px 0;
+		}
     </style>
     <!--@formatter:off-->
     {if $background}
@@ -131,7 +140,7 @@
 <body>
 
 <div class="bg_box">
-    <img src="/assets/img/bg01.jpg" alt="">
+    <img src="/assets/img/login-body2.jpg" alt="">
 </div>
 
 <div class="bot_box"></div>
@@ -166,20 +175,21 @@
                         <div class="input-group">
                             <div class="input-group-addon"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span></div>
                             <input type="text" name="captcha" class="form-control" placeholder="{:__('Captcha')}" data-rule="{:__('Captcha')}:required;length(4)" autocomplete="off"/>
-                            <span class="input-group-addon" style="padding:0;border:none;cursor:pointer;">
-                                        <img src="{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha" width="100" height="30" onclick="this.src = '{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha&r=' + Math.random();"/>
+                            <span class="input-group-addon" style="padding:0px;border: 0;">
+								
+                                       <i style="border:1px solid #d2d6de;display: block;cursor:pointer;margin-left: 10px;"><img src="{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha" width="90" height="30" onclick="this.src = '{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha&r=' + Math.random();"/></i>
 
                             </span>
                         </div>
                         {/if}
-                        <!--                        <div class="form-group checkbox">-->
-                        <!--                            <label class="inline" for="login1">-->
-                        <!--                                <input type="checkbox" name="login1" id="" checked/>-->
-                        <!--                                我已阅读并同意<a href="/index.php/index/index/useragreement" target="_blank">《用户服务协议》</a>-->
-                        <!--                            </label>-->
-                        <!--                        </div>-->
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success btn-lg btn-block" style="background:#1f90cb;">{:__('Sign in')}</button>
+                                               <div class="form-group checkbox">
+                                                   <label class="inline" for="login1">
+                                                       <input type="checkbox" name="login1" id="" checked/>
+                                                       我已阅读并同意<a href="/index.php/index/agreement/user" target="_blank">《用户服务协议》</a>及<a href="/index.php/index/agreement/privacy" target="_blank">《隐私政策》</a>
+                                                   </label>
+                                               </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <button type="submit" class="btn btn-success btn-lg btn-block" style="background:#4e73df;">{:__('Sign in')}</button>
                         </div>
 
 

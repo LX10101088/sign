@@ -583,7 +583,31 @@ class Commoncontract extends Controller
         }
 //        $lovesigning = new Lovesigning();
         $fadada = new Fadada();
-        $res = $fadada->createContract($contract['contractNo'],$contract['contractName'],$contract['expireTime'],$template['templateNo'],$openId,$idType,$contract['signingTime']);
+        $signing = Db::name('contract_signing')->where('contract_id','=',$contract['id'])->select();
+
+        foreach($signing as $k=>$v){
+            $actors[$k]['actor']['actorId'] = $v['TCN'];
+            if($v['type'] == 'enterprise'){
+                $actors[$k]['actor']['actorType'] = 'corp';
+                $enter = Db::name('enterprise')->where('id','=',$v['type_id'])->find();
+                $actors[$k]['actor']['actorName'] = $enter['name'];
+                if($enter['account']){
+                    $actors[$k]['actor']['actorOpenId'] = $enter['account'];
+                }
+            }else{
+                $actors[$k]['actor']['actorType'] = 'person';
+                $custom = Db::name('custom')->where('id','=',$v['type_id'])->find();
+                $actors[$k]['actor']['actorName'] = $custom['name'];
+
+                if($custom['account']){
+                    $actors[$k]['actor']['actorOpenId'] = $custom['account'];
+                }
+            }
+
+        }
+
+
+        $res = $fadada->createContract($contract['contractNo'],$contract['contractName'],$contract['expireTime'],$template['templateNo'],$openId,$idType,$contract['signingTime'],$actors);
         $res['url'] = '';
 
         if($res['code'] == 200){
@@ -1026,5 +1050,18 @@ class Commoncontract extends Controller
             $fadada->delcontract($contract['taskId']);
         }
         return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月31月 15:42:19
+     * ps:获取合同任务详情
+     */
+    public function getcontracttask($ids){
+        $contract = Db::name('contract')->where('id','=',$ids)->field('taskId')->find();
+        $fadada = new Fadada();
+        $res = $fadada->gettaskdetaill($contract['taskId']);
+        return $res;
     }
 }

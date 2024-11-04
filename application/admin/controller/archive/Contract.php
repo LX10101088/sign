@@ -60,25 +60,20 @@ class Contract extends Backend
                 $arlist .=$v['contract_id'].',';
             }
             $list = $this->model
-                ->with(['signing'])
                 ->where($where)
                 ->where('initiateType','=','enterprise')
                 ->where('initiate_id','=',$enterId)
-                ->whereNotIn('contract.id',$arlist)
+                ->whereNotIn('id',$arlist)
 
                 ->order($sort, $order)
                 ->paginate($limit);
         }elseif($this->auth->usertype == 'service'){
             $list = $this->model
-                ->with(['signing'])
-
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);
         }else{
             $list = $this->model
-                ->with(['signing'])
-
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);

@@ -11,5 +11,6 @@ return [
     'Updatetime'  => '修改时间',
     'Deletetime'  => '删除时间',
     'Must'  => '必填',
+    'Content' => '默认内容'
 
 ];

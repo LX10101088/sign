@@ -7,6 +7,8 @@ use app\common\controller\Common;
 use app\common\controller\Commonattestation;
 use app\common\controller\Commonuser;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\exception\PDOException;
 use think\exception\ValidateException;
@@ -197,8 +199,10 @@ class Custom extends Backend
         if(!$row['name'] && !$row['phone'] && !$row['identityNo']){
             $this->error('请填全信息后进行认证');
         }
+        $redirectUrl ='https://'.$_SERVER['HTTP_HOST'].'/h5/#/pages/login/login';
+
         $commonattestation = new Commonattestation();
-        $res = $commonattestation->custom($ids);
+        $res = $commonattestation->custom($ids,$redirectUrl);
         if($res['code'] == 300){
             $this->error($res['msg']);
         }else if($res['code']==201){
@@ -207,6 +211,55 @@ class Custom extends Backend
         $common = new Common();
         $url = $common->addqrcode($res['identifyUrl']);
         $this->assign('url',$url);
+        $this->assign('row',$row);
+
         return $this->view->fetch();
     }
+
+    /**
+     * 删除
+     *
+     * @param $ids
+     * @return void
+     * @throws DbException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     */
+    public function del($ids = null)
+    {
+        if (false === $this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ?: $this->request->post("ids");
+        if (empty($ids)) {
+            $this->error(__('Parameter %s can not be empty', 'ids'));
+        }
+        $pk = $this->model->getPk();
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            $this->model->where($this->dataLimitField, 'in', $adminIds);
+        }
+        $list = $this->model->where($pk, 'in', $ids)->select();
+
+        $count = 0;
+        Db::startTrans();
+        try {
+            foreach ($list as $item) {
+                $count += $item->delete();
+                //删除admin内容
+                Db::name('admin')->where('user_id','=',$item['id'])->delete();
+                //删除企业个人关系
+                Db::name('enterprise_custom')->where('custom_id','=',$item['id'])->delete();
+            }
+            Db::commit();
+        } catch (PDOException|Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage());
+        }
+        if ($count) {
+            $this->success();
+        }
+        $this->error(__('No rows were deleted'));
+    }
+
 }

@@ -204,13 +204,17 @@ class Enterprise extends Backend
         $row = $this->model->get($ids);
 
         $commonattestation = new Commonattestation();
-        $res = $commonattestation->enterprise($ids);
+        $redirectUrl ='https://'.$_SERVER['HTTP_HOST'].'/h5/#/pages/login/login';
+
+        $res = $commonattestation->enterprise($ids,$redirectUrl);
         if($res['code'] == 300){
             $this->error($res['msg']);
         }
         $common = new Common();
         $url = $common->addqrcode($res['identifyUrl']);
         $this->assign('url',$url);
+        $this->assign('row',$row);
+
         return $this->view->fetch();
     }
 
@@ -254,10 +258,14 @@ class Enterprise extends Backend
      */
     public function entrance($ids = null){
         $common = new Common();
-        $url = 'https://sign.obsend.com/h5/#/pages/login/login?platformId='.$ids;
+        $hturl = 'https://'.$_SERVER['HTTP_HOST'].'/fradmin.php/index/login?platformId='.$ids;
+
+        $url = 'https://'.$_SERVER['HTTP_HOST'].'/h5/#/pages/login/login?platformId='.$ids;
         $qrcode = $common->addqrcode($url);
         $this->assign('qrcode',$qrcode);
         $this->assign('url',$url);
+        $this->assign('hturl',$hturl);
+
         return $this->view->fetch();
     }
 

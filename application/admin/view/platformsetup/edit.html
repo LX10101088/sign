@@ -1,20 +1,20 @@
 <form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
 
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('PlatformName')}:</label>
-        <div class="col-xs-12 col-sm-8">
+    <div class="form-group" style="margin-top: 20px;">
+        <label class="control-label col-xs-12 col-sm-3">{:__('PlatformName')}:</label>
+        <div class="col-xs-12 col-sm-6">
             <input id="c-platformName" class="form-control" name="row[platformName]" type="text" value="{$row.platformName|htmlentities}">
         </div>
     </div>
 
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Logo')}:</label>
-        <div class="col-xs-12 col-sm-8">
+        <label class="control-label col-xs-12 col-sm-3">{:__('Logo')}:</label>
+        <div class="col-xs-12 col-sm-6">
             <div class="input-group">
                 <input id="c-logo" class="form-control" size="50" name="row[logo]" type="text" style="display: none" value="{$row.logo}">
                 <div class="input-group-addon no-border no-padding">
-                    <span><button type="button" id="plupload-logo" class="btn btn-danger plupload" data-input-id="c-logo" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,image/webp" data-multiple="false" data-preview-id="p-logo"><i class="fa fa-upload"></i> 上传</button></span>
+                    <span><button type="button" id="plupload-logo" class="btn btn-success plupload" data-input-id="c-logo" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,image/webp" data-multiple="false" data-preview-id="p-logo"><i class="fa fa-upload"></i> 上传</button></span>
                 </div>
                 <span class="msg-box n-right" for="c-logo"></span>
             </div>
@@ -24,12 +24,12 @@
 
 
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Kefu')}:</label>
-        <div class="col-xs-12 col-sm-8">
+        <label class="control-label col-xs-12 col-sm-3">{:__('Kefu')}:</label>
+        <div class="col-xs-12 col-sm-6">
             <div class="input-group">
                 <input id="c-kefu" class="form-control" size="50" name="row[kefu]" type="text" style="display: none" value="{$row.kefu}">
                 <div class="input-group-addon no-border no-padding">
-                    <span><button type="button" id="plupload-kefu" class="btn btn-danger plupload" data-input-id="c-kefu" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,image/webp" data-multiple="false" data-preview-id="p-kefu"><i class="fa fa-upload"></i> 上传</button></span>
+                    <span><button type="button" id="plupload-kefu" class="btn btn-success plupload" data-input-id="c-kefu" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,image/webp" data-multiple="false" data-preview-id="p-kefu"><i class="fa fa-upload"></i> 上传</button></span>
                 </div>
                 <span class="msg-box n-right" for="c-kefu"></span>
             </div>
@@ -37,14 +37,14 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('合同编号规则')}:</label>
+        <label class="control-label col-xs-12 col-sm-3">{:__('合同编号规则')}:</label>
         <div class="col-xs-12 col-sm-2">
             <span>各字段之间已"-"链接</span>
             {:build_radios('row[contractNo4]', ['0'=>__('No'), '1'=>__('Yes')], $row['contractNo4'])}
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2"></label>
+        <label class="control-label col-xs-12 col-sm-3"></label>
         <div class="col-xs-12 col-sm-2">
             <span>自定义描述（英文）</span>
             <input id="c-contractNo1" class="form-control" name="row[contractNo1]" type="text" value="{$row.contractNo1|htmlentities}">
@@ -61,20 +61,20 @@
 
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('短信签名')}:</label>
-        <div class="col-xs-12 col-sm-8">
+        <label class="control-label col-xs-12 col-sm-3">{:__('短信签名')}:</label>
+        <div class="col-xs-12 col-sm-6">
             <input id="c-smsign" class="form-control" name="row[smsign]" type="text" value="{$row.smsign|htmlentities}">
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('接收通知手机号')}:</label>
-        <div class="col-xs-12 col-sm-8">
+        <label class="control-label col-xs-12 col-sm-3">{:__('接收通知手机号')}:</label>
+        <div class="col-xs-12 col-sm-6">
             <input id="c-informphone" class="form-control" name="row[informphone]" type="text" value="{$row.informphone|htmlentities}">
         </div>
     </div>
     <div class="form-group layer-footer">
-        <label class="control-label col-xs-12 col-sm-2"></label>
-        <div class="col-xs-12 col-sm-8">
+        <label class="control-label col-xs-12 col-sm-3"></label>
+        <div class="col-xs-12 col-sm-6">
             <button type="submit" class="btn btn-primary btn-embossed disabled">{:__('OK')}</button>
         </div>
     </div>

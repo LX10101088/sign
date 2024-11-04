@@ -137,11 +137,22 @@ class Csms extends Controller
                 $platformId = $contract['initiate_id'];
             }
         }
-        $content = $name."##".$contract['contractName']."##".$platformId;
         foreach($signing as $k=>$v){
             $custom = Db::name('custom')->where('id','=',$v['custom_id'])->field('phone')->find();
             if($custom['phone']){
-
+                $khname = '用户';
+                if($v['type'] == 'custom'){
+                    $kh = Db::name('custom')->where('id','=',$v['type_id'])->field('name')->find();
+                    if($kh['name']){
+                        $khname = $kh['name'];
+                    }
+                }else{
+                    $kh = Db::name('enterprise')->where('id','=',$v['type_id'])->field('name')->find();
+                    if($kh['name']){
+                        $khname = $kh['name'];
+                    }
+                }
+                $content = $khname."##".$name."##".$contract['contractName']."##".$platformId."##".$contractId;
                 $this->sendSMS($custom['phone'],$content,$templateId,$sign);
             }
         }
@@ -195,6 +206,7 @@ class Csms extends Controller
      */
     public function newenter($enterId){
         $templateId = '304712';
+
         $plat = Db::name('platform_setup')->where('enterprise_id','=',0)->field('informphone,smsign')->find();
 
         $enter = Db::name('enterprise')->where('id','=',$enterId)->find();
@@ -202,6 +214,26 @@ class Csms extends Controller
         $this->sendSMS($plat['informphone'],$enter['name'],$templateId,$this->sign);
 
     }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月30月 17:30:29
+     * ps:短信验证码
+     */
+    public function login($platfromId,$phone,$code){
+        $templateId = 245518;
+        $sign = $this->sign;
+        if($platfromId){
+            $plat = Db::name('platform_setup')->where('enterprise_id','=',$platfromId)->field('informphone,smsign')->find();
+            if($plat['smsign']){
+                $sign = $plat['smsign'];
+            }
+        }
+        $res = $this->sendSMS($phone,"$code",$templateId,$sign);
+        return $res;
+    }
+
     /**
      * Created by PhpStorm.
      * User: lang

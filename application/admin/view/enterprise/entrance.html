@@ -85,9 +85,15 @@
 <form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
 	<div class="new_pay_success">
-
 		<div class="success_form" style="width: 600px;margin: 20px calc(50% - 300px);">
-			<div class="title0" style="width: 600px;">链接入口</div>
+			<div class="title0" style="width: 600px;">管理端链接入口</div>
+			<div class="two" style="width: 600px;">
+				<div class="title1 text_h30">链接地址</div>
+				<div class="con1 text_h30" style="width: calc(100% - 162px);">{$hturl}</div>
+			</div>
+		</div>
+		<div class="success_form" style="width: 600px;margin: 20px calc(50% - 300px);">
+			<div class="title0" style="width: 600px;">移动端链接入口</div>
 			<div class="two" style="width: 600px;">
 				<div class="title1 text_h30">链接地址</div>
 				<div class="con1 text_h30" style="width: calc(100% - 162px);">{$url}</div>
@@ -96,7 +102,7 @@
 		</div>
 
 		<div class="success_form" style="width: 600px;margin: 20px calc(50% - 300px);">
-			<div class="title0" style="width: 600px;">二维码入口</div>
+			<div class="title0" style="width: 600px;">移动端二维码入口</div>
 
 			<div class="title1"><img style="width: 350px;height:350px;margin: 20px calc(50% + 50px);" src="{$qrcode}"></div>
 

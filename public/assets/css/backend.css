@@ -1327,6 +1327,20 @@ table.table-nowrap thead > tr > th {
 .input-group > .msg-box.n-right {
   position: absolute;
 }
+
+/* 202410xg */
+
+.layui-layer-fast .layui-layer-footer{
+	text-align: center !important;
+}
+
+.layui-layer-fast .layui-layer-btn .btn{
+	margin: 0 auto;
+	width: 120px;
+	background: #4e73df;
+}
+
+
 @media (min-width: 564px) {
   body.is-dialog .daterangepicker {
     min-width: 130px;

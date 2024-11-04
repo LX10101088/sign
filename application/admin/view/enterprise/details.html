@@ -5,7 +5,7 @@
     /* 新-订单详情页面 */
     .new_order_show{
         width: calc(100% - 15px);
-        min-width: 1200px;
+        /* min-width: 1200px; */
         box-sizing: border-box;
         -webkit-box-sizing: border-box;
         background-color: #fff;
@@ -20,7 +20,7 @@
     .new_order_show .title_box .strp{
         width: 4px;
         height: 16px;
-        background-color: #18bc9c;
+        background-color: #4e73df;
         margin: 10px 7px 10px 0;
     }
     .new_order_show .title_box .title{
@@ -37,7 +37,7 @@
     /* 新-运单发布、编辑页面 */
     .new_waybill_box{
         width: 100%;
-        min-width: 1200px;
+        /* min-width: 1200px; */
         padding: 30px 30px 40px 30px;
         box-sizing: border-box;
         -webkit-box-sizing: border-box;
@@ -53,18 +53,28 @@
     .new_waybill_box .waybill_row .waybill_col{
         /* border-right: 1px solid #dcdfe6; */
         display: flex;
+		flex-direction: column;
+		/* align-items: center;
+		justify-content: center; */
     }
+	
+	.waybill_col-item{
+		text-align: center;
+		width: 100%;
+	}
+	
+	
     .new_waybill_box .waybill_row .waybill_col:last-child{
         border-right: none;
     }
     .new_waybill_box .waybill_row .waybill_col .title{
-        width: 80px;
-        min-width: 80px;
+        width: 110px;
+       /* min-width: 110px; */
         height: 32px;
-        font-size: 13px;
+        font-size: 14px;
         line-height: 32px;
         color: #333;
-        text-align: right;
+       /* text-align: right; */
     }
     .new_waybill_box .waybill_row .waybill_col .title span{
         color: #e74c3c;
@@ -72,21 +82,119 @@
         font-size: 16px;
     }
     .new_waybill_box .waybill_row .waybill_col .input{
-        width: calc(100% - 80px);
-        height: 32px;
-        font-size: 13px;
-        line-height: 30px;
+       /* width: calc(100% - 110px); */
+	    width: 100%;
+        height: 40px;
+        font-size: 18px;
+        line-height: 40px;
         color: #333;
         border: none;
-        padding: 0 5px;
+       /* padding: 0 5px; */
         margin: 0;
-        border: 1px solid #dcdfe6;
+       /* border: 1px solid #dcdfe6; */
         box-sizing: border-box;
     }
-    .new_waybill_box{margin-bottom: 10px;min-width: 950px;width: 950px;padding: 10px 20px;}
-    .new_order_show{min-width: 950px;width: 950px;margin-left: calc(50% - 475px);}
-    .title{width: 110px!important;}
-    .input{width: calc(100% - 110px)!important;}
+	
+	.new_waybill_box .waybill_row .waybill_col .waybill_col-item{
+		width: 80%;
+		margin: 0 auto;
+		padding: 5%;
+		border-radius: 10px;
+		overflow: hidden;
+	}
+	
+	.new_waybill_box .waybill_row .waybill_col .waybill_col1{
+		background: url("/assets/img/i-quick-bg1.png") no-repeat;
+		background-size: 100% 100%;
+	}
+	.new_waybill_box .waybill_row .waybill_col .waybill_col2{
+		background: url("/assets/img/i-quick-bg2.png") no-repeat;
+		background-size: 100% 100%;
+	}
+	.new_waybill_box .waybill_row .waybill_col .waybill_col3{
+		background: url("/assets/img/i-quick-bg3.png") no-repeat;
+		background-size: 100% 100%;
+	}
+	.new_waybill_box .waybill_row .waybill_col .waybill_col4{
+		background: url("/assets/img/i-quick-bg4.png") no-repeat;
+		background-size: 100% 100%;
+	}
+	.new_waybill_box .waybill_row .waybill_col .waybill_col5{
+		background: url("/assets/img/i-quick-bg5.png") no-repeat;
+		background-size: 100% 100%;
+	}
+	.new_waybill_box .waybill_row .waybill_col .waybill_col6{
+		background: url("/assets/img/i-quick-bg6.png") no-repeat;
+		background-size: 100% 100%;
+	}
+	.new_waybill_box .waybill_row .waybill_col .waybill_col-item .title{
+		width: 100%;
+		text-align: center;
+		color: #fff;
+		margin-top: 5px;
+		font-size: 16px;
+	}
+	
+	.new_waybill_box .waybill_row .waybill_col .waybill_col-item .input{
+		width:100%;
+		border: 0;
+		color: #fff;
+		font-weight: bold;
+		font-size: 30px;
+	}
+	
+    .new_waybill_box{
+		margin-bottom: 10px;
+		/* min-width: 950px; */
+		width: 100%;
+		padding: 10px 20px;
+	}
+    .new_order_show{
+		/* min-width: 950px; */
+		width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+		/* margin-left: calc(50% - 475px); */
+	}
+    /* .title{width: 110px!important;} */
+   /* .input{width: calc(100% - 110px)!important;} */
+  .i-m2{
+  	   width: 100%;
+  	   margin-top: 15px;
+  }
+   .i-m2 .row{
+   	   margin-left: -7.5px;
+	   margin-right: -7.5px;
+   }
+   
+   .i-m2 .row [class^="col-"]{
+	   padding-left: 7.5px;
+	   padding-right: 7.5px;
+   }
+   
+   .i-m2 .new_order_show{
+	   width: 100%;
+   }
+   
+   .i-m2 .waybill_row{
+	   display: block;
+	   overflow: hidden;
+	   height: 300px;
+   }
+   
+   .i-m2 .waybill_col{
+	   border-bottom: 1px dashed #ececec;
+	   margin: 0 15px 30px 15px;
+	   padding-left: 0;
+	   padding-right: 0;
+   }
+   
+   .i-m2 .waybill_row .input{
+	   font-size: 18px !important;
+	   font-weight: bold;
+	   color: #4e73df !important;
+	   margin: 0 0 5px 0 !important;
+   }
 </style>
 
 
@@ -101,7 +209,10 @@
 
             <a href="enterprise/edit?ids={$enter.id}" data-area='["100%","100%"]' title="修改信息" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">修改信息</a>
             {/if}
-            <a href="platformsetup/edit?ids={$enter.id}" data-area='["100%","100%"]' title="平台设置" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">平台设置</a>
+
+			<a href="enterprise/entrance?ids={$enter.id}" data-area='["100%","100%"]' title="平台入口" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">平台入口</a>
+
+			<a href="platformsetup/edit?ids={$enter.id}" data-area='["100%","100%"]' title="平台设置" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">平台设置</a>
 
             <a href="goods/servicepackage?ids={$enter.id}" data-area='["100%","100%"]' title="订购" class="btn btn-success btn-dialog btn-change" style="width: 80px;height: 28px;line-height: 28px;font-size: 13px;padding: 0;margin-right: 10px;margin-top: 4px;">订购</a>
 
@@ -110,86 +221,103 @@
             <div class="section">
                 <div class="waybill_row">
                     <div class="waybill_col col-sm-4">
-                        <div class="title">购买合同份数：</div>
-                        <div class="input">{$account.contractnum}</div>
+						<div class="waybill_col1 waybill_col-item">
+							<div class="input">{$account.contractnum}</div>
+							<div class="title">购买合同份数</div>
+						</div>
                     </div>
                     <div class="waybill_col col-sm-4">
-                        <div class="title">剩余合同份数：</div>
-                        <div class="input">{$account.contract}</div>
+						<div class="waybill_col2 waybill_col-item">
+							<div class="input">{$account.contract}</div>
+							<div class="title">剩余合同份数</div>
+						</div>
                     </div>
                     <div class="waybill_col col-sm-4">
-                        <div class="title">使用合同份数：</div>
-                        <div class="input">{$account.usecontract}</div>
+						<div class="waybill_col3 waybill_col-item">
+							<div class="input">{$account.usecontract}</div>
+							<div class="title">使用合同份数</div>
+						</div>
                     </div>
                 </div>
             </div>
             <div class="section">
                 <div class="waybill_row">
                     <div class="waybill_col col-sm-4">
-                        <div class="title">购买模板数量：</div>
-                        <div class="input">{$account.templatenum}</div>
+						<div class="waybill_col4 waybill_col-item">
+							<div class="input">{$account.templatenum}</div>
+							<div class="title">购买模板数量</div>
+						</div>
                     </div>
                     <div class="waybill_col col-sm-4">
-                        <div class="title">剩余模版数量：</div>
-                        <div class="input">{$account.template}</div>
+						<div class="waybill_col5 waybill_col-item">
+							<div class="input">{$account.template}</div>
+							<div class="title">剩余模版数量</div>
+						</div>
                     </div>
                     <div class="waybill_col col-sm-4">
-                        <div class="title">使用模版数量：</div>
-                        <div class="input">{$account.usetemplate}</div>
+						<div class="waybill_col6 waybill_col-item">
+							<div class="input">{$account.usetemplate}</div>
+							<div class="title">使用模版数量</div>
+						</div>
                     </div>
                 </div>
             </div>
         </div>
 
     </div>
-
-    <div class="new_order_show" id="khlxqy">
-        <div class="title_box">
-            <div class="strp"></div>
-            <div class="title">企业信息</div>
-        </div>    
-        <div class="new_waybill_box">
-            <div class="section">
-                <div class="waybill_row">
-                    <div class="waybill_col col-sm-6">
-                        <div class="title">企业名称：</div>
-                        <div class="input">{$enter.name}</div>
-                    </div>
-                    <div class="waybill_col col-sm-6">
-                        <div class="title">营业执照号：</div>
-                        <div class="input">{$enter.proveNo}</div>
-                    </div>
-                </div>
-            </div>
-        </div>            
-    </div>
-    
-    <div class="new_order_show">
-        <div class="title_box">
-            <div class="strp"></div>
-            <div class="title">法人信息</div>
-        </div>    
-        <div class="new_waybill_box">
-            <div class="section">
-                <div class="waybill_row">
-                    <div class="waybill_col col-sm-4">
-                        <div class="title">姓名：</div>
-                        <div class="input">{$enter.legalName}</div>
-                    </div>
-                    <div class="waybill_col col-sm-4">
-                        <div class="title">手机号：</div>
-                        <div class="input">{$enter.legalPhone}</div>
-                    </div>
-                    <div class="waybill_col col-sm-4">
-                        <div class="title">身份证号：</div>
-                        <div class="input">{$enter.legalNo}</div>
-                    </div>
-                </div>
-
-            </div>
-        </div>            
-    </div>
-
+	<div class="i-m2">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="new_order_show" id="khlxqy">
+				    <div class="title_box">
+				        <div class="strp"></div>
+				        <div class="title">企业信息</div>
+				    </div>    
+				    <div class="new_waybill_box">
+				        <div class="section">
+				            <div class="waybill_row">
+				                <div class="waybill_col col-sm-12">
+				                    <div class="title">企业名称：</div>
+				                    <div class="input">{$enter.name}</div>
+				                </div>
+				                <div class="waybill_col col-sm-12">
+				                    <div class="title">营业执照号：</div>
+				                    <div class="input">{$enter.proveNo}</div>
+				                </div>
+				            </div>
+				        </div>
+				    </div>            
+				</div><!-- khlxqy end -->
+			</div>
+			<div class="col-sm-6">
+				<div class="new_order_show">
+				    <div class="title_box">
+				        <div class="strp"></div>
+				        <div class="title">法人信息</div>
+				    </div>    
+				    <div class="new_waybill_box">
+				        <div class="section">
+				            <div class="waybill_row">
+				                <div class="waybill_col col-sm-12">
+				                    <div class="title">姓名：</div>
+				                    <div class="input">{$enter.legalName}</div>
+				                </div>
+				                <div class="waybill_col col-sm-12">
+				                    <div class="title">手机号：</div>
+				                    <div class="input">{$enter.legalPhone}</div>
+				                </div>
+				                <div class="waybill_col col-sm-12">
+				                    <div class="title">身份证号：</div>
+				                    <div class="input">{$enter.legalNo}</div>
+				                </div>
+				            </div>
+				
+				        </div>
+				    </div>            
+				</div>
+			</div>
+		</div>
+	</div><!-- i-m2 end -->
 
 </form>
 <script type="text/javascript" src="/assets/js/jquery.js"></script>

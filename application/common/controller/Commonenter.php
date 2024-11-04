@@ -59,13 +59,16 @@ class Commonenter extends Controller
                 $customId = $custom['id'];
 
             }else{
-                $cudata['name'] = $data['legalName'];
-                $cudata['phone'] = $data['legalPhone'];
-                $cudata['identityNo'] = $data['legalNo'];
+                if(isset($data['legalName'])){
+                    $cudata['name'] = $data['legalName'];
+                    $cudata['phone'] = $data['legalPhone'];
+                    $cudata['identityNo'] = $data['legalNo'];
 
-                $cudata['createtime'] = time();
-                $commonuser = new Commonuser();
-                $customId = $commonuser->operatecustom($cudata);
+                    $cudata['createtime'] = time();
+                    $commonuser = new Commonuser();
+                    $customId = $commonuser->operatecustom($cudata);
+                }
+
             }
             //创建企业用户与个人用户关系
             $ecdata['custom_id'] = $customId;

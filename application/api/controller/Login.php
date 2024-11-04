@@ -90,49 +90,7 @@ class Login extends Gathercontroller
         return $data;
     }
 
-    /**
-     * Created by PhpStorm.
-     * User: lang
-     * time:2021年4月25日 10:22:01
-     * ps:发送短信验证码
-     * url:{{URL}}/index.php/api/login/SendSMS
-     */
-    public function SendSMS()
-    {
-        $phone = input("phone");
-        $event = 'register';
-        $openid = input('param.openid');
-//        if (!$phone || !\think\Validate::regex($phone, "^1\d{10}$")) {
-//            ajaxReturn(['code'=>300,'msg'=>'手机号不正确']);
-//        }
-        if (!$openid) {
-            ajaxReturn(['code' => 300, 'msg' => '缺少参数']);
-        }
 
-        $last = Smslib::get($phone, $event);
-
-        if ($last && time() - $last['createtime'] < 60) {
-            ajaxReturn(['code' => 300, 'msg' => '发送频繁']);
-        }
-        $sms_object = new Csms();
-        $smsModel = new \app\common\model\Sms();
-        $code = mt_rand(1000, 9999);
-        $smsData['event'] = $event;
-        $smsData['phone'] = $phone;
-        $smsData['code'] = $code;
-        $smsData['createtime'] = time();
-        // $smsData['code']="0000";
-        $smsModel->insertGetId($smsData);
-        // ajaxReturn(['code'=>200,'msg'=>'短信发送成功']);exit;
-        $templateId = 245518;
-        $res = $sms_object->sendSMS($phone, "$code", $templateId);
-        //$res = true;
-        if ($res == false) {
-            ajaxReturn(['code' => 300, 'msg' => '发送失败']);
-        }
-        $smsModel->insertGetId($smsData);
-        ajaxReturn(['code' => 200, 'msg' => '短信发送成功']);
-    }
 
     /**
      * Created by PhpStorm.
@@ -163,10 +121,9 @@ class Login extends Gathercontroller
 
         //$smsData['code']="0000";
         $smsModel->insertGetId($smsData);
-        ajaxReturn(['code' => 200, 'msg' => '短信发送成功']);
+        $res = $sms_object->login($this->platformId,$phone,$code);
 
-        $templateId = 245518;
-        $res = $sms_object->sendSMS($phone, "$code", $templateId);
+
         if ($res == false) {
             ajaxReturn(['code' => 300, 'msg' => '发送失败']);
         }

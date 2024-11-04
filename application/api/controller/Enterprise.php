@@ -38,6 +38,7 @@ class Enterprise extends Controller
         $city = input('param.city');
         $area = input('param.area');
         $address = input('param.address');
+        $license = input('param.license');
         if(!$customId){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
@@ -50,6 +51,8 @@ class Enterprise extends Controller
         $data['legalName'] = $legalName;
         $data['legalNo'] = $legalNo;
         $data['legalPhone'] = $legalPhone;
+        $data['license'] = $license;
+
         $commonenter = new Commonenter();
         if($enterId){
             $enterproveNo = Db::name('enterprise')->where('id','<>',$enterId)->where('proveNo','=',$proveNo)->find();
@@ -77,8 +80,6 @@ class Enterprise extends Controller
                 $encudata['createtime'] = time();
                 Db::name('enterprise_custom')->insert($encudata);
             }
-
-
         }
         ajaxReturn(['code'=>200,'msg'=>'操作成功','enterId'=>$enterId]);
     }
@@ -98,7 +99,6 @@ class Enterprise extends Controller
         }
         $enter = Db::name('enterprise')->where('id','=',$enterId)->find();
         $account = Db::name('account')->where('type_id','=',$enterId)->where('type','=','enterprise')->find();
-
         $data['enterId'] = $enterId;
         $data['name'] = trim($enter['name']);
         $data['proveNo'] = trim($enter['proveNo']);
@@ -111,10 +111,8 @@ class Enterprise extends Controller
         $data['attestationType'] = trim($enter['attestationType']);
         if($enter['finishedTime']){
             $data['finishedTime'] = date('Y-m-d H:i:s',$enter['finishedTime']);
-
         }else{
             $data['finishedTime'] = '';
-
         }
         $data['account'] = trim($enter['account']);
         $data['createtime'] =  date('Y-m-d H:i:s',$enter['createtime']);
@@ -123,6 +121,8 @@ class Enterprise extends Controller
         $data['legalPhone'] = trim($enter['legalPhone']);
         $data['template'] = trim($account['template']);
         $data['contract'] = trim($account['contract']);
+        $data['license'] = trim($enter['license']);
+
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
     }
 

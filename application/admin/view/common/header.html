@@ -1,9 +1,9 @@
 <!-- Logo -->
 <a href="javascript:;" class="logo">
-    <!-- 迷你模式下Logo的大小为50X50 -->
-    <span class="logo-mini">{$site.name|mb_substr=0,4,'utf-8'|mb_strtoupper='utf-8'|htmlentities}</span>
-    <!-- 普通模式下Logo -->
-    <span class="logo-lg">{$site.name|htmlentities}</span>
+<!--    &lt;!&ndash; 迷你模式下Logo的大小为50X50 &ndash;&gt;-->
+    <span class="logo-mini">{$platform.platformName}</span>
+<!--    &lt;!&ndash; 普通模式下Logo &ndash;&gt;-->
+    <span class="logo-lg">{$platform.platformName}</span>
 </a>
 
 <!-- 顶部通栏样式 -->
@@ -121,9 +121,9 @@
                     </ul>
                 </li>
                 <!-- 控制栏切换按钮 -->
-<!--                <li class="hidden-xs">-->
-<!--                    <a href="javascript:;" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>-->
-<!--                </li>-->
+                <li class="hidden-xs">
+                    <a href="javascript:;" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                </li>
             </ul>
         </div>
     </div>

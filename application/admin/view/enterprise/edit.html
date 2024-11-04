@@ -50,7 +50,20 @@
             <input id="c-legalPhone" class="form-control" name="row[legalPhone]" type="text" value="{$row.legalPhone|htmlentities}">
         </div>
     </div>
-
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('License')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-license" class="form-control" size="50" name="row[license]" type="text" style="display: none" value="{$row.license}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-license" class="btn btn-danger faupload" data-input-id="c-license" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,image/webp" data-multiple="false" data-preview-id="p-image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <!--                    <span><button type="button" id="fachoose-license" class="btn btn-primary fachoose" data-input-id="c-license" data-mimetype="license/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>-->
+                </div>
+                <span class="msg-box n-right" for="c-license"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-license"></ul>
+        </div>
+    </div>
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
         <div class="col-xs-12 col-sm-8">

@@ -70,6 +70,13 @@ class Index extends Backend
 
 
 
+        $platformId = 0;
+
+        if($this->auth->usertype == 'custom'){
+            $platformId = $this->getenter();
+        }
+        $platform = Db::name('platform_setup')->where('enterprise_id','=',$platformId)->find();
+        $this->view->assign('platform',$platform);
         $this->assignconfig('cookie', ['prefix' => config('cookie.prefix')]);
         $this->view->assign('menulist', $menulist);
         $this->view->assign('navlist', $navlist);

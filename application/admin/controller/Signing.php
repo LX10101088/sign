@@ -30,8 +30,6 @@ class Signing extends Backend
         $this->model = new \app\admin\model\Signing;
 
     }
-
-
     /**
      * 查看
      *
@@ -89,7 +87,9 @@ class Signing extends Backend
      */
     public function sign($ids){
         $commoncontract = new Commoncontract();
-        $res = $commoncontract->getsignerurl($ids);
+        $redirectUrl ='https://'.$_SERVER['HTTP_HOST'].'/h5/#/pages/login/login?platformId=50&contractId='.$ids;
+
+        $res = $commoncontract->getsignerurl($ids,$redirectUrl);
         $sign = Db::name('contract_signing')->where('id','=',$ids)->find();
         $contract = Db::name('contract')->where('id','=',$sign['contract_id'])->find();
         $commoninfo = new Commoninfo();
@@ -97,13 +97,26 @@ class Signing extends Backend
             $contract['initiate_id'] = $commoninfo->getenter($contract['initiate_id'],'name')['name'];
         }else{
             $contract['initiate_id'] = $commoninfo->getcustom($contract['initiate_id'],'name')['name'];
-
         }
         if($res['code'] == 300){
             $this->error($res['msg']);
         }
+        $signlist = Db::name('contract_signing')
+            ->where('contract_id','=',$contract['id'])
+            ->select();
+        $common = new Common();
+        $data = '';
+        foreach($signlist as $k=>$v){
+            if($v['type'] == 'custom'){
+                $data .= $common->getcustom($v['type_id'],'name')['name'].';';
+            }else{
+
+                $data .= $common->getenter($v['type_id'],'name')['name'].';';
+            }
+        }
         $common = new Common();
         $url = $common->addqrcode($res['url']);
+        $this->assign('data',$data);
         $this->assign('url',$url);
         $this->assign('contract',$contract);
 

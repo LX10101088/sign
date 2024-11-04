@@ -74,18 +74,16 @@ class Contract extends Backend
                 ->paginate($limit);
         }elseif($this->auth->usertype == 'service'){
             $list = $this->model
-                ->with(['signing'])
                 ->where($where)
-                ->group('signing.contract_id')
                 ->order($sort, $order)
                 ->paginate($limit);
         }else{
+
             $list = $this->model
-                ->with(['signing'])
                 ->where($where)
-                ->group('signing.contract_id')
                 ->order($sort, $order)
                 ->paginate($limit);
+
         }
         $common = new Commoninfo();
         foreach($list as $k=>$v){

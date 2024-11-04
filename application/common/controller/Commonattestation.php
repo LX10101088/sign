@@ -133,7 +133,7 @@ class Commonattestation extends Controller
             $ClientUserId = $custom['identityNo'];
         }
         $fadada = new Fadada();
-        $res = $fadada->enterattestationurl($enter['name'],$enter['proveNo'],$enter['legalName'],$encudata,$ClientUserId,$url);
+        $res = $fadada->enterattestationurl($enter['name'],$enter['proveNo'],$enter['legalName'],$encudata,$ClientUserId,$url,$enter['license']);
         $rest['code'] = 300;
         $rest['msg'] = '未知错误，请稍后重试！';
         $rest['identifyUrl'] = '';

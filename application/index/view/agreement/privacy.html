@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>隐私政策</title>
+    <style>
+
+        body {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            /*text-align: center; !* 可选，用于确保内容文本在容器中居中 *!*/
+            background-color: #f0f0f0; /* 可选，背景色 */
+        }
+        .content-wrapper {
+            /* 这里的样式可以根据需要进行调整 */
+            padding:30px; /* 内边距 */
+            background-color: #ffffff; /* 可选，内容背景色 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 可选，阴影效果 */
+            max-width: 50%; /* 最大宽度，防止内容过宽 */
+            margin: auto; /* 如果需要额外的水平居中（虽然Flexbox已经处理了） */
+        }
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+    {$info.content}
+</div>
+</body>
+</html>

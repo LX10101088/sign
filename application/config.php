@@ -288,7 +288,7 @@ return [
         //是否默认展示子菜单
         'show_submenu'          => false,
         //后台皮肤,为空时表示使用skin-black-blue
-        'adminskin'             => '',
+        'adminskin'             => 'skin-blue',
         //后台是否启用面包屑
         'breadcrumb'            => false,
         //是否允许未知来源的插件压缩包

@@ -49,7 +49,7 @@ class Template extends Controller
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
         if(!$file){
-            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+            ajaxReturn(['code'=>300,'msg'=>'请上传模板文件']);
         }
         if(!$templateId){
             //查询状态余额是否充足
@@ -182,14 +182,14 @@ class Template extends Controller
             $data['contract'][$k]['type'] = $v['type'];
             $data['contract'][$k]['must'] = $v['must'];
             $data['contract'][$k]['self'] = $v['self'];
-
+            $data['contract'][$k]['content'] = $v['content'];
             switch($v['type']){
-
                 case 1:
                     $data['contract'][$k]['typeName'] ='文本';
                     break;
                 case 2:
                     $data['contract'][$k]['typeName'] ='日期';
+                    $data['contract'][$k]['content'] = date('Y-m-d',time());
                     break;
                 case 3:
                     $data['contract'][$k]['typeName'] ='图片';
@@ -200,7 +200,6 @@ class Template extends Controller
                     break;
             }
             $data['contract'][$k]['createtime'] = date('Y-m-d H:i:s',$v['createtime']);
-            $data['contract'][$k]['content'] = '';
         }
         $signing = Db::name('template_content')
             ->where('template_id','=',$templateId)

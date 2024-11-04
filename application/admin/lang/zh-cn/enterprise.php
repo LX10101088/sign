@@ -17,5 +17,6 @@ return [
     'FinishedTime'    => '认证时间',
     'Createtime'      => '创建时间',
     'Updatetime'      => '修改时间',
-    'Deletetime'      => '删除时间'
+    'Deletetime'      => '删除时间',
+    'License'         => '营业执照'
 ];

@@ -26,18 +26,18 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 fixedColumns: true,
                 fixedRightNumber: 1,
                 searchFormVisible:true,
-
                 columns: [
                     [
                         {checkbox: true},
                         {field: 'name', title: __('Name'), operate: 'LIKE'},
                         {field: 'type', title: __('Type')},
+                        {field: 'content', title: __('Content')},
+
                         // {field: 'describe', title: __('Describe'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                     ]
                 ]
             });
-
             // 为表格绑定事件
             Table.api.bindevent(table);
         },

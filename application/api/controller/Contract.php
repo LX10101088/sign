@@ -126,6 +126,7 @@ class Contract extends Gathercontroller
                ->where('s.type','=',$type)
                ->where('s.type_id','=',$typeId)
                ->where('s.state','=',0)
+               ->whereNotIn('contract.state', [3, 10, 7])
                ->order('contract.id desc')
                ->page($page,$limit)
                ->select();
@@ -134,6 +135,7 @@ class Contract extends Gathercontroller
                ->where('s.type','=',$type)
                ->where('s.type_id','=',$typeId)
                ->where('s.state','=',0)
+               ->whereNotIn('contract.state', [3, 10, 7])
                ->order('contract.id desc')
                ->count();
        }else if($listtype == 5){
@@ -149,6 +151,7 @@ class Contract extends Gathercontroller
                ->where('c.initiate_id','=',$typeId)
                ->where('contract_signing.type','<>',$type,'contract_signing.type_id','<>',$typeId)
                ->where('contract_signing.state','=',0)
+               ->whereNotIn('c.state', [3, 10, 7])
                ->order('c.id desc')
                ->page($page,$limit)
                ->select();
@@ -159,6 +162,7 @@ class Contract extends Gathercontroller
                ->where('c.initiate_id','=',$typeId)
                ->where('contract_signing.type','<>',$type,'contract_signing.type_id','<>',$typeId)
                ->where('contract_signing.state','=',0)
+               ->whereNotIn('c.state', [3, 10, 7])
                ->count();
        }else if($listtype == 6){
            //已完成
@@ -286,6 +290,8 @@ class Contract extends Gathercontroller
                ->where('s.type','=',$type)
                ->where('s.type_id','=',$typeId)
                ->where('s.state','=',0)
+               ->whereNotIn('contract.state', [3, 10, 7])
+
                ->count();
            $heoperate = Db::name('contract as c')
                ->join('contract_signing','c.id=contract_signing.contract_id')
@@ -293,6 +299,7 @@ class Contract extends Gathercontroller
                ->where('c.initiate_id','=',$typeId)
                ->where('contract_signing.type','<>',$type,'contract_signing.type_id','<>',$typeId)
                ->where('contract_signing.state','=',0)
+               ->whereNotIn('c.state', [3, 10, 7])
                ->count();
        $finish = Db::name('contract_signing as s')
            ->join('contract','contract.id=s.contract_id')
@@ -409,7 +416,7 @@ class Contract extends Gathercontroller
                     //删除合同、合同内容
                     Db::name('contract')->where('id','=',$contractId)->delete();
                     Db::name('contract_template_content')->where('contract_id','=',$contractId)->delete();
-                    ajaxReturn(['code'=>300,'msg'=>'请填写完成后生成合同']);
+                    ajaxReturn(['code'=>300,'msg'=>'请填写必填项']);
                 }
             }
         }
@@ -556,12 +563,11 @@ class Contract extends Gathercontroller
         $res = $commoncontract->initiatecontract($contractId);
 
         if($res['code'] == 200){
-
             ajaxReturn(['code'=>200,'msg'=>'发起成功','contractId'=>$contractId,'url'=>$res['url']]);
         }else{
+            $commoncontract->delcontract($contractId);
             ajaxReturn(['code'=>303,'msg'=>$res['msg']]);
         }
-
     }
 
     /**
@@ -582,9 +588,26 @@ class Contract extends Gathercontroller
         if(!$typeId){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
-        $sign = Db::name('contract_signing')->where('type','=',$type)->where('type_id','=',$typeId)->where('contract_id','=',$contractId)->find();
 
+        $sign = Db::name('contract_signing')->where('type','=',$type)->where('type_id','=',$typeId)->where('contract_id','=',$contractId)->find();
         $contract = Db::name('contract')->where('id','=',$contractId)->find();
+        //判断进入人是否是合同参与人
+        $signpeople = 1;//1代表是参与人
+        $contractpeople = 1;
+        $macfpeople = 1;
+        if(!$sign){
+            $signpeople = 0;
+        }
+        if($contract['initiateType'] != $type && $contract['initiate_id'] != $typeId){
+            $contractpeople = 0;
+        }
+        $macf = Db::name('contract_macf')->where('type','=',$type)->where('type_id','=',$typeId)->find();
+        if(!$macf){
+            $macfpeople = 0;
+        }
+        if($signpeople == 0 && $contractpeople == 0 && $macfpeople == 0){
+            ajaxReturn(['code'=>303,'msg'=>'无权限查看该合同']);
+        }
         $commoncontract = new Commoncontract();
         $url = '';
         if($contract['state'] == 10){
@@ -660,9 +683,9 @@ class Contract extends Gathercontroller
         }
         //查询状态余额是否充足
         $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
-//        if($account['contract'] < 1){
-//            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
-//        }
+        if($account['contract'] < 1){
+            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
+        }
 
         //添加合同信息
         $commoncontract = new Commoncontract();
@@ -934,6 +957,12 @@ class Contract extends Gathercontroller
         if($contract['state'] !=10){
             ajaxReturn(['code'=>301,'msg'=>'当前状态不需要发起']);
         }
+        //查询状态余额是否充足
+        $account = Db::name('account')->where('type','=',$contract['initiateType'])->where('type_id','=',$contract['initiate_id'])->find();
+        if($account['contract'] < 1){
+            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，发起失败']);
+        }
+
         $data['state'] = 0;
         $commoncontract = new Commoncontract();
         $commoncontract->operatecontract($data,$contract['initiateType'],$contract['initiate_id'],$contractId);
@@ -960,5 +989,87 @@ class Contract extends Gathercontroller
         $commoncontract = new Commoncontract();
         $commoncontract->delcontract($contractId);
         ajaxReturn(['code'=>200,'msg'=>'操作成功']);
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月31月 15:46:51
+     * ps:获取签署任务详细信息
+     * url:{{URL}}/index.php/api/contract/gettaskdetaill
+     */
+    public function gettaskdetaill(){
+        $contractId = input('param.contractId');
+        if(!$contractId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+
+        $commoncontract = new Commoncontract();
+        $res = $commoncontract->getcontracttask($contractId);
+        if($res['code'] == 300){
+            ajaxReturn(['code'=>302,'msg'=>$res['msg']]);
+        }
+
+        $data['signTaskSubject'] = $res['data']['signTaskSubject'];
+        $data['signTaskId'] = $res['data']['signTaskId'];
+        switch ($res['signTaskStatus']){
+
+            case 'task_created':
+                $data['signTaskStatus'] = '创建中';
+                break;
+            case 'finish_creation':
+                $data['signTaskStatus'] = '已创建';
+                break;
+            case 'fill_progress':
+                $data['signTaskStatus'] = '填写中';
+                break;
+            case 'fill_completed':
+                $data['signTaskStatus'] = '填写已完成';
+                break;
+            case 'sign_progress':
+                $data['signTaskStatus'] = '签署中';
+                break;
+            case 'sign_completed':
+                $data['signTaskStatus'] = '已完成';
+                break;
+            case 'task_finished':
+                $data['signTaskStatus'] = '已完成';
+                break;
+            case 'task_terminated':
+                $data['signTaskStatus'] = '已撤销';
+                break;
+            case 'expired':
+                $data['signTaskStatus'] = '已逾期';
+                break;
+            case 'abolishing':
+                $data['signTaskStatus'] = '作废中';
+                break;
+            case 'revoked':
+                $data['signTaskStatus'] = '已作废';
+                break;
+
+        }
+        if($res['data']['initiator']['idType'] == 'corp'){
+            //创建者为企业
+            $enter = Db::name('enterprise')->where('account','=',$res['data']['openId'])->order('name')->find();
+        }else{
+            //创建者为个人
+            $custom = Db::name('custom')->where('account','=',$res['data']['openId'])->order('name')->find();
+
+        }
+
+        $data['initiatorMemberName'] = $res['data']['initiatorMemberName'];
+        $data['startTime'] = date('Y-m-d H:i',$res['data']['startTime']);
+        $data['deadlineTime'] = date('Y-m-d H:i',$res['data']['deadlineTime']);
+        $data['autoFillFinalize'] = '自动定稿';
+
+
+        $data[''] = $res['data'][''];
+        $data[''] = $res['data'][''];
+        $data[''] = $res['data'][''];
+        $data[''] = $res['data'][''];
+        $data[''] = $res['data'][''];
+
+
     }
 }

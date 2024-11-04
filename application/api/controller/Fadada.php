@@ -55,13 +55,20 @@ use FddCloud\client\Client;
 class Fadada extends Controller
 {
 
-    public $service_url = 'https://uat-api.fadada.com/api/v5/';
-     public $app_id = '80001899';
-     public $app_secret = 'NYYP26BBPRTYC5TLQISV73DDONHOSTYY';
+    public $service_url = 'https://uat-api.fadada.com/api/v5/';//测试地址
+     public $app_id = '80001899';//测试参数
+     public $app_secret = 'NYYP26BBPRTYC5TLQISV73DDONHOSTYY';//测试参数
+
+
      public $debug = false;
      public $time_out = 60;
 
-     public $OpenCorpId = "a71d3eefdf134499ab35f02c43599dbb";
+     public $OpenCorpId = "a71d3eefdf134499ab35f02c43599dbb";//测试参数
+
+
+//    public $app_id = '00001921';//正式参数
+//    public $app_secret = 'OOUS1CQ3ILHXY2BC8SECOI4KESWC9ABG';//正式参数
+//    public $OpenCorpId = "f463ac1db4c847f081f6513f5f09bc31";//正式参数
 
     public function _initialize()
     {
@@ -83,6 +90,7 @@ class Fadada extends Controller
      * ps:获取对接凭证
      */
     public function gettoken(){
+
         $serviceClient = new ServiceClient($this->client);
         $response = $serviceClient->getAccessToken();
         $res = json_decode($response,true);
@@ -104,7 +112,9 @@ class Fadada extends Controller
         $data['userIdentType'] = 'id_card';
         $data['userIdentNo'] = $identityNo;
         $data['mobile'] =$phone;
-        $identMethod = ['face','mobile'];
+//        $identMethod = ['face','mobile'];
+        $identMethod = ['face'];
+
         $data['identMethod'] = $identMethod;
         $getUserAuthUrlReq->setClientUserId($identityNo);
         $getUserAuthUrlReq->setAccountName($phone);
@@ -274,14 +284,15 @@ class Fadada extends Controller
      * time:2024年9月12月 11:45:14
      * ps:企业认证网页版
      */
-    public function enterattestationurl($entername='',$enterCode='',$legalRepName,$userdata,$ClientUserId,$url=''){
+    public function enterattestationurl($entername='',$enterCode='',$legalRepName,$userdata,$ClientUserId,$url='',$license = ''){
         $data = array();
         $data['corpName'] = $entername;
         $data['corpIdentType'] = 'corp';
         $data['corpIdentNo'] =$enterCode;
         $data['legalRepName'] =$legalRepName;
-
-
+        if($license){
+            $data['license'] =$this->base64($license);
+        }
         $CorpClient = new CorpClient($this->client);
         $GetCorpAuthUrlReq = new GetCorpAuthUrlReq();
         $GetCorpAuthUrlReq->setClientCorpId($enterCode);
@@ -296,7 +307,7 @@ class Fadada extends Controller
         $GetCorpAuthUrlReq->setCorpNonEditableInfo($CorpNonEditableInfo);
         $OprNonEditableInfo = ['accountName','userName','userIdentType','userIdentNo','mobile'];
         $GetCorpAuthUrlReq->setOprNonEditableInfo($OprNonEditableInfo);
-
+        //企业营业执照
 
         $res = $CorpClient->getCorpAuthUrl($this->gettoken(),$GetCorpAuthUrlReq);
         $rest = json_decode($res,true);
@@ -310,7 +321,22 @@ class Fadada extends Controller
         }
         return $retu;
     }
+    //把图片地址改为base64格式
+    function base64($file){
 
+        $a = explode(".com/",$file);
+
+        $file = ROOT_PATH . 'public' . DS  .$a[1];
+
+        if($fp = fopen($file,"rb", 0))
+        {
+            $gambar = fread($fp,filesize($file));
+            fclose($fp);
+            $base64 = base64_encode($gambar);
+
+            return $base64;
+        }
+    }
     /**
      * Created by PhpStorm.
      * User:lang
@@ -571,7 +597,7 @@ class Fadada extends Controller
      * time:2024年9月14月 14:24:13
      * ps:创建签署任务（基于模版）
      */
-    public function createContract($contractNo='HT202409143929834',$contractName='测试合同1',$validityDate='',$templateNo='1726293048610124556',$openId='',$idType='',$signingTime){
+    public function createContract($contractNo='HT202409143929834',$contractName='测试合同1',$validityDate='',$templateNo='1726293048610124556',$openId='',$idType='',$signingTime,$actors){
         $SignTaskClient = new SignTaskClient($this->client);
         $CreateWithTemplateReq = new CreateWithTemplateReq();
         $CreateWithTemplateReq->setSignTemplateId($templateNo);
@@ -592,9 +618,12 @@ class Fadada extends Controller
         if($signingTime){
             $CreateWithTemplateReq->setExpiresTime($signingTime*1000);
         }
-        if($signingTime){
-            $CreateWithTemplateReq->setDueDate($validityDate*1000);
-        }
+//        if($signingTime){
+//            $CreateWithTemplateReq->setDueDate($validityDate*1000);
+//        }
+
+        $CreateWithTemplateReq->setActors($actors);
+
         $res = $SignTaskClient->createWithTemplate($this->gettoken(),$CreateWithTemplateReq);
 
         $rest = json_decode($res,true);
@@ -1060,9 +1089,9 @@ class Fadada extends Controller
         $CreateSignTaskReq->setsignTaskSubject($contractName);
         $CreateSignTaskReq->setbusinessCode($contractNo);
         $CreateSignTaskReq->setDocs($docs);
-        if($validityDate){
-            $CreateSignTaskReq->setDueDate($validityDate*1000);
-        }
+//        if($validityDate){
+//            $CreateSignTaskReq->setDueDate($validityDate*1000);
+//        }
         if($signingTime){
             $CreateSignTaskReq->setExpiresTime($signingTime*1000);
         }
@@ -1316,6 +1345,28 @@ class Fadada extends Controller
 
         if($rest['code'] == 100000){
             $retu['code']=200;
+        }else{
+            $retu['code'] = 300;
+            $retu['msg'] = $rest['msg'];
+        }
+        return $retu;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年10月31月 15:23:43
+     * ps:获取签署任务详细内容
+     */
+    public function gettaskdetaill($SignTaskId='1727084379661194826'){
+        $SignTaskClient = new SignTaskClient($this->client);
+        $SignTaskBaseReq = new SignTaskBaseReq();
+        $SignTaskBaseReq->setSignTaskId($SignTaskId);
+        $res = $SignTaskClient->getAppDetail($this->gettoken(),$SignTaskBaseReq);
+        $rest = json_decode($res,true);
+        if($rest['code'] == 100000){
+            $retu['code']=200;
+            $retu['data'] = $rest['data'];
         }else{
             $retu['code'] = 300;
             $retu['msg'] = $rest['msg'];
