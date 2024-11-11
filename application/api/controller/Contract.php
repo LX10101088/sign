@@ -5,6 +5,7 @@ namespace app\api\controller;
 use app\common\controller\Commonattestation;
 use app\common\controller\Commoncontract;
 use app\common\controller\Commonenter;
+use app\common\controller\Commoninfo;
 use app\common\controller\Commonuser;
 use think\Controller;
 use think\Db;
@@ -34,8 +35,10 @@ class Contract extends Gathercontroller
        $typeId = input('param.typeId');
        $listtype = input('param.listtype');//1:我收到；2：我发起；3：抄送我
        $search = input('search');
+       $state = input('state');
        $page = input('page');
        $limit = input('limit');
+       $taskId = input('param.taskId');//任务id
        if(!$limit){
            $limit = 10;
        }
@@ -48,10 +51,16 @@ class Contract extends Gathercontroller
        if(!$listtype){
            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
        }
+
        if($listtype == 1){
            $whereor = '';
            if($search){
-               $whereor = "`contract`.`contractName` LIKE '%$search%'";
+               $whereor = " `contract`.`contractName` LIKE '%$search%'
+                           OR `contract`.`involvedName` LIKE '%$search%'";
+           }
+           $stwhere = array();
+           if($state){
+               $stwhere['contract.state'] = $state;
            }
            //我收到
            $contract = Db::name('contract_signing as s')
@@ -60,6 +69,7 @@ class Contract extends Gathercontroller
                ->where('s.type','=',$type)
                ->where('s.type_id','=',$typeId)
                ->where('contract.initiate_id','<>',$typeId)
+               ->where($stwhere)
                ->order('contract.id desc')
                ->page($page,$limit)
                ->select();
@@ -67,20 +77,31 @@ class Contract extends Gathercontroller
                ->join('contract','contract.id=s.contract_id')
                ->where('s.type','=',$type)
                ->where('s.type_id','=',$typeId)
+               ->where($stwhere)
                ->where('contract.initiate_id','<>',$typeId)
                ->order('contract.id desc')
                ->count();
        }else if($listtype == 2){
+           $stwhere = array();
+           if($state){
+               $stwhere['state'] = $state;
+           }
            $whereor = '';
            if($search){
-               $whereor = "`contractName` LIKE '%$search%'";
+               $whereor = "`contractName` LIKE '%$search%'
+               OR `involvedName` LIKE '%$search%'";
            }
-
+           $where = array();
+           if($taskId){
+               $where['task_id'] = $taskId;
+           }
            //我发起的
            $contract = Db::name('contract')
                ->where($whereor)
+               ->where($where)
                ->where('initiateType','=',$type)
                ->where('initiate_id','=',$typeId)
+               ->where($stwhere)
                ->order('id desc')
                ->page($page,$limit)
                ->field('id as contract_id,initiateType,initiate_id,contractNo,contractName,state,createtime')
@@ -91,20 +112,26 @@ class Contract extends Gathercontroller
                ->where($whereor)
                ->where('initiateType','=',$type)
                ->where('initiate_id','=',$typeId)
+               ->where($stwhere)
                ->order('id desc')
                ->count();
        }else if($listtype == 3){
            //抄送我的
            $whereor = '';
            if($search){
-               $whereor = "`contract`.`contractName` LIKE '%$search%'";
+               $whereor = " `contract`.`contractName` LIKE '%$search%'
+                           OR `contract`.`involvedName` LIKE '%$search%'";
            }
-
+           $stwhere = array();
+           if($state){
+               $stwhere['contract.state'] = $state;
+           }
            $contract = Db::name('contract_macf as m')
                ->join('contract','contract.id=m.contract_id')
                ->where($whereor)
                ->where('m.type','=',$type)
                ->where('m.type_id','=',$typeId)
+               ->where($stwhere)
                ->order('contract.id desc')
                ->page($page,$limit)
                ->select();
@@ -113,6 +140,7 @@ class Contract extends Gathercontroller
                ->where($whereor)
                ->where('m.type','=',$type)
                ->where('m.type_id','=',$typeId)
+               ->where($stwhere)
                ->count();
        }else if($listtype == 4){
            //待我操作
@@ -210,15 +238,15 @@ class Contract extends Gathercontroller
            }else if($v['state'] == 2){
                $data[$k]['stateName'] = '已签约';
            }else if($v['state'] == 3){
-               $data[$k]['stateName'] = '过期';
+               $data[$k]['stateName'] = '已过期';
            }else if($v['state'] == 4){
-               $data[$k]['stateName'] = '拒签';
+               $data[$k]['stateName'] = '已拒签';
            }else if($v['state'] == 5){
                $data[$k]['stateName'] = '未发起';
            }else if($v['state'] == 6){
-               $data[$k]['stateName'] = '作废';
+               $data[$k]['stateName'] = '已作废';
            }else if($v['state'] == 7){
-               $data[$k]['stateName'] = '撤销';
+               $data[$k]['stateName'] = '已撤销';
            }else if($v['state'] == 10){
                $data[$k]['stateName'] = '待发起';
            }
@@ -365,6 +393,8 @@ class Contract extends Gathercontroller
         $content = input('param.content');//模板内容
         $signature = input('param.signature');//签署人信息
         $macf = input('param.macf');//抄送人信息
+
+        $taskId = input('param.taskId');//批量签署任务id
         if(!$type){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
@@ -384,6 +414,18 @@ class Contract extends Gathercontroller
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
 
+        //参与人名称记录
+        $involvedName = '';
+        $commoninfo = new Commoninfo();
+        //发起人信息
+        if($type == 'custom'){
+            $name = $commoninfo->getcustom($typeId,'name')['name'];
+        }else{
+            $name = $commoninfo->getenter($typeId,'name')['name'];
+        }
+        //参与人名称记录
+        $involvedName .= $name.';';
+
         //查询状态余额是否充足
         $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
         if($account['contract'] < 1){
@@ -399,6 +441,10 @@ class Contract extends Gathercontroller
         $data['state'] = 10;//待发起合同状态
 
         $data['template'] = 1;
+        if($taskId){
+            //如果是从任务里来的则记录任务id
+            $data['task_id'] = $taskId;
+        }
         $contractId =$commoncontract->operatecontract($data,$type,$typeId);
         //添加合同模版内容
         $json_content = json_decode($content,true);
@@ -439,7 +485,11 @@ class Contract extends Gathercontroller
                 $signdata['type'] = $v['type'];
                 $signdata['type_id'] = $customId;
                 $signdata['custom_id'] = $customId;
+                //参与人名称记录
+                $involvedName .= $v['name'].';';
             }else{
+                //参与人名称记录
+                $involvedName .= $v['entername'].';';
                 //企业用户
                 $enter = Db::name('enterprise')->where('name','=',$v['entername'])->find();
                 $custom = Db::name('custom')->where('phone','=',$v['phone'])->find();
@@ -559,6 +609,9 @@ class Contract extends Gathercontroller
             Db::name('contract_macf')->insertGetId($macfdata);
 
         }
+        //填入参与人
+        $editinvo['involvedName'] = $involvedName;
+        $commoncontract->operatecontract($editinvo,$type,$typeId,$contractId);
 
         $res = $commoncontract->initiatecontract($contractId);
 
@@ -681,6 +734,19 @@ class Contract extends Gathercontroller
         if(!$file){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
+
+        //参与人名称记录
+        $involvedName = '';
+        $commoninfo = new Commoninfo();
+        //发起人信息
+        if($type == 'custom'){
+            $name = $commoninfo->getcustom($typeId,'name')['name'];
+        }else{
+            $name = $commoninfo->getenter($typeId,'name')['name'];
+        }
+        //参与人名称记录
+        $involvedName .= $name.';';
+
         //查询状态余额是否充足
         $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
         if($account['contract'] < 1){
@@ -718,7 +784,13 @@ class Contract extends Gathercontroller
                 $signdata['type'] = $v['type'];
                 $signdata['type_id'] = $customId;
                 $signdata['custom_id'] = $customId;
+
+                //参与人名称记录
+                $involvedName .= $v['name'].';';
             }else{
+
+                //参与人名称记录
+                $involvedName .= $v['entername'].';';
                 //企业用户
                 $enter = Db::name('enterprise')->where('name','=',$v['entername'])->find();
                 $custom = Db::name('custom')->where('phone','=',$v['phone'])->find();
@@ -834,6 +906,11 @@ class Contract extends Gathercontroller
             Db::name('contract_macf')->insertGetId($macfdata);
 
         }
+        //填入参与人
+        $editinvo['involvedName'] = $involvedName;
+        $commoncontract->operatecontract($editinvo,$type,$typeId,$contractId);
+
+
         $res = $commoncontract->initiatecontractfile($contractId);
         if($res['code'] == 200){
             //扣除账户合同份数

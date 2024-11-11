@@ -2,9 +2,7 @@
 
 namespace app\admin\controller;
 
-use app\api\controller\Common;
 use app\common\controller\Backend;
-use app\common\controller\Commonservice;
 use think\Db;
 use think\exception\DbException;
 use think\exception\PDOException;
@@ -12,30 +10,26 @@ use think\exception\ValidateException;
 use think\response\Json;
 
 /**
- * 服务商管理
+ * 
  *
  * @icon fa fa-circle-o
  */
-class Service extends Backend
+class Mrn extends Backend
 {
 
     /**
-     * Service模型对象
-     * @var \app\admin\model\Service
+     * Mrn模型对象
+     * @var \app\admin\model\Mrn
      */
     protected $model = null;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\Service;
+        $this->model = new \app\admin\model\Mrn;
 
     }
 
-    public function import()
-    {
-        parent::import();
-    }
     /**
      * 查看
      *
@@ -45,7 +39,6 @@ class Service extends Backend
      */
     public function index()
     {
-        $enter = $this->getenter();
         //设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
         if (false === $this->request->isAjax()) {
@@ -58,6 +51,7 @@ class Service extends Backend
         [$where, $sort, $order, $offset, $limit] = $this->buildparams();
         $list = $this->model
             ->where($where)
+            ->order('createtime desc')
             ->order($sort, $order)
             ->paginate($limit);
         $result = ['total' => $list->total(), 'rows' => $list->items()];
@@ -76,9 +70,6 @@ class Service extends Backend
             return $this->view->fetch();
         }
         $params = $this->request->post('row/a');
-        $ctype_id = $this->request->post('c-type_id');
-        $etype_id = $this->request->post('e-type_id');
-
         if (empty($params)) {
             $this->error(__('Parameter %s can not be empty', ''));
         }
@@ -96,32 +87,9 @@ class Service extends Backend
                 $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : $name) : $this->modelValidate;
                 $this->model->validateFailException()->validate($validate);
             }
-            $city[1] =  '';
-            if($params['city']){
-                $city = explode('/',$params['city']);
-                if(isset($city[0])){
-                    $params['province'] = $city[0];
-                }
-                if(isset($city[1])){
-                    $params['city'] = $city[1];
-                }
-                if(isset($city[2])){
-                    $params['area'] = $city[2];
-                }
+            $params['createtime'] = strtotime($params['createtime']);
 
-            }
-            $common =new \app\common\controller\Common();
-            $params['identifier'] = $common->userNo($city[1],1);
-            if($params['type'] == 'custom'){
-                $params['type_id'] = $ctype_id;
-            }else{
-                $params['type_id'] = $etype_id;
-            }
-            $params['createtime'] = time();
-            $serviceId = $this->model->insertGetId($params);
-            $commonservice = new Commonservice();
-            $commonservice->operatestate($serviceId);
-            $result = true;//$this->model->allowField(true)->save($params);
+            $result = $this->model->allowField(true)->save($params);
             Db::commit();
         } catch (ValidateException|PDOException|Exception $e) {
             Db::rollback();
@@ -144,6 +112,7 @@ class Service extends Backend
     public function edit($ids = null)
     {
         $row = $this->model->get($ids);
+        $row['createtime'] = date('Y-m-d H:i:s',$row['createtime']);
         if (!$row) {
             $this->error(__('No Results were found'));
         }
@@ -152,14 +121,10 @@ class Service extends Backend
             $this->error(__('You have no permission'));
         }
         if (false === $this->request->isPost()) {
-            $row['city'] = $row['province'].'/'.$row['city'].'/'.$row['area'];
-
             $this->view->assign('row', $row);
             return $this->view->fetch();
         }
         $params = $this->request->post('row/a');
-        $ctype_id = $this->request->post('c-type_id');
-        $etype_id = $this->request->post('e-type_id');
         if (empty($params)) {
             $this->error(__('Parameter %s can not be empty', ''));
         }
@@ -173,15 +138,8 @@ class Service extends Backend
                 $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
                 $row->validateFailException()->validate($validate);
             }
-            if($params['type'] == 'custom'){
-                $params['type_id'] = $ctype_id;
-            }else{
-                $params['type_id'] = $etype_id;
-            }
-
+            $params['createtime'] = strtotime($params['createtime']);
             $result = $row->allowField(true)->save($params);
-            $commonservice = new Commonservice();
-            $commonservice->operatestate($ids);
             Db::commit();
         } catch (ValidateException|PDOException|Exception $e) {
             Db::rollback();
@@ -192,4 +150,5 @@ class Service extends Backend
         }
         $this->success();
     }
+
 }

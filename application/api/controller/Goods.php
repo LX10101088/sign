@@ -47,6 +47,35 @@ class Goods extends Gathercontroller
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
    }
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月11月 9:35:55
+     * ps:商品详情
+     * url:{{URL}}/index.php/api/goods/getgoodsdetails
+     */
+   public function getgoodsdetails(){
+        $goodsId = input('param.goodsId');
+        if(!$goodsId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $goods = Db::name('goods')->where('id','=',$goodsId)->find();
+        if(!$goods){
+            ajaxReturn(['code'=>301,'msg'=>'商品不存在']);
+        }
+        $data = array();
+        $data['goodsId'] = $goods['id'];
+        $data['name'] = $goods['name'];
+        $data['image'] = $goods['image'];
+        $data['details'] = $goods['details'];
+        $data['crossedprice'] = $goods['crossedprice'];
+        $data['price'] = $goods['price'];
+        $data['contract'] = $goods['contract'];
+        $data['template'] = $goods['template'];
+        $data['createtime'] = date('Y-m-d',$goods['createtime']);
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
+   }
+
 
 
 }

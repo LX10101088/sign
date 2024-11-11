@@ -92,7 +92,9 @@ class Commonorder extends Controller
         $data['goodsName'] = $goods['name'];
         $data['orderNo'] = $order['orderNo'];
         $data['price'] = $order['totalprice'];
+
         $url = $wxepay->nativeorder($data);
+
         $rest['code'] = 300;
 
         if($url){

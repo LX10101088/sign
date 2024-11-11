@@ -3,6 +3,7 @@
 namespace app\admin\controller;
 
 use app\common\controller\Backend;
+use app\common\controller\Commonservice;
 use think\Db;
 use think\exception\DbException;
 use think\response\Json;
@@ -76,6 +77,8 @@ class Commission extends Backend
         $data['state'] = 1;
         $data['updatetime'] = time();
         Db::name('commission')->where('id','=',$ids)->update($data);
+        $commonservice = new Commonservice();
+        $commonservice->confirmcommission($ids);
         $this->success();
     }
     /**

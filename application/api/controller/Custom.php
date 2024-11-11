@@ -135,6 +135,10 @@ class Custom extends Gathercontroller
         $data['template'] = trim($account['template']);
         $data['contract'] = trim($account['contract']);
 
+        //查询是否合伙人
+        $data['service'] = $custom['service'];
+
+
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
     }
 

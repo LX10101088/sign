@@ -29,21 +29,10 @@ class Common extends Controller
      * ps:生成用户编号（1：服务商；2：个人用户；3：企业用户）
      */
     public function userNo($area,$type){
-        $area = Db::name('area')->where('name','=',$area)->find();
-        $no = '000000';
-        if($area){
-            if($area['areanumber']){
-                $no = $area['areanumber'];
-            }
-        }
-        if($type == 1){
-            $kt = 'S';
-        }else if($type == 2){
-            $kt = 'C';
-        }else if($type == 3){
-            $kt = 'E';
-        }
-        $No = $kt.date('Ymd',time()).rand(0,1000).$no;
+        $service = Db::name('service')->where('deletetime','=',0)->count();
+        $no = str_pad($service, 5, '0', STR_PAD_LEFT);
+        $kt = 'S';
+        $No = $kt.date('Ymd',time()).$no;
         return $No;
     }
 

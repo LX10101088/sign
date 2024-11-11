@@ -462,4 +462,331 @@ class Common extends Gathercontroller
         }
         return '操作成功';
     }
+
+    public function delmrn(){
+        $mrn = Db::name('mrn')->where('id','>',1)->order('id desc')->limit(1,4000)->select();
+        dump($mrn);exit;
+
+
+        $mrn = Db::name('mrn')->where('createtime','>',1)->select();
+        foreach($mrn as $k=>$v){
+            $data['jzys'] = '尚红英';
+
+            Db::name('mrn')->where('id','=',$v['id'])->update($data);
+        }
+
+        return '操作完成';
+    }
+
+    public function nanxm(){
+        $id = rand(1,2980);
+        $res = Db::name('andm')->where('id','=',$id)->find();
+        return $res['name'];
+    }
+
+    public function xsm(){
+        $id = rand(1,521);
+        $bjx = Db::name('abjx')->where('id','=',$id)->find();
+        $id = rand(1,474);
+        $nsm = Db::name('ansm')->where('id','=',$id)->find();
+        return $bjx['bjx'].$nsm['nsm'];
+    }
+    function getRandomTimestampBetweenHours($startHour = 8, $endHour = 19) {
+
+        return rand(8,19).':'.rand(0,59).":".rand(0,59);
+    }
+    function generateCaseData($startDate, $endDate, $maxCasesPerDay) {
+        $cases = [];
+        $startDateTimestamp = strtotime($startDate);
+        $endDateTimestamp = strtotime($endDate);
+        $currentTimestamp = $startDateTimestamp;
+        $dailyCaseCount = []; // 用于跟踪每天的病例数的数组
+        $a = 0;
+        $b = 0;
+        while ($currentTimestamp <= $endDateTimestamp) {
+            $currentDate = date('Y-m-d', $currentTimestamp);
+            $currentDayOfWeek = date('w', $currentTimestamp); // 获取当前是星期几
+            // 跳过周一和周五
+            if ($currentDayOfWeek == 1 || $currentDayOfWeek == 5 || $currentDayOfWeek == 0 || $currentDayOfWeek == 6) {
+                $currentTimestamp = strtotime('+1 day', $currentTimestamp);
+                continue;
+            }
+            $jjrDay = $this->qcjjr($currentTimestamp);
+            if($jjrDay){
+                $currentTimestamp = strtotime('+1 day', $currentTimestamp);
+                continue;
+            }
+            $maxCasesPerDay = rand(0,30);
+
+            $mrn = Db::name('mrn')->where('id','>',10028)->order('id desc')->limit(4000)->select();
+
+
+            for ($i = 0; $i < $maxCasesPerDay; $i++) {
+                // 生成随机的初诊时间（在同一天内的秒数），然后加上当天的起始时间戳
+
+                $initialDiagnosisTime =date('Y-m-d H:i:s',strtotime($currentDate.' '.$this->getRandomTimestampBetweenHours()));
+                // 生成其他病例信息
+                //$gender = ['男', '女'][array_rand([0, 1])];
+//                $age = $this->generateRandomAge();
+//                $phoneNumber = $this->generateRandomPhoneNumber();
+//
+//                if($gender == '男'){
+//                    $firstName = $this->nanxm();
+//                }else{
+//                    $firstName = $this->xsm();
+//                }
+                // 生成病例号
+//                $caseNumber = $this->generateCaseNumber($currentDate, $dailyCaseCount);
+//                $noSpacesString = str_replace(' ', '', $firstName);
+
+
+                // 将病例信息添加到数组中
+
+                $a = rand(0,3999);
+                if($b){
+                    if($a == $b){
+                        $a = rand(0,4000);
+
+                    }
+                }
+                $cases[] = [
+//                    'mrnone' => $caseNumber,
+
+                    'mrntwo' => $mrn[$a]['mrntwo'],
+                    'name' =>$mrn[$a]['name'],
+                    'sex' =>$mrn[$a]['sex'],
+                    'age' => $mrn[$a]['age'],
+                    'createtime' => strtotime($initialDiagnosisTime),
+                    'phone' => $mrn[$a]['phone'],
+//                'mrntwo' => '9999'. mt_rand(10000, 99999),
+//                'name' =>$noSpacesString,
+//                'sex' => $gender,
+//                'age' => $age,
+//                'createtime' => strtotime($initialDiagnosisTime),
+//                'phone' => $phoneNumber
+                ];
+
+                $b = $a;
+
+                // 如果达到了每天设置的最大病例数（理论上这里不会超出，因为我们在循环中控制了数量）
+                // 但为了安全起见，我们还是检查一下是否超出了maxCasesPerDay
+                if (count(array_filter($cases, function($case) use ($currentDate) {
+                        return date('Y-m-d',$case['createtime']) === $currentDate;
+                    })) > $maxCasesPerDay) {
+                    break; // 实际上这里应该不会执行到，因为我们在外层循环已经限制了数量
+                }
+            }
+
+            // 移动到下一天（即使内层循环因为达到最大病例数而提前退出）
+            $currentTimestamp = strtotime('+1 day', $currentTimestamp);
+        }
+
+        return $cases;
+    }
+
+    public function qcjjr($time){
+        $jjr = Db::name('ajjr')->where('jjr','=',$time)->find();
+        if($jjr){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    function generateRandomPhoneNumber() {
+        // 定义手机号的开头部分，这里只列举了常见的几个，可以根据需要扩展
+        $prefixes = [
+            // 中国联通号段
+            '130', '131', '132',
+            '145', // 联通3G无线上网卡专属号段
+            '155', '156',
+            '166',
+            '175', '176',
+            '185', '186',
+            // 注意：196也被视为联通号段，但在此示例中未列出，可根据需要添加
+
+            // 中国电信号段
+            '133',
+            '149', // 电信物联网号段，有时也作为普通手机号段使用
+            '153',
+            '173',
+            '177',
+            '180', '181', '189',
+            '191', '199', // 电信新推出的号段
+
+            // 中国移动号段
+            '134', '135', '136', '137', '138', '139',
+            '147', // 移动数据卡号段
+            '150', '151', '152', '157', '158', '159',
+            '172', // 移动物联网号段
+            '178',
+            '182', '183', '184', '187', '188',
+            '198', // 移动新号段
+        ];
+
+        // 随机选择一个前缀
+        $prefix = $prefixes[array_rand($prefixes)];
+
+        // 生成9位随机数字
+        $randomDigits = mt_rand(100000000, 999999999); // 注意这里生成的数字是10位，但只需要后9位
+        $randomDigits = str_pad(substr($randomDigits, -9), 9, '0', STR_PAD_LEFT); // 确保是9位，前面补0
+
+        // 组合成完整的手机号
+        $phoneNumber = $prefix . $randomDigits;
+        $shortenedString = substr($phoneNumber, 0, 11);
+
+        return $shortenedString;
+    }
+
+
+    public function tesss(){
+        // 生成数据
+        $caseData = $this->generateCaseData('2023-1-1', '2024-9-30', 5); // 生成3天，每天5个病例的数据
+        Db::name('mrn')->insertAll($caseData);
+        dump(count($caseData));exit;
+        return '操作成功';
+// 输出数据（这里输出所有病例以验证）
+//        foreach ($caseData as $case) {
+//            echo "病例号1: {$case['病例号1']},病例号2: {$case['病例号2']}, 姓名: {$case['姓名']}, 性别: {$case['性别']}, 年龄: {$case['年龄']}, 初诊时间: {$case['初诊时间']}, 手机号: {$case['手机号']}\n";
+//        }
+    }
+
+    public function delmrnss(){
+        $mrn = Db::name('mrn')->where('createtime','>',1)->select();
+        foreach($mrn as $k=>$v){
+            $data['jzys'] = '尚红英';
+
+            Db::name('mrn')->where('id','=',$v['id'])->update($data);
+        }
+
+        return '操作完成';
+    }
+
+    public function delmrn1(){
+        $a = 0;
+        for($i=10000;$i<=27377;$i++){
+            $mrn = Db::name('mrn')->where('id','=',$i)->find();
+            if($mrn){
+                $res = Db::name('mrn')->where('createtime','=',$mrn['createtime'])->where('id','<>',$mrn['id'])->delete();
+                if($res){
+                    $a+=1;
+                }
+//                foreach($res as $k=>$v){
+//                    $data['createtime'] = $mrn['createtime']+rand(3600, 18000);
+//                    Db::name('mrn')->where('id','=',$v['id'])->update($data);
+//                }
+//                $a += count($res);
+            }
+        }
+        dump($a);exit;
+
+    }
+
+    public function delmrn2(){
+        $a = 0;
+        for($i=1;$i<=2;$i++) {
+            $id = rand(1, 27377);
+            $mrn = Db::name('mrn')->where('id', '=', $id)->delete();
+            if($mrn){
+                $a+=1;
+            }
+        }
+        dump($a);exit;
+    }
+    public function delmrn3(){
+        $a = 0;
+        for($i=1;$i<=5000;$i++) {
+            $id = rand(1, 27375);
+            $yzmrn = Db::name('mrn')->where('id', '=', $id)->find();
+            if($yzmrn){
+                $data['phone'] = '';
+                $mrn = Db::name('mrn')->where('id', '=', $id)->update($data);
+                if($mrn){
+                    $a+=1;
+                }
+            }
+
+        }
+        dump($a);exit;
+    }
+    public function delmrn4(){
+        $mrn = Db::name('mrn')->where('id','<>',0)->order('createtime desc')->select();
+        foreach($mrn as $k=>$v){
+            $date = $this->isWithinSpecifiedTimeRanges($v['createtime']);
+            $data['createtime'] = $date;
+            Db::name('mrn')->where('id','=',$v['id'])->update($data);
+        }
+        return '操作完成';
+    }
+    function isWithinSpecifiedTimeRanges($timestamp) {
+
+        // 创建给定的时间戳对应的 DateTime 对象
+        // 获取给定时间戳所属日期的起始时间戳（当天的午夜 00:00:00）
+
+        // 计算时间段的起始和结束秒数（从当天午夜开始计算）
+        $morningStart =strtotime(date('Y-m-d',$timestamp).' '.'8:40:00');// 8:40 AM
+
+        $morningEnd = strtotime(date('Y-m-d',$timestamp).' '.'12:00:00'); // 12:00 PM
+        $afternoonStart = strtotime(date('Y-m-d',$timestamp).' '.'13:00:00'); // 1:00 PM
+        $afternoonEnd =  strtotime(date('Y-m-d',$timestamp).' '.'15:00:00');  // 5:00 PM
+
+        // 检查给定的时间戳是否在上午 8:40 至中午 12:00 之间或下午 13:00 至 17:00 之间
+        if (($timestamp >=  $morningStart && $timestamp <  $morningEnd) ||
+            ($timestamp >=  $afternoonStart && $timestamp <  $afternoonEnd)) {
+
+            // 如果在给定的时间段内，则直接返回原始时间戳（或对应的 DateTime 对象）
+            return $timestamp; // 或者 return clone $givenTime;
+        } else {
+
+            // 如果不在指定的时间段内，则生成一个随机时间
+            $isMorning = rand(0, 1); // 随机选择上午或下午
+            $date = date('Y-m-d',$timestamp);
+            if($isMorning == 1){
+                //下午
+                $newdate = $date.' '.rand(13,16).':'.rand(0,59).':'.rand(0,59);
+            }else{
+                $newdate = $date.' '.rand(8,11).':'.rand(0,59).':'.rand(0,59);
+
+            }
+
+            // 返回随机时间的时间戳
+            return strtotime($newdate);
+        }
+    }
+
+
+    public function delmrn5(){
+        $a = 0;
+        $mrn = Db::name('mrn')->where('id','>',1)->order('createtime desc')->select();
+        foreach($mrn as $k=>$v){
+            $startTime = $v['createtime'] - (10 * 60); // 当前时间减去 10 分钟
+            $endTime = $v['createtime'] + (10 * 60); // 当前时间加上 10 分钟
+            $mrns = Db::name('mrn')
+                ->where('id','<>',$v['id'])
+                ->where('createtime', '>', $startTime)
+                ->where('createtime', '<', $endTime)
+                ->select();
+            if($mrns){
+                foreach($mrns as $kk=>$vv){
+                    $time = rand(10,100)*60;
+
+                    $gender =array_rand([0, 1]);
+                    if($gender == 1){
+                        $data['createtime'] = (int)$vv['createtime']+$time;
+
+                    }else{
+                        $data['createtime'] = (int)$vv['createtime']-$time;
+
+                    }
+
+                    //$data['createtime'] = $this->isWithinSpecifiedTimeRanges($datacreatetime);
+                    Db::name('mrn')->where('id','=',$vv['id'])->update($data);
+                }
+                $a+=1;
+            }
+        }
+        dump($a);exit;
+    }
+
+
 }

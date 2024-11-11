@@ -55,8 +55,11 @@ class Commonuser extends Controller
             $AuthGroupAccess = new AuthGroupAccess();
             $AuthGroupAccess->insert($groupData);
             //生成客户钱包
-            $common = new Common();
-            $common->adduseraccount($customId,'custom');
+//            $common = new Common();
+//            $common->adduseraccount($customId,'custom');
+            //绑定销售
+            $commonservice = new Commonservice();
+            $commonservice->bindservice('custom',$customId);
         }else{
             $data['updatetime'] = time();
             Db::name('custom')->where('id','=',$customId)->update($data);

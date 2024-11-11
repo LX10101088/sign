@@ -121,6 +121,9 @@ class Commonenter extends Controller
 //                $AuthGroupAccess = new AuthGroupAccess();
 //                $AuthGroupAccess->insert($groupData);
 //            }
+            //绑定销售
+            $commonservice = new Commonservice();
+            $commonservice->bindservice('enterprise',$enterId);
         }else{
             $data['updatetime'] = time();
 

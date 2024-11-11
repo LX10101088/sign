@@ -12,5 +12,9 @@ return [
     'Ratio'      => '提成比例（%）',
     'Createtime' => '创建时间',
     'Updatetime' => '修改时间',
-    'Deletetime' => '删除时间'
+    'Deletetime' => '删除时间',
+    'Type' => '用户类型',
+    'Type_id' => '关联用户',
+
+    'State'    => '合伙人状态'
 ];

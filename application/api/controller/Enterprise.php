@@ -122,7 +122,8 @@ class Enterprise extends Controller
         $data['template'] = trim($account['template']);
         $data['contract'] = trim($account['contract']);
         $data['license'] = trim($enter['license']);
-
+        //查询是否合伙人
+        $data['service'] = $enter['service'];
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
     }
 

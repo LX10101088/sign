@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 use app\common\controller\Commonattestation;
+use app\common\controller\Commonorder;
 use app\common\controller\Commonuser;
 use think\Controller;
 use think\Db;
@@ -33,7 +34,7 @@ class Order extends Controller
         $goodsId = input('param.goodsId');
         $price = input('param.price');
         $number = input('param.number');
-        $assertTime = input('param.assertTime');
+//        $assertTime = input('param.assertTime');
         if(!$type && !$typeId && $goodsId && $price && $number){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
@@ -55,7 +56,7 @@ class Order extends Controller
         $data['price'] = $price;
         $data['paystatus'] = 0;
         $data['state'] = 1;
-        $data['assertTime'] = strtotime($assertTime);
+//        $data['assertTime'] = strtotime($assertTime);
         $data['createtime'] = time();
         $data['totalprice'] = $goods['price']*$number;
         $data['number'] = $number;
@@ -135,6 +136,35 @@ class Order extends Controller
             $digits .= $chars[rand(0, strlen($chars) - 1)];
         }
         return $digits;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月05月 11:43:48
+     * ps:订单支付
+     * url:{{URL}}/index.php/api/order/payorder
+     */
+    public function payorder(){
+        $orderId = input('param.orderId');
+        if(!$orderId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $order = Db::name('order')->where('id','=',$orderId)->find();
+        if($order['paystatus'] != 0){
+            ajaxReturn(['code'=>301,'msg'=>'订单已支付，请勿重复支付']);
+        }
+        if($order['wxurl']){
+            $res['url'] = $order['wxurl'];
+        }else{
+            $commonorder = new Commonorder();
+            $res = $commonorder->nativeorder($orderId);
+            if($res['code'] != 200){
+                ajaxReturn(['code'=>302,'msg'=>'支付发起失败']);
+            }
+        }
+
+        ajaxReturn(['code'=>200,'msg'=>'发起成功','url'=>$res['url']]);
     }
 
 
