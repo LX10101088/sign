@@ -194,7 +194,14 @@ class Template extends Backend
     public function edit($ids = null)
     {
         $row = $this->model->get($ids);
+
+        $annexlist = Db::name('template_img')->where('template_id','=',$ids)->order('id ASC')->select();
+        $annex  = '';
+        foreach($annexlist as $k=>$v){
+            $annex .= $v['img'].',';
+        }
         $this->assign('userId',$this->auth->user_id);
+        $this->assign('annex',$annex);
 
         if (!$row) {
             $this->error(__('No Results were found'));
@@ -208,6 +215,8 @@ class Template extends Backend
             return $this->view->fetch();
         }
         $params = $this->request->post('row/a');
+        $preview = $this->request->post('preview');
+
         if (empty($params)) {
             $this->error(__('Parameter %s can not be empty', ''));
         }
@@ -226,6 +235,17 @@ class Template extends Backend
                     //发送短信
                     $sms = new Csms();
                     $sms->templateopen($row['id']);
+                }
+            }
+            Db::name('template_img')->where('template_id','=',$ids)->delete();
+
+            $array = explode(",", $preview);
+            foreach($array as $k=>$v){
+                if($v){
+                    $data['createtime'] = time();
+                    $data['img'] = $v;
+                    $data['template_id'] =$ids;
+                    Db::name('template_img')->insertGetId($data);
                 }
             }
             $result = $row->allowField(true)->save($params);

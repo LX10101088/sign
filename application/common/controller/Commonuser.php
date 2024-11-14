@@ -163,10 +163,34 @@ class Commonuser extends Controller
                 }
             }
         }
+        //操作企业加入法大大认证
+        $encu = Db::name('enterprise_custom')->where('custom_id','=',$custom['id'])->select();
+        if($encu){
+            $commonenter = new Commonenter();
+            foreach($encu as $k=>$v){
+                if($v['fadada'] == 0){
+                    //添加
+                    $commonenter->addmember($v['id']);
+                }
+            }
+        }
 
         return 1;
     }
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月12月 9:33:14
+     * ps:更换登录手机号
+     * url:{{URL}}/index.php/api/commonuser/updatephone
+     */
+    public function updatephone($ids,$url = ''){
+        $custom = Db::name('custom')->where('id','=',$ids)->find();
+        $fadada = new Fadada();
+        $res = $fadada->getchangeurl($url);
+        return $res;
+    }
 
 
 }

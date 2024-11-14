@@ -243,7 +243,7 @@ class Csms extends Controller
      */
     function sendSMS($phone, $content, $templateId,$sign)
     {
-    
+        return true;
         $data['accesskey'] = $this->accesskey;
         $data['secret'] = $this->secret;
         $data['sign'] =$sign;

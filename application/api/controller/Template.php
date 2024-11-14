@@ -166,6 +166,14 @@ class Template extends Controller
         $data['page'] = $template['page'];
         $data['sealpage'] = $template['sealpage'];
         $data['createtime'] = date('Y-m-d H:i:s',$template['createtime']);
+        $data['preview'] = array();
+        $preview =Db::name('template_img')->where('template_id','=',$templateId)->order('id asc')->field('img')->select();
+        if($preview){
+            foreach($preview as $k=>$v){
+                $data['preview'][$k] = $v['img'];
+            }
+        }
+
         $data['contract'] = array();
         $data['signing'] = array();
 
@@ -245,7 +253,16 @@ class Template extends Controller
         $typeId = input('param.typeId');
         $classifyId = input('param.classifyId');
         $state = input('param.state');
-
+        $search = input('param.search');
+        $page = input('page');
+        $limit = input('limit');
+        $whereor = '';
+        if(!$limit){
+            $limit = 10;
+        }
+        if($search){
+            $whereor = " `name` LIKE '%$search%'";
+        }
 //        if(!$type){
 //            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
 //        }
@@ -260,9 +277,33 @@ class Template extends Controller
             $where['state'] = 2;
         }
         if($typeId){
-            $template = Db::name('template')->where('type','=',$type)->where($where)->where('type_id','=',$typeId)->order('id desc')->select();
+            $template = Db::name('template')
+                ->where($whereor)
+                ->where('type','=',$type)
+                ->where($where)
+                ->where('type_id','=',$typeId)
+                ->order('id desc')
+                ->page($page,$limit)
+                ->select();
+            $count = Db::name('template')
+                ->where($whereor)
+                ->where('type','=',$type)
+                ->where($where)
+                ->where('type_id','=',$typeId)
+                ->count();
         }else{
-            $template = Db::name('template')->where($where)->where('type_id','=',0)->order('id desc')->select();
+            $template = Db::name('template')
+                ->where($whereor)
+                ->where($where)
+                ->where('type_id','=',0)
+                ->order('id desc')
+                ->page($page,$limit)
+                ->select();
+            $count = Db::name('template')
+                ->where($whereor)
+                ->where($where)
+                ->where('type_id','=',0)
+                ->count();
         }
         $data = array();
         foreach($template as $k=>$v){
@@ -285,14 +326,22 @@ class Template extends Controller
                     break;
             }
             $data[$k]['file'] = $v['file'];
-
             $data[$k]['imglist'] = $v['imglist'];
             $data[$k]['page'] = $v['page'];
             $data[$k]['sealpage'] = $v['sealpage'];
             $data[$k]['createtime'] = date('Y-m-d H:i:s',$v['createtime']);
+            $data[$k]['preview'] = array();
+            $preview = Db::name('template_img')->where('template_id','=',$v['id'])->order('id asc')->field('img')->select();
+            if($preview){
+                foreach($preview as $kk=>$vv){
+                    $data[$k]['preview'][$kk] = $vv['img'];
+                }
+            }
         }
 
-        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
+        $sumpage = 0;
+        $sumpage  = ceil($count/$limit);
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data,'page'=>$page,'limit'=>$limit,'sum_page'=>$sumpage]);
     }
 
     /**

@@ -285,4 +285,72 @@ class Commonsignature extends Controller
         }
         return $url;
     }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月12月 10:27:59
+     * ps:印章授权
+     */
+    public function sealauthorize($enterId,$customId,$encustomId,$sealId,$starttime=null,$endtime=null,$url=''){
+        $enter = Db::name('enterprise')->where('id','=',$enterId)->find();
+        $custom = Db::name('custom')->where('id','=',$customId)->find();
+
+        $encustom = Db::name('enterprise_custom as e')
+            ->join('custom','e.custom_id = custom.id')
+            ->where('e.id','in',$encustomId)
+            ->find();
+
+        $seal = Db::name('signature')->where('id','=',$sealId)->find();
+
+//        foreach($encustom as $k=>$v){
+//            $memberIds = [$v['account']];
+//        }
+        $memberInfo['memberIds'] = [$encustom['memberId']];
+        $memberInfo['grantStartTime'] = $starttime;
+        $memberInfo['grantEndTime'] = $endtime;
+
+        $fadada = new Fadada();
+        $res = $fadada->grantgeturl($enter['account'],$seal['sealNo'],$memberInfo,$custom['identityNo'],$url);
+
+        return $res;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月14月 13:38:55
+     * ps:获取成员印章授权列表
+     */
+    public function getsealauthorize($ids){
+        $encusign = Db::name('enterprise_custom_signature')
+            ->where('id','=',$ids)
+            ->find();
+        $encu = Db::name('enterprise_custom as e')
+            ->join('enterprise','enterprise.id = e.enterprise_id')
+            ->where('e.id','=',$encusign['encu_id'])
+            ->find();
+        $signature = Db::name('signature')->where('id','=',$encusign['signature_id'])->find();
+        $fadada = new Fadada();
+        $res = $fadada->getsealauthorize($encu['account'],$encu['memberId']);
+        if($res['code']==200){
+            if($res['data']['sealInfos']){
+                foreach($res['data']['sealInfos'] as $k=>$v){
+                    if($v['sealId'] == $signature['sealNo']){
+                        $edit['updatetime'] = time();
+                        if($v['grantStartTime']){
+                            $edit['starttime'] = $v['grantStartTime']/1000;
+                        }
+                        if($v['grantEndTime']){
+                            $edit['endtime'] = $v['grantEndTime']/1000;
+                        }
+                        Db::name('enterprise_custom_signature')
+                            ->where('encu_id','=',$ids)
+                            ->update($edit);
+                    }
+                }
+            }
+        }
+        return true;
+    }
 }

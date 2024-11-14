@@ -73,12 +73,12 @@ class Commonenter extends Controller
             //创建企业用户与个人用户关系
             $ecdata['custom_id'] = $customId;
             $ecdata['enterprise_id'] = $enterId;
-            $ecdata['purview'] = 1;
+            $ecdata['owner'] = 1;
 
             $ecdata['createtime'] = time();
             $ecId = Db::name('enterprise_custom')->insertGetId($ecdata);
             //法大大添加成员
-            $this->addmember($ecId);
+            //$this->addmember($ecId);
             $common = new Common();
             $common->adduseraccount($enterId,'enterprise');
             //发送短信
@@ -233,6 +233,76 @@ class Commonenter extends Controller
     /**
      * Created by PhpStorm.
      * User:lang
+     * time:2024年11月13月 13:42:42
+     * ps:平台添加成员
+     */
+    public function addplatemember($enterId,$name,$phone,$identityNo){
+        $custom = Db::name('custom')->where('phone','=',$phone)->find();
+        $biaos = 0;//标识 0:需要新增；1：不需要操作；2：需要覆盖信息；3：信息不对等；4：成员已存在
+        if($custom){
+            $biaos = 1;
+
+            //判断是否有信息
+            if($custom['name']){
+                if($custom['name'] != $name){
+                    $biaos = 3;
+                }
+            }else{
+                if($biaos !=3){
+                    $biaos = 2;
+                }
+            }
+            if($custom['identityNo']){
+                if($custom['identityNo'] != $identityNo){
+                    $biaos = 3;
+                }
+            }else{
+                if($biaos !=3){
+                    $biaos = 2;
+                }
+            }
+            if($biaos == 1 || $biaos ==2 || $biaos == 3){
+                $encu = Db::name('enterprise_custom')->where('enterprise_id','=',$enterId)->where('custom_id','=',$custom['id'])->find();
+                if($encu){
+                    $biaos = 4;
+                }
+            }
+        }
+        $commonuser = new Commonuser();
+
+        if($biaos == 0){
+            $data['name'] = $name;
+            $data['phone'] = $phone;
+            $data['identityNo'] = $identityNo;
+            $customId = $commonuser->operatecustom($data);
+        }else if($biaos == 1){
+            $customId = $custom['id'];
+        }else if($biaos == 2){
+            $data['name'] = $name;
+            $data['phone'] = $phone;
+            $data['identityNo'] = $identityNo;
+            $customId = $commonuser->operatecustom($data,$custom['id']);
+        }else if($biaos ==3){
+            return 300;//信息不正确
+        }else if($biaos == 4){
+            return 301;//成员已存在
+        }
+        $ecdata['custom_id'] = $customId;
+        $ecdata['enterprise_id'] = $enterId;
+        $ecdata['purview'] = 2;
+        $ecdata['createtime'] = time();
+        $encuId = Db::name('enterprise_custom')->insertGetId($ecdata);
+        if($custom){
+            if($custom['attestation'] == 1){
+                $this->addmember($encuId);
+            }
+        }
+        return 200;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
      * time:2024年10月21月 11:20:38
      * ps:添加成员
      */
@@ -247,8 +317,11 @@ class Commonenter extends Controller
             $data[0]['internalIdentifier'] = $custom['identityNo'];
             $data[0]['memberMobile'] = $custom['phone'];
             $res = $fadada->createmember($enter['account'],$data);
+
             if($res['code'] == 200){
                 $edit['memberId'] = $res['memberId'];
+                $edit['fadada'] = 1;
+
                 $edit['updatetime'] = time();
                 Db::name('enterprise_custom')->where('id','=',$encuId)->update($edit);
             }
@@ -267,9 +340,15 @@ class Commonenter extends Controller
         $enter = Db::name('enterprise')->where('id','=',$encu['enterprise_id'])->find();
         $fadada = new Fadada();
         //企业已认证
-        if($encu['memberId'] == 1){
-            $fadada->deletemember($enter['account'],$encu['memberId']);
+
+        if($encu['memberId']){
+            $data = [$encu['memberId']];
+            $res = $fadada->deletemember($enter['account'],$data);
+
         }
+        Db::name('enterprise_custom')->where('id','=',$encuId)->delete();
+        //删除印章授权
+        Db::name('enterprise_custom_signature')->where('encu_id','=',$encuId)->delete();
         return true;
     }
 }

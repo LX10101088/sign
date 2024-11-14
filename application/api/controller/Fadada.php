@@ -11,10 +11,12 @@ use FddCloud\bean\req\doc\FileUploadByUrlReq;
 use FddCloud\bean\req\org\member\MemberCreateReq;
 use FddCloud\bean\req\org\member\MemberDeleteReq;
 use FddCloud\bean\req\org\member\MemberGetDetailReq;
+use FddCloud\bean\req\seal\GetAppointedUserSealListReq;
 use FddCloud\bean\req\seal\GetCertInfoReq;
 use FddCloud\bean\req\seal\GetPersonalSealCreateUrlReq;
 use FddCloud\bean\req\seal\GetPersonalSealListReq;
 use FddCloud\bean\req\seal\GetSealCreateUrlReq;
+use FddCloud\bean\req\seal\GetSealGrantUrlReq;
 use FddCloud\bean\req\seal\GetSealListReq;
 use FddCloud\bean\req\seal\PersonalSealDeleteReq;
 use FddCloud\bean\req\seal\SealDeleteReq;
@@ -36,6 +38,7 @@ use FddCloud\bean\req\template\docTemplate\DocTemplateDetailReq;
 use FddCloud\bean\req\template\signTemplate\SignTemplateDetailReq;
 use FddCloud\bean\req\template\TemplatePreviewGetUrl;
 use FddCloud\bean\req\user\GetUserAuthUrlReq;
+use FddCloud\bean\req\user\GetUserChangeUrlReq;
 use FddCloud\bean\req\user\GetUserIdentityInfoReq;
 use FddCloud\bean\req\user\GetUserReq;
 use FddCloud\bean\req\user\UnbindUserReq;
@@ -105,15 +108,15 @@ class Fadada extends Controller
      * ps:个人实名认证网页版
      * url:{{URL}}/index.php/api/lovesigning/userattestationurl
      */
-    public function userattestationurl($name='',$identityNo='',$phone='',$customId,$url=''){
+    public function userattestationurl($name='',$identityNo='',$phone='',$customId,$url='',$port=0){
         $getUserAuthUrlReq = new GetUserAuthUrlReq();
         $data = array();
         $data['userName'] = $name;
         $data['userIdentType'] = 'id_card';
         $data['userIdentNo'] = $identityNo;
         $data['mobile'] =$phone;
-//        $identMethod = ['face','mobile'];
-        $identMethod = ['face'];
+       $identMethod = ['face','mobile'];
+        //$identMethod = ['face'];
 
         $data['identMethod'] = $identMethod;
         $getUserAuthUrlReq->setClientUserId($identityNo);
@@ -125,8 +128,12 @@ class Fadada extends Controller
         $authScope = ["ident_info", "seal_info", "signtask_init", "signtask_info", "signtask_file","file_storage"];
 
         $getUserAuthUrlReq->setAuthScopes($authScope);
-        $getUserAuthUrlReq->setRedirectUrl($url);
-//        $getUserAuthUrlReq->redirectMiniAppUrl();
+        if($port == 1){
+            //小程序回调地址
+            $getUserAuthUrlReq->setRedirectMiniAppUrl($url);
+        }else{
+            $getUserAuthUrlReq->setRedirectUrl($url);
+        }
 
         $UserClient = new UserClient($this->client);
         $res = $UserClient->getUserAuthUrl($this->gettoken(),$getUserAuthUrlReq);
@@ -284,7 +291,7 @@ class Fadada extends Controller
      * time:2024年9月12月 11:45:14
      * ps:企业认证网页版
      */
-    public function enterattestationurl($entername='',$enterCode='',$legalRepName,$userdata,$ClientUserId,$url='',$license = ''){
+    public function enterattestationurl($entername='',$enterCode='',$legalRepName,$userdata,$ClientUserId,$url='',$license = '',$port=0){
         $data = array();
         $data['corpName'] = $entername;
         $data['corpIdentType'] = 'corp';
@@ -302,7 +309,13 @@ class Fadada extends Controller
         $GetCorpAuthUrlReq->setOprIdentInfo($userdata);
         $AuthScopes = ['ident_info','seal_info','organization','template','signtask_init','signtask_info','signtask_file','file_storage','contract_info','billaccount_info','smartform'];
         $GetCorpAuthUrlReq->setAuthScopes($AuthScopes);
-        $GetCorpAuthUrlReq->setRedirectUrl($url);
+        if($port == 1){
+            //小程序授权回调地址
+            $GetCorpAuthUrlReq->setRedirectMiniAppUrl($url);
+        }else{
+            $GetCorpAuthUrlReq->setRedirectUrl($url);
+
+        }
         $CorpNonEditableInfo = ['corpName','corpIdentType','corpIdentNo'];
         $GetCorpAuthUrlReq->setCorpNonEditableInfo($CorpNonEditableInfo);
         $OprNonEditableInfo = ['accountName','userName','userIdentType','userIdentNo','mobile'];
@@ -354,12 +367,15 @@ class Fadada extends Controller
 
             $GetPersonalSealCreateUrlReq = new GetPersonalSealCreateUrlReq();
             $GetPersonalSealCreateUrlReq->setClientUserId($ClientUserId);
+
             $GetPersonalSealCreateUrlReq->setRedirectUrl($url);
+
             $res = $SealClient->getPersonalSealCreateUrl($this->gettoken(),$GetPersonalSealCreateUrlReq);
         }else{
             $GetSealCreateUrlReq = new GetSealCreateUrlReq();
             $GetSealCreateUrlReq->setOpenCorpId($ClientUserId);
             $GetSealCreateUrlReq->setClientUserId($userId);
+
             $GetSealCreateUrlReq->setRedirectUrl($url);
 
             $res = $SealClient->getSealCreateUrl($this->gettoken(),$GetSealCreateUrlReq);
@@ -903,13 +919,19 @@ class Fadada extends Controller
      * time:2024年9月18月 14:54:36
      * ps:获取签署方链接
      */
-    public function getactorurl($signTaskId,$ActorId,$ClientUserId,$redirectUrl=''){
+    public function getactorurl($signTaskId,$ActorId,$ClientUserId,$redirectUrl='',$port=0){
         $SignTaskClient = new SignTaskClient($this->client);
         $ActorGetUrlReq = new ActorGetUrlReq();
         $ActorGetUrlReq->setsignTaskId($signTaskId);
         $ActorGetUrlReq->setActorId($ActorId);
         $ActorGetUrlReq->setClientUserId($ClientUserId);
-        $ActorGetUrlReq->setRedirectUrl($redirectUrl);
+        if($port == 1){
+            //小程序
+            $ActorGetUrlReq->setRedirectMiniAppUrl($redirectUrl);
+        }else{
+            $ActorGetUrlReq->setRedirectUrl($redirectUrl);
+
+        }
 
         $res = $SignTaskClient->actorGetUrl($this->gettoken(),$ActorGetUrlReq);
         $rest = json_decode($res,true);
@@ -1222,7 +1244,6 @@ class Fadada extends Controller
         $SignTaskApplyReportReq->setSignTaskId($SignTaskId);
         $SignTaskApplyReportReq->setOwnerId($owner);
         $SignTaskApplyReportReq->setReportType($reportType);
-
         $res = $SignTaskClient->applyReport($this->gettoken(),$SignTaskApplyReportReq);
         $rest = json_decode($res,true);
         dump($rest);exit;
@@ -1297,8 +1318,10 @@ class Fadada extends Controller
         $MemberDeleteReq = new MemberDeleteReq();
         $MemberDeleteReq->setOpenCorpId($openCorpId);
         $MemberDeleteReq->setMemberIds($MemberIds);
+
         $res = $OrgClient->memberDelete($this->gettoken(),$MemberDeleteReq);
         $rest = json_decode($res,true);
+
         if($rest['code'] == 100000){
             $retu['code']=200;
         }else{
@@ -1364,6 +1387,89 @@ class Fadada extends Controller
         $SignTaskBaseReq->setSignTaskId($SignTaskId);
         $res = $SignTaskClient->getAppDetail($this->gettoken(),$SignTaskBaseReq);
         $rest = json_decode($res,true);
+        if($rest['code'] == 100000){
+            $retu['code']=200;
+            $retu['data'] = $rest['data'];
+        }else{
+            $retu['code'] = 300;
+            $retu['msg'] = $rest['msg'];
+        }
+        return $retu;
+    }
+
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月12月 9:28:00
+     * ps:获取更换手机号链接
+     */
+    public function getchangeurl($url=''){
+        $UserClient = new UserClient($this->client);
+        $GetUserChangeUrlReq = new GetUserChangeUrlReq();
+        $GetUserChangeUrlReq->getChangeType();
+        if($url){
+            $GetUserChangeUrlReq->getRedirectUrl($url);
+        }
+        $res = $UserClient->getAccountChangeUrl($this->gettoken(),$GetUserChangeUrlReq);
+        $rest = json_decode($res,true);
+
+        if($rest['code'] == 100000){
+            $retu['code']=200;
+            $retu['url'] = $rest['data']['accountNameChangeUrl'];
+        }else{
+            $retu['code'] = 300;
+            $retu['msg'] = $rest['msg'];
+        }
+        return $retu;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月12月 10:05:55
+     * ps:获取印章授权给成员链接
+     */
+    public function grantgeturl($openCorpId,$sealId,$memberInfo,$clientUserId,$url=''){
+        $SealClient = new SealClient($this->client);
+        $GetSealGrantUrlReq = new GetSealGrantUrlReq();
+        $GetSealGrantUrlReq->setOpenCorpId($openCorpId);
+        $GetSealGrantUrlReq->setSealId($sealId);
+       $GetSealGrantUrlReq->setMemberInfo($memberInfo);
+        $GetSealGrantUrlReq->setClientUserId($clientUserId);
+        if($url){
+            $GetSealGrantUrlReq->setRedirectUrl($url);
+        }
+        //dump($GetSealGrantUrlReq);exit;
+        $res = $SealClient->getSealGrantUrl($this->gettoken(),$GetSealGrantUrlReq);
+        $rest = json_decode($res,true);
+
+        if($rest['code'] == 100000){
+            $retu['code']=200;
+            $retu['url'] = $rest['data']['sealGrantUrl'];
+        }else{
+            $retu['code'] = 300;
+            $retu['msg'] = $rest['msg'];
+        }
+        return $retu;
+
+    }
+
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月14月 13:43:21
+     * ps:查询成员被授权印章列表
+     */
+    public function getsealauthorize($OpenCorpId,$MemberId){
+        $SealClient = new SealClient($this->client);
+        $GetAppointedUserSealListReq = new GetAppointedUserSealListReq();
+        $GetAppointedUserSealListReq->setOpenCorpId($OpenCorpId);
+        $GetAppointedUserSealListReq->setMemberId($MemberId);
+        $res = $SealClient->getAppointedUserSealList($this->gettoken(),$GetAppointedUserSealListReq);
+        $rest = json_decode($res,true);
+        //dump($rest);exit;
         if($rest['code'] == 100000){
             $retu['code']=200;
             $retu['data'] = $rest['data'];

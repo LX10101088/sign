@@ -133,6 +133,49 @@ class Login extends Gathercontroller
 
 
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月11月 9:48:43
+     * ps:小程序手机号登录
+     * url:{{URL}}/index.php/api/login/appletphone
+     */
+    public function appletphone(){
+        $code = input('param.code');
+        if (!$code) {
+            ajaxReturn(['code' => 300, 'msg' => '缺少参数']);
+        }
+        $Wx = new Wxappletlogin();
+        $res = $Wx->getPhoneNumber($code);//获取session_key
+        $rest = json_decode($res,true);
+        if($rest['errcode'] == 0){
+            $phone = $rest['phone_info']['phoneNumber'];
+            $custom = Db::name('custom')->where('phone','=',$phone)->find();
+            if($custom){
+                //用户存在
+                $data['phone'] = $custom['phone'];
+                $data['customId'] = $custom['id'];
+
+            }else{
+                //用户不存在
+                //创建用户
+                $adddata['phone'] = $phone;
+                $adddata['name'] = '';
+                $commonuser = new Commonuser();
+                $common = new \app\common\controller\Common();
+                $customId = $commonuser->operatecustom($adddata);
+                $common->adduseraccount($customId,'custom');
+                $data['phone'] = $phone;
+                $data['customId'] = $customId;
+            }
+            $data['usertype'] = 'custom';
+            $data['userstate'] = 1;
+
+            ajaxReturn(['code'=>200,'msg'=>'登录成功','data'=>$data]);
+        }else{
+            ajaxReturn(['code'=>301,'msg'=>'登录失败']);
+        }
+    }
 
 
 }

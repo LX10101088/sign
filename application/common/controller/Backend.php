@@ -261,7 +261,29 @@ class Backend extends Controller
         }
     }
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年9月04月 14:59:14
+     * ps:获取当前账号权限
+     */
+    public function getuserauth(){
 
+            if($this->auth->usertype=='custom'){
+                $enterId = $this->getenter();
+                $userId = $this->auth->user_id;
+                if($userId){
+                    $enter = Db::name('enterprise_custom')
+                        ->where('custom_id','=',$this->auth->user_id)
+                        ->where('enterprise_id','=',$enterId)
+                        ->order('id desc')->find();
+
+                        return $enter['purview'];
+
+                }
+            }
+
+    }
     /**
      * 加载语言文件
      * @param string $name

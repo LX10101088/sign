@@ -15,9 +15,15 @@ class Wechatclass{
     public function __construct()
     {
 
-        $this->AppID = "wxec525039a8cfee33";
-        $this->AppSecret = "5d1ee1244730caad9ea060ec5383ff53";
+        $this->AppID = "wx9619f41db13a6ecf";
+        $this->AppSecret = "e0ec83c8a0d7658fcccd871230b74300";
     }
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月11月 15:14:54
+     * ps:微信分享
+     */
     public function getSignPackage($url) {
         $jsapiTicket = $this->getJsApiTicket();
         // 注意 URL 一定要动态获取，不能 hardcode.

@@ -95,6 +95,11 @@ class Fadadanotify extends Frontend
                     $res = json_decode($rest['bizContent'],true);
                     $this->userseal($res);
                     break;
+                case 'seal-authorize-member':
+                    //印章授权成员事件
+                    $res = json_decode($rest['bizContent'],true);
+                    $this->userseal($res);
+                    break;
             }
 
 
@@ -200,6 +205,35 @@ class Fadadanotify extends Frontend
 
             }
 
+        }
+        return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月14月 13:15:40
+     * ps:印章授权成员事件
+     */
+    public function sealauthorize($res){
+        if($res['openCorpId']){
+            $enter = Db::name('enterprise')->where('account','=',$res['openCorpId'])->find();
+            if($enter){
+                //如果有企业查询关系表
+                $encu = Db::name('enterprise_custom')
+                    ->where('enterprise_id','=',$enter['id'])
+                    ->where('memberId','=',$res['memberIds'][0])
+                    ->find();
+                if($encu){
+                    $seal = Db::name('signature')->where('sealNo','=',$res['sealIds'][0])->find();
+                    $data['encu_id'] = $encu['id'];
+                    $data['signature_id'] = $seal['id'];
+                    $data['createtime'] =time();
+                    $ids = Db::name('enterprise_custom_signature')->insertGetId($data);
+                    $commonsignature = new Commonsignature();
+                    $commonsignature->getsealauthorize($ids);
+                }
+            }
         }
         return true;
     }

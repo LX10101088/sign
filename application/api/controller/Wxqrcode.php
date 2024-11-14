@@ -11,8 +11,8 @@ namespace app\api\controller;
 
 class Wxqrcode   extends  Common
 {
-    public $appid     = 'wxec525039a8cfee33';
-    public $app_secret = '5d1ee1244730caad9ea060ec5383ff53';
+    public $appid     = 'wx9619f41db13a6ecf';
+    public $app_secret = 'e0ec83c8a0d7658fcccd871230b74300';
     public   $wxurl="https://api.weixin.qq.com/";
 
     public   function getqrcodelimit($urlc='wxa/getwxacodeunlimit',$path='pages/waybill_add/waybill_add',$scene){

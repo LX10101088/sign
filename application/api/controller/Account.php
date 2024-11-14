@@ -57,6 +57,93 @@ class Account extends Gathercontroller
      * url:{{URL}}/index.php/api/account/withdrawal
      */
     public function withdrawal(){
+        $type = input('param.type');
+        $typeId = input('param.typeId');
+        $price = input('param.price');
+        if(!$type || !$typeId || !$price){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $account = Db::name('account')
+            ->where('type','=',$type)
+            ->where('type_id','=',$typeId)
+            ->find();
+        if($account['balance'] < $price){
+            ajaxReturn(['code'=>301,'msg'=>'账户余额不足']);
+        }
+        $edit['balance'] = $account['balance']-$price;
+        $edit['withdrawalMoney'] = $account['withdrawalMoney'] + $price;
+        $edit['updatetime'] = time();
+        Db::name('account')
+            ->where('type','=',$type)
+            ->where('type_id','=',$typeId)
+            ->update($edit);
+        //添加提现记录
+        $widata['withdrawalNo'] = $this->generatewitno();
+        $widata['type_id'] = $typeId;
+        $widata['type'] = $type;
+        $widata['price'] = $price;
+        $widata['createtime'] = time();
+        Db::name('withdrawal')->insertGetId($widata);
+        ajaxReturn(['code'=>200,'msg'=>'申请成功,请等待平台审核']);
+    }
+    public function generatewitno(){
+        $prefix = 'TX'; // 订单编号前缀
+        $suffix = date('Ymd'); // 当前日期作为后缀
+        $randomDigits = $this->generateRandomDigits(6); // 生成6位随机数字
 
+        $orderNumber = $prefix . $suffix . $randomDigits;
+
+        return $orderNumber;
+    }
+    function generateRandomDigits($length) {
+        $digits = '';
+        $chars = '0123456789';
+
+        for ($i = 0; $i < $length; $i++) {
+            $digits .= $chars[rand(0, strlen($chars) - 1)];
+        }
+        return $digits;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月11月 16:29:11
+     * ps:获取提现记录列表
+     * url:{{URL}}/index.php/api/account/getwitlist
+     */
+    public function getwitlist(){
+        $type = input('param.type');
+        $typeId = input('param.typeId');
+        if(!$type || !$typeId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $wit = Db::name('withdrawal')
+            ->where('type','=',$type)
+            ->where('type_id','=',$typeId)
+            ->order('id desc')
+            ->select();
+        $data = array();
+        foreach($wit as $k=>$v){
+            $data[$k]['witId'] = $v['id'];
+            $data[$k]['withdrawalNo'] = $v['withdrawalNo'];
+            $data[$k]['price'] = $v['price'];
+            $data[$k]['state'] = $v['state'];
+            if($v['state'] == 0){
+                $data[$k]['stateName'] = '申请中';
+            }else if($v['state'] == 1){
+                $data[$k]['stateName'] = '已确认';
+            }else if($v['state'] == 2){
+                $data[$k]['stateName'] = '已到账';
+            }
+            $data[$k]['createtime'] = date('Y-m-d H:i:s',$v['createtime']);
+            if($v['state'] == 2){
+                $data[$k]['updatetime'] = date('Y-m-d H:i:s',$v['updatetime']);
+            }else{
+                $data[$k]['updatetime'] = '';
+            }
+
+        }
+        ajaxReturn(['code'=>200,'msg'=>'请求成功','data'=>$data]);
     }
 }

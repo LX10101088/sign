@@ -5,8 +5,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'encustom/index/enterId/' + Config.enterId,
-                    add_url: 'encustom/add/enterId/' + Config.enterId,
+                    index_url: 'encustom/index/',
+                    add_url: 'encustom/add/',
                     edit_url: 'encustom/edit',
                     del_url: 'encustom/del',
                     multi_url: 'encustom/multi',
@@ -33,14 +33,36 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             buttons:[
                                 {
                                     name:'attestation',
-                                    text:'认证',
-                                    title:'认证',
+                                    text:'实名认证',
+                                    title:'实名认证',
                                     classname: 'btn btn-xs btn-success btn-dialog btn-change ',
                                     icon: 'fa ',
                                     url: 'custom/attestation/ids/{$row.custom_id}',
                                     refresh:true,
                                     extend:'data-area=\'["100%","100%"]\'',
                                 },
+                                {
+                                    name:'sealaccredit',
+                                    text:'印章授权',
+                                    title:'印章授权',
+                                    classname: 'btn btn-xs btn-success btn-dialog btn-change ',
+                                    icon: 'fa ',
+                                    url: 'encustom/sealaccredit',
+                                    refresh:true,
+                                    extend:'data-area=\'["100%","100%"]\'',
+                                },
+
+                                {
+                                    name:'sealmanage',
+                                    text:'用印管理',
+                                    title:'用印管理',
+                                    classname: 'btn btn-xs btn-success btn-dialog btn-change ',
+                                    icon: 'fa ',
+                                    url: 'encusignature/index',
+                                    refresh:true,
+                                    extend:'data-area=\'["100%","100%"]\'',
+                                },
+
                             ],formatter: Table.api.formatter.operate,formatter:
                                 function(value,row,index){
                                     var that = $.extend({},this);
@@ -52,6 +74,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                         $(table).data(
                                             "operate-addsignature",null);
                                     }
+
+                                    if(row.dqauth != 1){
+                                        $(table).data(
+                                            "operate-sealaccredit",null);
+                                    }
                                     $(table).data(
                                         "operate-del",null);
                                     $(table).data(
@@ -59,9 +86,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     that.table = table;
                                     return Table.api.formatter.operate.call(that,value,row,index);
                                 }
+                            // visible:false
                         },
                         // {field: 'service_id', title: __('Service_id')},
-                        {field: 'custom.name', title: __('Name'), operate: 'LIKE'},
+                        {field: 'custom.name', title: __('Name'), operate: 'LIKE',
+
+
+                        },
                         {field: 'custom.phone', title: __('Phone'), operate: 'LIKE'},
                         {field: 'custom.identityNo', title: __('IdentityNo'), operate: 'LIKE'},
                         {field: 'custom.attestation', title: __('Attestation'),searchList: {"0":__('未认证'),"1":__('已认证'),"2":__('认证失败')}},
@@ -139,6 +170,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Controller.api.bindevent();
         },
         edit: function () {
+            Controller.api.bindevent();
+        },
+        sealaccredit: function () {
             Controller.api.bindevent();
         },
         api: {

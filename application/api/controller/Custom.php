@@ -153,7 +153,7 @@ class Custom extends Gathercontroller
     public function attestation(){
         $customId = input('param.customId');
         $url = input('param.url');
-
+        $port = input('param.port');//0：公众号；1：小程序
         if(!$customId){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
@@ -162,7 +162,7 @@ class Custom extends Gathercontroller
             ajaxReturn(['code'=>301,'msg'=>'信息不全，无法进行认证']);
         }
         $commonattestation = new Commonattestation();
-        $res = $commonattestation->custom($custom['id'],$url);
+        $res = $commonattestation->custom($custom['id'],$url,$port);
         if($res['code'] == 200){
             ajaxReturn(['code'=>200,'msg'=>'请求成功','url'=>$res['identifyUrl']]);
         }else{
@@ -210,5 +210,27 @@ class Custom extends Gathercontroller
 
         }
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月12月 9:39:16
+     * ps:修改登录手机号
+     * url:{{URL}}/index.php/api/custom/updatephone
+     */
+    public function updatephone(){
+        $customId = input('param.customId');
+        $url = input('param.url');
+        if(!$customId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $commonuser = new Commonuser();
+        $res = $commonuser->updatephone($customId,$url);
+        if($res['code'] == 200){
+            ajaxReturn(['code'=>200,'msg'=>'获取成功','url'=>$res['url']]);
+        }else{
+            ajaxReturn(['code'=>301,'msg'=>'请求失败，请稍后重试']);
+        }
     }
 }

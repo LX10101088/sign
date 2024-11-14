@@ -29,13 +29,13 @@ class Commonattestation extends Controller
      * time:2024年9月03月 10:09:23
      * ps:个人认证
      */
-    public function custom($ids,$url=''){
+    public function custom($ids,$url='',$port=0){
         $custom = Db::name('custom')->where('id','=',$ids)->find();
 //        $lovesigning= new Lovesigning();
 //        $res = $lovesigning->userattestationurl($custom['name'],$custom['identityNo'],$custom['phone'],$ids);
         //法大大接口
         $fadada = new Fadada();
-        $res = $fadada->userattestationurl($custom['name'],$custom['identityNo'],$custom['phone'],$ids,$url);
+        $res = $fadada->userattestationurl($custom['name'],$custom['identityNo'],$custom['phone'],$ids,$url,$port);
         $rest['code'] = 300;
         $rest['msg'] = '未知错误，请稍后重试！';
         $rest['identifyUrl'] = '';
@@ -99,7 +99,7 @@ class Commonattestation extends Controller
      * time:2024年9月04月 10:54:07
      * ps:企业认证
      */
-    public function enterprise($ids,$url=''){
+    public function enterprise($ids,$url='',$port=0){
         $enter = Db::name('enterprise')->where('id','=',$ids)->find();
 //        $lovesigning= new Lovesigning();
 //        $res = $lovesigning->enterattestationurl($enter['name'],$enter['proveNo'],$enter['legalName'],$enter['legalNo'],$ids);
@@ -133,7 +133,7 @@ class Commonattestation extends Controller
             $ClientUserId = $custom['identityNo'];
         }
         $fadada = new Fadada();
-        $res = $fadada->enterattestationurl($enter['name'],$enter['proveNo'],$enter['legalName'],$encudata,$ClientUserId,$url,$enter['license']);
+        $res = $fadada->enterattestationurl($enter['name'],$enter['proveNo'],$enter['legalName'],$encudata,$ClientUserId,$url,$enter['license'],$port);
         $rest['code'] = 300;
         $rest['msg'] = '未知错误，请稍后重试！';
         $rest['identifyUrl'] = '';
@@ -147,6 +147,12 @@ class Commonattestation extends Controller
         }else{
             $rest['msg'] = $res['msg'];
         }
+        //把该认证管理员设置为超级管理员
+        $cuedit['purview'] = 1;
+        $cuedit['updatetime'] = time();
+        Db::name('enterprise_custom')
+            ->where('id','=',$encu['id'])
+           ->update($cuedit);
         return $rest;
     }
 

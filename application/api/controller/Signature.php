@@ -222,4 +222,39 @@ class Signature extends Controller
 
         ajaxReturn(['code'=>200,'msg'=>'获取成功','url'=>$url,'data'=>$data]);
     }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月12月 11:41:53
+     * ps:印章授权
+     * url:{{URL}}/index.php/api/signature/sealauthorize
+     */
+    public function sealauthorize(){
+        $enterId = input('param.enterId');
+        $customId = input('param.customId');
+        $encustomlistId = input('param.encustomlistId');
+        $sealId = input('param.signatureId');
+
+        $starttime = input('param.starttime');
+        $endtime = input('param.endtime');
+        $url = input('param.url');
+
+        if(!$enterId || !$customId || !$encustomlistId || !$sealId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        if($starttime){
+            $starttime .='000';
+        }
+        if($endtime){
+            $endtime .='000';
+        }
+        $commonsignature = new Commonsignature();
+        $res = $commonsignature->sealauthorize($enterId,$customId,$encustomlistId,$sealId,$starttime,$endtime,$url);
+        if($res['code'] == 200){
+            ajaxReturn(['code'=>200,'msg'=>'获取成功','url'=>$res['url ']]);
+        }else{
+            ajaxReturn(['code'=>301,'msg'=>'请求失败，请稍后重试']);
+        }
+    }
 }

@@ -138,6 +138,7 @@ class Enterprise extends Controller
     public function attestation(){
         $enterId = input('param.enterId');
         $url = input('param.url');
+        $port = input('param.port');//0：公众号；1：小程序
 
         if(!$enterId){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
@@ -147,7 +148,7 @@ class Enterprise extends Controller
             ajaxReturn(['code'=>301,'msg'=>'信息不全，无法进行认证']);
         }
         $commonattestation = new Commonattestation();
-        $res = $commonattestation->enterprise($enter['id'],$url);
+        $res = $commonattestation->enterprise($enter['id'],$url,$port);
         if($res['code'] == 200){
             ajaxReturn(['code'=>200,'msg'=>'请求成功','url'=>$res['identifyUrl']]);
         }else{

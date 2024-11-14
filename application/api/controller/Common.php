@@ -788,5 +788,19 @@ class Common extends Gathercontroller
         dump($a);exit;
     }
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月11月 15:19:21
+     * ps:微信分享
+     * url:{{URL}}/index.php/api/common/wxshare
+     */
+    public function wxshare(){
+        $url = input('param.url');
 
+        $wx = new Wechatclass();
+        $sign = $wx->getSignPackage($url);
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$sign]);
+
+    }
 }

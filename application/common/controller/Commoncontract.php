@@ -627,10 +627,14 @@ class Commoncontract extends Controller
                }
             }
             $fillData = array();
+            $numk = 0;
             foreach($cotecontent as $k=>$v){
-                $fillData[$k]['docId'] =$docId;
-                $fillData[$k]['fieldName'] = $v['name'];
-                $fillData[$k]['fieldValue'] = $v['content'];
+                if($v['content']){
+                    $fillData[$numk]['docId'] =$docId;
+                    $fillData[$numk]['fieldName'] = $v['name'];
+                    $fillData[$numk]['fieldValue'] = $v['content'];
+                    $numk +=1;
+                }
             }
             //添加模版内容
             $fillrest = $fadada->fillvalues($res['signTaskId'],$fillData);
@@ -807,7 +811,7 @@ class Commoncontract extends Controller
      * time:2024年9月18月 15:01:16
      * ps:获取签署方签署链接
      */
-    public function getsignerurl($signingId,$redirectUrl=''){
+    public function getsignerurl($signingId,$redirectUrl='',$port=0){
         $signing = Db::name('contract_signing')->where('id','=',$signingId)->find();
         $contract = Db::name('contract')->where('id','=',$signing['contract_id'])->find();
         if($signing['type'] == 'enterprise'){
@@ -819,7 +823,7 @@ class Commoncontract extends Controller
             $no = $custom['identityNo'];
         }
         $fadada = new Fadada();
-        $res = $fadada->getactorurl($contract['taskId'],$signing['TCN'],$no,$redirectUrl);
+        $res = $fadada->getactorurl($contract['taskId'],$signing['TCN'],$no,$redirectUrl,$port);
         $rest['code'] = 300;
         $rest['url'] = '';
         $rest['msg'] = '';

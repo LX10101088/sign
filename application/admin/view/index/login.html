@@ -174,10 +174,10 @@
                         {if $Think.config.fastadmin.login_captcha}
                         <div class="input-group">
                             <div class="input-group-addon"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span></div>
-                            <input type="text" name="captcha" class="form-control" placeholder="{:__('Captcha')}" data-rule="{:__('Captcha')}:required;length(4)" autocomplete="off"/>
+                            <input  type="text" name="captcha" class="form-control" placeholder="{:__('Captcha')}" data-rule="{:__('Captcha')}:required;length(4)" autocomplete="off"/>
                             <span class="input-group-addon" style="padding:0px;border: 0;">
 								
-                                       <i style="border:1px solid #d2d6de;display: block;cursor:pointer;margin-left: 10px;"><img src="{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha" width="90" height="30" onclick="this.src = '{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha&r=' + Math.random();"/></i>
+                                       <i style="border:1px solid #d2d6de;display: block;cursor:pointer;margin-left: 10px;"><img src="{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha" width="155" height="31" onclick="this.src = '{:rtrim('__PUBLIC__', '/')}/index.php?s=/captcha&r=' + Math.random();"/></i>
 
                             </span>
                         </div>

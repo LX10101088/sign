@@ -35,7 +35,7 @@ class Order extends Controller
         $price = input('param.price');
         $number = input('param.number');
 //        $assertTime = input('param.assertTime');
-        if(!$type && !$typeId && $goodsId && $price && $number){
+        if(!$type || !$typeId || !$goodsId || !$price || !$number){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
         if($type == 'custom'){
@@ -136,6 +136,66 @@ class Order extends Controller
             $digits .= $chars[rand(0, strlen($chars) - 1)];
         }
         return $digits;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月11月 10:12:44
+     * ps:获取订单详情
+     * url:{{URL}}/index.php/api/order/getorderdetails
+     */
+    public function getorderdetails(){
+        $orderId = input('param.orderId');
+        if(!$orderId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $order = Db::name('order as o')
+            ->join('goods','goods.id = o.goods_id')
+            ->where('o.id','=',$orderId)
+            ->field('o.*,goods.name,goods.image,goods.contract,goods.contract,goods.template')
+            ->find();
+        $data = array();
+        $data['orderId'] = $order['id'];
+        $data['goodsId'] = $order['goods_id'];
+        $data['goodsName'] = $order['name'];
+        $data['image'] = $order['image'];
+        $data['contract'] = $order['contract']*$order['number'];
+        $data['template'] = $order['template']*$order['number'];
+
+        $data['orderNo'] = $order['orderNo'];
+        $data['type'] = $order['type'];
+        $data['typeId'] = $order['type_id'];
+        $data['price'] = $order['price'];
+        $data['totalprice'] = $order['totalprice'];
+        $data['number'] = $order['number'];
+        if($order['paytime']){
+            $data['paytime'] = date('Y-m-d H:i:s',$order['paytime']);
+        }else{
+            $data['paytime'] = '';
+        }
+        $data['paystatus'] = $order['paystatus'];
+        if($order['paystatus'] == 0){
+            $data['paystatusName'] = '未支付';
+        }else if($order['paystatus'] == 1){
+            $data['paystatusName'] = '已支付';
+        }else if($order['paystatus'] == 2){
+            $data['paystatusName'] = '已退款';
+        }
+        $data['state'] = $order['state'];
+        if($order['state'] == 0){
+            $data['stateName'] = '待确认';
+        }else if($order['state'] == 1){
+            $data['stateName'] = '待支付';
+        }else if($order['state'] == 2){
+            $data['stateName'] = '已支付';
+        }else if($order['state'] == 3){
+            $data['stateName'] = '已完成';
+        }else if($order['state'] == 4){
+            $data['stateName'] = '已取消';
+        }
+        $data['createtime'] = date('Y-m-d H:i:s',$order['createtime']);
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
     }
 
     /**

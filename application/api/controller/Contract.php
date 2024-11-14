@@ -635,6 +635,8 @@ class Contract extends Gathercontroller
         $typeId = input('param.typeId');
         $contractId = input('param.contractId');
         $redirectUrl = input('param.redirectUrl');
+        $port = input('param.port');//0：公众号；1：小程序
+
         if(!$type){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
@@ -678,7 +680,7 @@ class Contract extends Gathercontroller
         } else{
             if($sign){
                 if($sign['state'] == 0){
-                    $res = $commoncontract->getsignerurl($sign['id'],$redirectUrl);
+                    $res = $commoncontract->getsignerurl($sign['id'],$redirectUrl,$port);
                 }else{
                     $res = $commoncontract->getapicontracturl($contractId);
                 }

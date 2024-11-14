@@ -4,6 +4,7 @@ namespace app\admin\controller;
 
 use app\common\controller\Backend;
 use app\common\controller\Commonenter;
+use app\common\controller\Commonsignature;
 use think\Db;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
@@ -11,6 +12,7 @@ use think\exception\DbException;
 use think\exception\PDOException;
 use think\exception\ValidateException;
 use think\response\Json;
+use think\Url;
 
 /**
  * 企业个人关系管理
@@ -19,6 +21,7 @@ use think\response\Json;
  */
 class Encustom extends Backend
 {
+    protected $noNeedLogin = ['sealaccredit','ajax_sealaccredit'];
 
     /**
      * Encustom模型对象
@@ -40,17 +43,23 @@ class Encustom extends Backend
      * @throws \think\Exception
      * @throws DbException
      */
-    public function index($ids=null)
+    public function index()
     {
 
         //设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
         if (false === $this->request->isAjax()) {
-            $this->assignconfig("enterId", $ids);
+            $purview = $this->getuserauth();
+
+            $this->assign("purview", $purview);
             return $this->view->fetch();
         }
-        $enterId=$this->request->param('enterId');
+//        $enterId=$this->request->param('enterId');
 
+//        if($enterId == null || !$enterId){
+        $enterId = $this->getenter();
+
+//        }
         //如果发送的来源是 Selectpage，则转发到 Selectpage
         if ($this->request->request('keyField')) {
             return $this->selectpage();
@@ -62,6 +71,8 @@ class Encustom extends Backend
             ->where('enterprise_id','=',$enterId)
             ->order($sort, $order)
             ->paginate($limit);
+        $purview = $this->getuserauth();
+
         foreach($list as $k=>$v){
             if($v['custom']['attestation'] == 0){
                 $list[$k]['custom']['attestation'] = '未认证';
@@ -70,6 +81,7 @@ class Encustom extends Backend
             }else if($v['custom']['attestation'] == 2){
                 $list[$k]['custom']['attestation'] = '已认证';
             }
+            $list[$k]['dqauth'] = $purview;
         }
         $result = ['total' => $list->total(), 'rows' => $list->items()];
         return json($result);
@@ -105,21 +117,16 @@ class Encustom extends Backend
                 $this->model->validateFailException()->validate($validate);
             }
             //验证成员是否已经存在企业
-            $enterId=$this->request->param('enterId');
-            if($enterId){
-                $params['enterprise_id'] = $enterId;
-                $encu = Db::name('enterprise_custom')
-                    ->where('enterprise_id','=',$enterId)
-                    ->where('custom_id','=',$params['custom_id'])
-                    ->find();
-                if($encu){
-                    $this->error('请勿重复添加成员');
-                }
-            }
-            $params['createtime'] = time();
-            $encuId = Db::name('enterprise_custom')->insertGetId($params);
+
+            $enterId = $this->getenter();
+
             $commonenter = new Commonenter();
-            $commonenter->addmember($encuId);
+            $res = $commonenter->addplatemember($enterId,$params['name'],$params['phone'],$params['identityNo']);
+            if($res == 300){
+                $this->error('手机号已注册，输入身份信息与认证信息不同');
+            }else if($res == 301){
+                $this->error('成员已存在，请勿重复添加');
+            }
             //$result = $this->model->allowField(true)->save($params);
             $result = true;
             Db::commit();
@@ -144,38 +151,91 @@ class Encustom extends Backend
      */
     public function del($ids = null)
     {
-        if (false === $this->request->isPost()) {
-            $this->error(__("Invalid parameters"));
-        }
-        $ids = $ids ?: $this->request->post("ids");
-        if (empty($ids)) {
-            $this->error(__('Parameter %s can not be empty', 'ids'));
-        }
-        $pk = $this->model->getPk();
-        $adminIds = $this->getDataLimitAdminIds();
-        if (is_array($adminIds)) {
-            $this->model->where($this->dataLimitField, 'in', $adminIds);
-        }
-        $list = $this->model->where($pk, 'in', $ids)->select();
+        $array = explode(",", $ids);
+        $commonenter = new Commonenter();
+        foreach($array as $k=>$v){
+            if($v){
+                $encu = Db::name('enterprise_custom')
+                    ->where('id','=',$ids)
+                    ->find();
+                if($encu['purview'] == 1 || $encu['purview'] == 0){
+                    $this->error('请勿删除超级管理员');
+                }
 
-        $count = 0;
-        Db::startTrans();
-        try {
-            $commonenter = new Commonenter();
-            foreach ($list as $item) {
-                $commonenter->delmember($item['id']);
-
-                $count += $item->delete();
+                $commonenter->delmember($v);
             }
-            Db::commit();
-        } catch (PDOException|Exception $e) {
-            Db::rollback();
-            $this->error($e->getMessage());
         }
-        if ($count) {
-            $this->success();
-        }
-        $this->error(__('No rows were deleted'));
+        $this->success('删除成功');
     }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月13月 15:17:32
+     * ps:法大大企业人员添加认证
+     */
+    public function fadada($ids = null){
+        $encu = Db::name('enterprise_custom as e')
+            ->join('custom','e.custom_id=custom.id')
+            ->where('e.id','=',$ids)
+            ->find();
+
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月14月 10:06:08
+     * ps:印章授权
+     */
+    public function sealaccredit($ids = null){
+        $encu = Db::name('enterprise_custom')
+            ->where('id','=',$ids)
+            ->find();
+        if (false === $this->request->isPost()) {
+            $date = date('Y-m-d H:i:s',time());
+            $timestamp = strtotime($date . ' +1 day'); // 将日期字符串转换为时间戳并增加一天
+
+            $this->assign('time',date('Y-m-d H:i:s',$timestamp));
+            $this->assign('ids',$ids);
+
+            $this->assign('enterId',$encu['enterprise_id']);
+            return $this->view->fetch();
+        }
+
+    }
+
+    public function ajax_sealaccredit(){
+        $ids = $_POST['ids'];
+        $signatureId = $_POST['signatureId'];
+
+        $time = $_POST['endtime'];
+
+        $encu = Db::name('enterprise_custom')
+            ->where('id','=',$ids)
+            ->find();
+
+        $encusign = Db::name('enterprise_custom_signature')
+            ->where('encu_id','=',$ids)
+            ->where('signature_id','=',$signatureId)
+            ->where('endtime','>',time())
+            ->find();
+
+        if($encusign){
+            if($encusign['endtime']){
+                $res['code'] = 300;
+                $res['msg'] = '印章已授权，请勿重复授权';
+                return $res;
+            }
+        }
+        $starttime = time().'000';
+        $endtime = strtotime($time).'000';
+        $userId = $this->auth->user_id;
+        $commonsignature = new Commonsignature();
+        $res = $commonsignature->sealauthorize($encu['enterprise_id'],$userId,$ids,$signatureId,$starttime,$endtime);
+        return $res;
+    }
+
+
 
 }

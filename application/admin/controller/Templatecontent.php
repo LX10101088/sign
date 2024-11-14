@@ -10,13 +10,11 @@ use think\exception\ValidateException;
 use think\response\Json;
 
 /**
- * 
  *
  * @icon fa fa-circle-o
  */
 class Templatecontent extends Backend
 {
-
     /**
      * Templatecontent模型对象
      * @var \app\admin\model\Templatecontent
@@ -27,7 +25,6 @@ class Templatecontent extends Backend
     {
         parent::_initialize();
         $this->model = new \app\admin\model\Templatecontent;
-
     }
 
     public function import()
@@ -126,6 +123,9 @@ class Templatecontent extends Backend
                 $this->model->validateFailException()->validate($validate);
             }
             $params['template_id'] = $templateId;
+            if(!$params['describe']){
+                $params['describe'] = '请输入'.$params['name'];
+            }
             $result = $this->model->allowField(true)->save($params);
             Db::commit();
         } catch (ValidateException|PDOException|Exception $e) {
