@@ -5,13 +5,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'mrn/index' + location.search,
-                    add_url: 'mrn/add',
-                    edit_url: 'mrn/edit',
-                    del_url: 'mrn/del',
-                    multi_url: 'mrn/multi',
-                    import_url: 'mrn/import',
-                    table: 'mrn',
+                    index_url: 'mrnprice/index' + location.search,
+                    add_url: 'mrnprice/add',
+                    edit_url: 'mrnprice/edit',
+                    del_url: 'mrnprice/del',
+                    multi_url: 'mrnprice/multi',
+                    import_url: 'mrnprice/import',
+                    table: 'mrn_price',
                 }
             });
 
@@ -22,12 +22,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                fixedColumns: true,
+                fixedRightNumber: 1,
                 searchFormVisible:true,
                 columns: [
                     [
                         {checkbox: true},
                         {field: 'createtime', title: __('初诊日期'),visible:false, operate:'BETWEEN'},
                         {field: 'jzys', title: __('就诊医生'),visible:false,searchList: {"尚红英":__('尚红英')}},
+                        {field: 'price', title: __('患者交费'),visible:false,searchList: {"已交费":__('已交费')}},
 
                         {field: 'mrntwo', title: __('Mrntwo'), operate: 'LIKE'},
                         {field: 'bq', title: __('标签'), operate: 'LIKE'},
@@ -36,9 +39,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'age', title: __('Age'), operate: 'LIKE'},
                         {field: 'createtime', title: __('Createtime'), operate:false, addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'phone', title: __('Phone'), operate: 'LIKE'},
-                        {field: 'fl', title: __('分类'), operate: 'LIKE'},
-                        {field: 'jzys', title: __('就诊医生'),operate: false,searchList: {"尚红英":__('尚红英')}},
-
+                        {field: 'price', title: __('实收金额'), operate: false},
+                        {field: 'jzys', title: __('就诊医生'), operate: false,searchList: {"尚红英":__('尚红英')}},
                     ]
                 ]
             });

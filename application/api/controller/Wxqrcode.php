@@ -11,12 +11,13 @@ namespace app\api\controller;
 
 class Wxqrcode   extends  Common
 {
-    public $appid     = 'wx9619f41db13a6ecf';
-    public $app_secret = 'e0ec83c8a0d7658fcccd871230b74300';
+    public $appid     = 'wx8918b2b4440992c9';
+    public $app_secret = '45c2e66c67347cb36e5cfca560e33d17';
     public   $wxurl="https://api.weixin.qq.com/";
 
-    public   function getqrcodelimit($urlc='wxa/getwxacodeunlimit',$path='pages/waybill_add/waybill_add',$scene){
-        $wxLogin = new Wxlogin();
+    public   function getqrcodelimit($urlc='wxa/getwxacodeunlimit',$path='pages/login/login',$scene='',$env_version='release'){
+        $wxLogin = new Wxappletlogin();
+        //$scene = "platformId=36&contract=12";
 
         $token  = $wxLogin->getAccessToken();
         $url=$this->wxurl.$urlc.'?access_token='.$token;
@@ -24,6 +25,7 @@ class Wxqrcode   extends  Common
         $postdata['scene'] = $scene;
         $postdata['width']  = 1080;
         $postdata['is_hyaline']  = TRUE;
+        $postdata['env_version']  = $env_version;
 
         $imgflow=$this->https_request($url,$postdata,'json');
 

@@ -59,6 +59,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     refresh:true,
                                     extend:'data-area=\'["100%","100%"]\'',
                                 },
+                                {
+                                    name:'templatedel',
+                                    text:'删除',
+                                    title:'删除',
+                                    classname: 'btn btn-xs btn-success btn-view btn-ajax',
+                                    icon: 'fa ',
+                                    url: 'template/del',
+                                    refresh:true,
+                                },
                                 // {
                                 //     name:'edits',
                                 //     text:'修改',
@@ -99,6 +108,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                         $(table).data(
                                             "operate-contenturl",null);
 
+                                    }
+                                    if(row.state !='待生成'){
+                                        $(table).data(
+                                            "operate-templatedel",null);
                                     }
 
                                     if(row.typeqx == 1){

@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 use app\common\controller\Commonattestation;
+use app\common\controller\Commonsignature;
 use app\common\controller\Commonuser;
 use think\Controller;
 use think\Db;
@@ -53,16 +54,31 @@ class Custom extends Gathercontroller
         }
         $commonuser = new Commonuser();
         if($customId){
-            $identityNocustom = Db::name('custom')->where('id','<>',$customId)->where('identityNo','=',$identityNo)->find();
+            $identityNocustom = Db::name('custom')->where('id','<>',$customId)->where('identityNo','=',$identityNo)->where('attestation','=',1)->find();
             if($identityNocustom){
-                ajaxReturn(['code'=>301,'msg'=>'身份信息已存在平台']);
+                $cert = Db::name('cert')->where('type','=','custom')->where('type_id','=',$identityNocustom['id'])->order('id desc')->find();
+                if($cert){
+                    $url = $cert['certImg'];
+                }else{
+                    $commonsignature = new Commonsignature();
+                    $url = $commonsignature->getcertinfo('custom',$identityNocustom['id']);
+                }
+                ajaxReturn(['code'=>302,'msg'=>'该用户已认证','url'=>$url]);
             }
             //传输customId代表修改
             $commonuser->operatecustom($data,$customId);
         }else{
-            $identityNocustom = Db::name('custom')->where('identityNo','=',$identityNo)->find();
+            $identityNocustom = Db::name('custom')->where('identityNo','=',$identityNo)->where('attestation','=',1)->find();
             if($identityNocustom){
-                ajaxReturn(['code'=>301,'msg'=>'身份信息已存在平台']);
+                //获取用户数字证书
+                $cert = Db::name('cert')->where('type','=','custom')->where('type_id','=',$identityNocustom['id'])->order('id desc')->find();
+                if($cert){
+                    $url = $cert['certImg'];
+                }else{
+                    $commonsignature = new Commonsignature();
+                    $url = $commonsignature->getcertinfo('custom',$identityNocustom['id']);
+                }
+                ajaxReturn(['code'=>302,'msg'=>'该用户已认证','url'=>$url]);
             }
             //不传代表添加
             $commonuser->operatecustom($data);
@@ -202,9 +218,15 @@ class Custom extends Gathercontroller
             $account = Db::name('account')->where('type','=','enterprise')->where('type_id','=',$v['enterprise_id'])->find();
             $data[$k+1]['name'] = $enter['name'];
             $data[$k+1]['enterId'] = $v['enterprise_id'];
-            $data[$k+1]['template'] = trim($account['template']);
-            $data[$k+1]['contract'] = trim($account['contract']);
+            if(!$account){
+                $data[$k+1]['template'] = 0;
+                $data[$k+1]['contract'] = 0;
+            }else{
+                $data[$k+1]['template'] = trim($account['template']);
+                $data[$k+1]['contract'] = trim($account['contract']);
+            }
             $data[$k+1]['attestation'] = trim($enter['attestation']);
+
             $data[$k+1]['type'] = 'enterprise';
             $data[$k+1]['role'] = '管理员';
 

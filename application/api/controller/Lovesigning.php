@@ -11,12 +11,13 @@ use think\Controller;
 class Lovesigning extends Controller
 {
     public $host="https://prev.asign.cn/";//请求网关 测试
+
+
     public $notifyUrl = "";
     public $appId = '437584575';//应用id测试
 
 
     public $apiSecret = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCCzCPQgO0SoTFOUkAEThVBI2RSvqE0WOgJLRFTLwa4tQFIuwiorxRp3YSbpIn9OuwJGLgun1Hczz3qrh121wXr4SpIXQRUNbVJeYlulgzFQ5Q/rEAWllIrGKwgZ9/BHxONxFLf2f0YVt0S90R/ETYyaoauZPcYYVij41wfmusNJuXgQFqpO8RL1uRhMTPSyRXzjdl7rm1JJOsGhCQ2OfZ1inoeRUCwPPqp/HhpTYXhOYvNIs/mgKm2o6AZTmZbMEzxEnphyWCQdgSnuHHC3xVfTZr6Mo7JfRSmhGnGC1qmXKBrKbRRLLDGWNqjwImGsiZPDsKvIJEVngc1mQFdqiDHAgMBAAECggEANNWTTgEWQqU8Tn/o/hQwf7x1JPt+ELAtIq/CxNBFLc1n9GIg0ErQuybRDzH6z4DCobYLiEGxBrnsL+UfX8bhzHOK6eow+ncrgL+IZVRVWkW/F61Twgv8qw3vUbPD7bXI50Y7l9LtaqyD5spdL9rbAqiHOODt8zo3XRRVPSsN8aR9+7ALv901k/R6EaVIDC2mHTpfOJw4MzBkie05RcqldJsT/KMU2/gBbh5sVQuxsPcpVc9kL1WigwCnus/NjVGn9FjMLLsf1qbsmki8sFVcjDI21K0c6J+eQsFGxLdbgFfFWjle8mv6//GUMVjv5GpHMe55QX3GjtM+Gvg+6FVWYQKBgQD90PYXreQaWt253FNHG1yRxuRVy1nVZCfpSZjlDzX4nD/B3ipN6mVR7cwhNzS1B0bF5kFxQmEyFD6XvUSZFixVr/QCFXm0Eydn6g4VPnEIzsZ0O3pH4MlHzpk4Wxh20atAtg1HLBonjLbadPAg+zggZrMydZq3CI6KEBpFVNxuVwKBgQCD7Dm9nGGUynnAO3njnMQYxLZQPkt55Lssq7LUIb8AdRL5i+tRUXPtGjk7nJXTT5aOCYgLuzArVvmUY72FALZv3IgctMuQMlEV28Z5F5dIujMCqps2WLAsybBJXvnPzoLOEufAPjwsBjD2za9fX8GCWhA9ehS9FTblTW4BljV7EQKBgEbgnGgeYg1OBI7LTOIVbPM0ZDzlDU/+qPqHV8/XQI4NK+y6WnvpkaOgURmRbgGDZ6sJ0oqLK9MtPhFnhAlv3K+M9AnE73huxNlKzeX2yt/XxildFpeN2QdZVQYcwickA7uNWwXd9evHaqR0dT3wiUrbAv17Q9oK5Kr/NibYPLn/AoGADnFjVO31BPwx3ijkzFWSZn/K0fgv/TVchKR7nJvhNGSc4jM+XRXE0lWHpI4dHRhejEhg25/vwx7vjh5pVlFgp9iGElZ83tmTZQg9r240wuKXyRfyjD2jdBPUuAOs5+JdEcCiHLrzjYJUBAE6zP9HyUSg+IoQES9sZihW/dd7HXECgYEAxaPWP/YVR1YQHjY9IZnubJpUyIwGat/99N4W44a4/DLdpAfF81U5wkIrCVDXUueEolPb+wSypA91QULbORImWmHxjIXbuQtccRNUvNASTeICb2kGzBfZSgxfYFcYoCX2eZsHkaoosTmNVoxSrrwDORjERml5HnsYRGeTG/6fhok=";
-
     public function __construct()
     {
     }
@@ -179,7 +180,7 @@ class Lovesigning extends Controller
      * ps:企业认证网页版
      * url:{{URL}}/index.php/api/lovesigning/enterattestation
      */
-    public function enterattestationurl($entername='',$enterCode='',$name='',$identityNo='',$enterId){
+    public function enterattestationurl($entername='滁州泓通物联科技有限公司',$enterCode='91341102MADUP1GT6H',$name='李淑娟',$identityNo='220519197210013361',$enterId=1){
         $data = array();
         $url = '/auth/company/identifyUrl';
         $data['companyName'] = $entername;
@@ -189,11 +190,11 @@ class Lovesigning extends Controller
 
 
 
-        $data['redirectUrl'] ='http://sign.xtwlhy.com';
-        $data['bizId'] =$enterId.'-'.rand(0,1000);
-        $data['notifyUrl'] ='http://sign.xtwlhy.com//index.php/index/signnotifyls/enterprise';
+        //$data['redirectUrl'] ='http://sign.xtwlhy.com';
+        //$data['bizId'] =$enterId.'-'.rand(0,1000);
+        //$data['notifyUrl'] ='http://sign.xtwlhy.com//index.php/index/signnotifyls/enterprise';
         $res  =  $this->request($data,$url);
-
+        dump($res);exit;
         if(isset($res['data'])){
             $rest['code'] = 300;
             if($res['rt'] == true){
@@ -501,7 +502,7 @@ class Lovesigning extends Controller
      * ps:添加企业用户
      * url:{{URL}}/index.php/api/lovesigning/addenter
      */
-    public function addenter($account='',$serialNo='',$name,$idCard,$mobile){
+    public function addenter($account='91341102MADUP1GT6H',$serialNo='CA35020241115095019052493',$name='李淑娟',$idCard='220519197210013361',$mobile='18904383601'){
         $data = array();
         $url = '/v2/user/addEnterpriseUser';
         $data['account'] = $account;
@@ -513,7 +514,7 @@ class Lovesigning extends Controller
 
 
         $res  =  $this->request($data,$url);
-
+        dump($res);exit;
         if(isset($res['data'])){
             $rest['code'] = 300;
             if($res['rt'] == true){

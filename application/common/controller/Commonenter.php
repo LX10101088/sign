@@ -54,29 +54,29 @@ class Commonenter extends Controller
 //
 //            }
             //创建企业法人账号并绑定关系
-            $custom = Db::name('custom')->where('phone','=',$enter['legalPhone'])->find();
-            if($custom){
-                $customId = $custom['id'];
-
-            }else{
-                if(isset($data['legalName'])){
-                    $cudata['name'] = $data['legalName'];
-                    $cudata['phone'] = $data['legalPhone'];
-                    $cudata['identityNo'] = $data['legalNo'];
-
-                    $cudata['createtime'] = time();
-                    $commonuser = new Commonuser();
-                    $customId = $commonuser->operatecustom($cudata);
-                }
-
-            }
-            //创建企业用户与个人用户关系
-            $ecdata['custom_id'] = $customId;
-            $ecdata['enterprise_id'] = $enterId;
-            $ecdata['owner'] = 1;
-
-            $ecdata['createtime'] = time();
-            $ecId = Db::name('enterprise_custom')->insertGetId($ecdata);
+//            $custom = Db::name('custom')->where('phone','=',$enter['legalPhone'])->find();
+//            if($custom){
+//                $customId = $custom['id'];
+//
+//            }else{
+//                if(isset($data['legalName'])){
+//                    $cudata['name'] = $data['legalName'];
+//                    $cudata['phone'] = $data['legalPhone'];
+//                    $cudata['identityNo'] = $data['legalNo'];
+//
+//                    $cudata['createtime'] = time();
+//                    $commonuser = new Commonuser();
+//                    $customId = $commonuser->operatecustom($cudata);
+//                }
+//
+//            }
+//            //创建企业用户与个人用户关系
+//            $ecdata['custom_id'] = $customId;
+//            $ecdata['enterprise_id'] = $enterId;
+//            $ecdata['owner'] = 1;
+//
+//            $ecdata['createtime'] = time();
+//            $ecId = Db::name('enterprise_custom')->insertGetId($ecdata);
             //法大大添加成员
             //$this->addmember($ecId);
             $common = new Common();
@@ -146,11 +146,9 @@ class Commonenter extends Controller
         //$lovesigning = new Lovesigning();
         $fadada = new Fadada();
         if($enterprise['attestation'] == 0){
-
             //用户未认证，查询认证状态
             if($enterprise['account']){
                 $res = $fadada->getuser($enterprise['account'],1,1);
-
             }else{
                 $res = $fadada->getuser($enterprise['proveNo'],3,1);
 

@@ -10,6 +10,6 @@ return [
     'Createtime' => '创建时间',
     'Updatetime' => '修改时间',
     'Deletetime' => '删除时间',
-    'Imglist'     => '模板内容文件',
+    'Imglist'     => '模板填写内容文件',
     'Preview'   =>'预览图'
 ];

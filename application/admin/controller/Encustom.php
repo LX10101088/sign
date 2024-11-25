@@ -21,7 +21,7 @@ use think\Url;
  */
 class Encustom extends Backend
 {
-    protected $noNeedLogin = ['sealaccredit','ajax_sealaccredit'];
+    protected $noNeedLogin = ['index','sealaccredit','ajax_sealaccredit'];
 
     /**
      * Encustom模型对象
@@ -43,23 +43,25 @@ class Encustom extends Backend
      * @throws \think\Exception
      * @throws DbException
      */
-    public function index()
+    public function index($ids=null)
     {
 
         //设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
         if (false === $this->request->isAjax()) {
             $purview = $this->getuserauth();
-
+            $this->assignconfig('enterId',$ids);
             $this->assign("purview", $purview);
             return $this->view->fetch();
         }
-//        $enterId=$this->request->param('enterId');
+        $enterId=$this->request->param('enterId');
 
-//        if($enterId == null || !$enterId){
-        $enterId = $this->getenter();
+        if(!$enterId || $enterId == "null ") {
 
-//        }
+            $enterId = $this->getenter();
+
+        }
+
         //如果发送的来源是 Selectpage，则转发到 Selectpage
         if ($this->request->request('keyField')) {
             return $this->selectpage();
@@ -117,8 +119,12 @@ class Encustom extends Backend
                 $this->model->validateFailException()->validate($validate);
             }
             //验证成员是否已经存在企业
+            $enterId=$this->request->param('enterId');
 
-            $enterId = $this->getenter();
+            if(!$enterId || $enterId == "null ") {
+                $enterId = $this->getenter();
+
+            }
 
             $commonenter = new Commonenter();
             $res = $commonenter->addplatemember($enterId,$params['name'],$params['phone'],$params['identityNo']);
@@ -158,10 +164,12 @@ class Encustom extends Backend
                 $encu = Db::name('enterprise_custom')
                     ->where('id','=',$ids)
                     ->find();
-                if($encu['purview'] == 1 || $encu['purview'] == 0){
+                if($encu['purview'] == 1){
                     $this->error('请勿删除超级管理员');
                 }
-
+                if($encu['purview'] == 0){
+                    $this->error('请勿删除超级管理员');
+                }
                 $commonenter->delmember($v);
             }
         }

@@ -5,8 +5,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'encustom/index/',
-                    add_url: 'encustom/add/',
+                    index_url: 'encustom/index/enterId/' + Config.enterId,
+                    add_url: 'encustom/add/enterId/' + Config.enterId,
                     edit_url: 'encustom/edit',
                     del_url: 'encustom/del',
                     multi_url: 'encustom/multi',
@@ -78,6 +78,18 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     if(row.dqauth != 1){
                                         $(table).data(
                                             "operate-sealaccredit",null);
+                                    }
+                                    if(row.purview == 1){
+                                        $(table).data(
+                                            "operate-sealaccredit",null);
+                                        $(table).data(
+                                            "operate-sealmanage",null);
+                                    }
+                                    if(row.purview == 0){
+                                        $(table).data(
+                                            "operate-sealaccredit",null);
+                                        $(table).data(
+                                            "operate-sealmanage",null);
                                     }
                                     $(table).data(
                                         "operate-del",null);

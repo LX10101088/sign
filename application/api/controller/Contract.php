@@ -60,8 +60,17 @@ class Contract extends Gathercontroller
            }
            $stwhere = array();
            if($state){
+
                $stwhere['contract.state'] = $state;
+               if($state == 50){
+                   $stwhere = array();
+               }
+           }else{
+               if($state == 0){
+                   $stwhere['contract.state'] = 0;
+               }
            }
+
            //我收到
            $contract = Db::name('contract_signing as s')
                ->join('contract','contract.id=s.contract_id')
@@ -85,6 +94,13 @@ class Contract extends Gathercontroller
            $stwhere = array();
            if($state){
                $stwhere['state'] = $state;
+               if($state == 50){
+                   $stwhere = array();
+               }
+           }else{
+               if($state == 0){
+                   $stwhere['state'] = 0;
+               }
            }
            $whereor = '';
            if($search){
@@ -105,7 +121,6 @@ class Contract extends Gathercontroller
                ->order('id desc')
                ->page($page,$limit)
                ->field('id as contract_id,initiateType,initiate_id,contractNo,contractName,state,createtime')
-
                ->select();
 
            $count = Db::name('contract')
@@ -115,6 +130,19 @@ class Contract extends Gathercontroller
                ->where($stwhere)
                ->order('id desc')
                ->count();
+           //用户合同列表，查询是否有示例合同
+           $example = Db::name('contract')
+               ->where($whereor)
+               ->where($where)
+               ->where($stwhere)
+               ->where('example','=',1)
+               ->field('id as contract_id,initiateType,initiate_id,contractNo,contractName,state,createtime')
+               ->find();
+               if($example){
+                   $count +=1;
+               }
+
+
        }else if($listtype == 3){
            //抄送我的
            $whereor = '';
@@ -125,6 +153,13 @@ class Contract extends Gathercontroller
            $stwhere = array();
            if($state){
                $stwhere['contract.state'] = $state;
+               if($state == 50){
+                   $stwhere = array();
+               }
+           }else{
+               if($state == 0){
+                   $stwhere['contract.state'] = 0;
+               }
            }
            $contract = Db::name('contract_macf as m')
                ->join('contract','contract.id=m.contract_id')
@@ -276,6 +311,68 @@ class Contract extends Gathercontroller
        }
        $sumpage = 0;
        $sumpage  = ceil($count/$limit);
+       if($listtype == 2){
+           if($example) {
+               //dump($example);exit;
+               //判断是否最后一页才展示示例合同
+               if($page == $sumpage){
+                   $numk = count($data);
+                   $data[$numk]['contractId'] = $example['contract_id'];
+                   $data[$numk]['contractNo'] = $example['contractNo'];
+
+                   $data[$numk]['contractName'] = $example['contractName'];
+                   $data[$numk]['initiateType'] = $example['initiateType'];
+                   $data[$numk]['initiate_id'] = $example['initiate_id'];
+                   if($example['initiateType'] == 'custom'){
+                       $data[$numk]['initiateName'] = $common->getcustom($example['initiate_id'],'name')['name'];
+                   }else{
+                       $data[$numk]['initiateName'] = $common->getenter($example['initiate_id'],'name')['name'];
+                   }
+                   $data[$numk]['state'] = $example['state'];
+                   if($example['state'] == 0){
+                       $data[$numk]['stateName'] = '待签约';
+                   }else if($example['state'] == 1){
+                       $data[$numk]['stateName'] = '签约中';
+                   }else if($example['state'] == 2){
+                       $data[$numk]['stateName'] = '已签约';
+                   }else if($example['state'] == 3){
+                       $data[$numk]['stateName'] = '已过期';
+                   }else if($example['state'] == 4){
+                       $data[$numk]['stateName'] = '已拒签';
+                   }else if($example['state'] == 5){
+                       $data[$numk]['stateName'] = '未发起';
+                   }else if($example['state'] == 6){
+                       $data[$numk]['stateName'] = '已作废';
+                   }else if($example['state'] == 7){
+                       $data[$numk]['stateName'] = '已撤销';
+                   }else if($example['state'] == 10){
+                       $data[$numk]['stateName'] = '待发起';
+                   }
+                   $data[$numk]['signing'] = array();
+                   $signing = Db::name('contract_signing')->where('contract_id','=',$example['contract_id'])->order('id desc')->select();
+                   foreach($signing as $kk=>$vv){
+
+
+                       $data[$numk]['signing'][$kk]['type'] = $vv['type'];
+                       $data[$numk]['signing'][$kk]['typeId'] = $vv['type_id'];
+                       if($vv['type'] == 'custom'){
+                           $data[$numk]['signing'][$kk]['typeName'] = $common->getcustom($vv['type_id'],'name')['name'];
+                       }else{
+                           $data[$numk]['signing'][$kk]['typeName'] = $common->getenter($vv['type_id'],'name')['name'];
+                       }
+                       $data[$numk]['signing'][$kk]['state'] = $vv['state'];
+                       if($vv['state'] == 0){
+                           $data[$numk]['signing'][$kk]['stateName'] = '未签署';
+                       }else if($vv['state'] == 1){
+                           $data[$numk]['signing'][$kk]['stateName'] = '已签署';
+                       }else if($vv['state'] == 2){
+                           $data[$numk]['signing'][$kk]['stateName'] = '拒绝签署';
+                       }
+                   }
+                   $data[$numk]['createtime'] = date('Y-m-d H:i:s',$example['createtime']);
+               }
+           }
+       }
        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data,'page'=>$page,'limit'=>$limit,'sum_page'=>$sumpage]);
 
    }
@@ -427,10 +524,10 @@ class Contract extends Gathercontroller
         $involvedName .= $name.';';
 
         //查询状态余额是否充足
-        $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
-        if($account['contract'] < 1){
-            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
-        }
+//        $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
+//        if($account['contract'] < 1){
+//            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
+//        }
         $commoncontract = new Commoncontract();
         //添加合同信息
         $data['contractNo'] = $commoncontract->addcontractNo($this->platformId);
@@ -470,7 +567,17 @@ class Contract extends Gathercontroller
         $commonuser= new Commonuser();
         $commonenter = new Commonenter();
         $json_signature = json_decode($signature,true);
+
         foreach($json_signature as $k=>$v){
+            //判断是否填入签署人信息，如果有未填入的则提示错误并删除合同信息
+            if(!$v['name']){
+                //删除合同信息
+                Db::name('contract')->where('id','=',$contractId)->delete();
+                Db::name('contract_template_content')->where('contract_id','=',$contractId)->delete();
+                Db::name('contract_signing')->where('contract_id','=',$contractId)->delete();
+
+                ajaxReturn(['code'=>301,'msg'=>'请填写签署人']);
+            }
             if($v['type'] == 'custom'){
                 //个人用户
                 $custom = Db::name('custom')->where('phone','=',$v['phone'])->find();
@@ -616,7 +723,7 @@ class Contract extends Gathercontroller
         $res = $commoncontract->initiatecontract($contractId);
 
         if($res['code'] == 200){
-            ajaxReturn(['code'=>200,'msg'=>'发起成功','contractId'=>$contractId,'url'=>$res['url']]);
+            ajaxReturn(['code'=>200,'msg'=>'生成成功','contractId'=>$contractId,'url'=>$res['url']]);
         }else{
             $commoncontract->delcontract($contractId);
             ajaxReturn(['code'=>303,'msg'=>$res['msg']]);
@@ -647,22 +754,26 @@ class Contract extends Gathercontroller
         $sign = Db::name('contract_signing')->where('type','=',$type)->where('type_id','=',$typeId)->where('contract_id','=',$contractId)->find();
         $contract = Db::name('contract')->where('id','=',$contractId)->find();
         //判断进入人是否是合同参与人
-        $signpeople = 1;//1代表是参与人
-        $contractpeople = 1;
-        $macfpeople = 1;
-        if(!$sign){
-            $signpeople = 0;
+        //不是示例合同
+        if($contract['example'] == 0){
+            $signpeople = 1;//1代表是参与人
+            $contractpeople = 1;
+            $macfpeople = 1;
+            if(!$sign){
+                $signpeople = 0;
+            }
+            if($contract['initiateType'] != $type && $contract['initiate_id'] != $typeId){
+                $contractpeople = 0;
+            }
+            $macf = Db::name('contract_macf')->where('type','=',$type)->where('type_id','=',$typeId)->find();
+            if(!$macf){
+                $macfpeople = 0;
+            }
+            if($signpeople == 0 && $contractpeople == 0 && $macfpeople == 0){
+                ajaxReturn(['code'=>303,'msg'=>'无权限查看该合同']);
+            }
         }
-        if($contract['initiateType'] != $type && $contract['initiate_id'] != $typeId){
-            $contractpeople = 0;
-        }
-        $macf = Db::name('contract_macf')->where('type','=',$type)->where('type_id','=',$typeId)->find();
-        if(!$macf){
-            $macfpeople = 0;
-        }
-        if($signpeople == 0 && $contractpeople == 0 && $macfpeople == 0){
-            ajaxReturn(['code'=>303,'msg'=>'无权限查看该合同']);
-        }
+
         $commoncontract = new Commoncontract();
         $url = '';
         if($contract['state'] == 10){
@@ -750,10 +861,10 @@ class Contract extends Gathercontroller
         $involvedName .= $name.';';
 
         //查询状态余额是否充足
-        $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
-        if($account['contract'] < 1){
-            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
-        }
+//        $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
+//        if($account['contract'] < 1){
+//            ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
+//        }
 
         //添加合同信息
         $commoncontract = new Commoncontract();
@@ -771,6 +882,12 @@ class Contract extends Gathercontroller
         $commonenter = new Commonenter();
         $json_signature = json_decode($signature,true);
         foreach($json_signature as $k=>$v){
+            //判断是否填入签署人信息，如果有未填入的则提示错误并删除合同信息
+            if(!$v['name']){
+                //删除合同信息
+                Db::name('contract')->where('id','=',$contractId)->delete();
+                ajaxReturn(['code'=>301,'msg'=>'请填写签署人']);
+            }
             if($v['type'] == 'custom'){
                 //个人用户
                 $custom = Db::name('custom')->where('phone','=',$v['phone'])->find();
@@ -920,7 +1037,7 @@ class Contract extends Gathercontroller
 //            $acedit['usecontract'] = $account['usecontract'] +1;
 //            $acedit['updatetime'] = time();
 //            Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($acedit);
-            ajaxReturn(['code'=>200,'msg'=>'发起成功','contractId'=>$contractId,'url'=>$res['url']]);
+            ajaxReturn(['code'=>200,'msg'=>'生成成功','contractId'=>$contractId,'url'=>$res['url']]);
         }else{
             ajaxReturn(['code'=>303,'msg'=>$res['msg']]);
         }
@@ -1062,12 +1179,13 @@ class Contract extends Gathercontroller
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
         $contract = Db::name('contract')->where('id','=',$contractId)->find();
-        if($contract['state'] !=10){
-            ajaxReturn(['code'=>301,'msg'=>'当前状态不能删除合同']);
+        if($contract['state'] !=10 || $contract['state'] !=3){
+            $commoncontract = new Commoncontract();
+            $commoncontract->delcontract($contractId);
+            ajaxReturn(['code'=>200,'msg'=>'操作成功']);
         }
-        $commoncontract = new Commoncontract();
-        $commoncontract->delcontract($contractId);
-        ajaxReturn(['code'=>200,'msg'=>'操作成功']);
+        ajaxReturn(['code'=>301,'msg'=>'当前状态不能删除合同']);
+
     }
 
     /**
@@ -1085,13 +1203,14 @@ class Contract extends Gathercontroller
 
         $commoncontract = new Commoncontract();
         $res = $commoncontract->getcontracttask($contractId);
+        //dump($res);exit;
         if($res['code'] == 300){
             ajaxReturn(['code'=>302,'msg'=>$res['msg']]);
         }
 
         $data['signTaskSubject'] = $res['data']['signTaskSubject'];
         $data['signTaskId'] = $res['data']['signTaskId'];
-        switch ($res['signTaskStatus']){
+        switch ($res['data']['signTaskStatus']){
 
             case 'task_created':
                 $data['signTaskStatus'] = '创建中';
@@ -1106,13 +1225,13 @@ class Contract extends Gathercontroller
                 $data['signTaskStatus'] = '填写已完成';
                 break;
             case 'sign_progress':
-                $data['signTaskStatus'] = '签署中';
+                $data['signTaskStatus'] = '签约中';
                 break;
             case 'sign_completed':
-                $data['signTaskStatus'] = '已完成';
+                $data['signTaskStatus'] = '已签约';
                 break;
             case 'task_finished':
-                $data['signTaskStatus'] = '已完成';
+                $data['signTaskStatus'] = '已签约';
                 break;
             case 'task_terminated':
                 $data['signTaskStatus'] = '已撤销';
@@ -1130,25 +1249,113 @@ class Contract extends Gathercontroller
         }
         if($res['data']['initiator']['idType'] == 'corp'){
             //创建者为企业
-            $enter = Db::name('enterprise')->where('account','=',$res['data']['openId'])->order('name')->find();
+            $user = Db::name('enterprise')->where('account','=',$res['data']['initiator']['openId'])->order('name')->find();
         }else{
             //创建者为个人
-            $custom = Db::name('custom')->where('account','=',$res['data']['openId'])->order('name')->find();
+            $user = Db::name('custom')->where('account','=',$res['data']['initiator']['openId'])->order('name')->find();
+        }
+        if(!$user){
+            $user['name'] = '易网签';
+        }
+        $data['initiatorMemberName'] = $user['name'];
+        $data['startTime'] = date('Y-m-d H:i:s',$res['data']['startTime']/1000);
+        $data['deadlineTime'] = date('Y-m-d H:i:s',$res['data']['deadlineTime']/1000);
+        $data['autoFillFinalize'] = '自动定稿';
+        $data['signing'] = array();
+        foreach($res['data']['actors'] as $k=>$v){
+            //dump($v);exit;
+            $data['signing'][$k]['actorId'] = $v['actorInfo']['actorId'];
+            if($v['actorInfo']['actorType'] == 'corp'){
+                $data['signing'][$k]['actorType'] = '企业';
 
+                $qsuser = Db::name('enterprise')->where('account','=',$v['actorInfo']['actorOpenId'])->order('name')->find();
+                if(!$qsuser){
+                    $qsuser = Db::name('contract_signing as c')
+                        ->join('enterprise','c.type_id = enterprise.id')
+                        ->where('TCN','=',$v['actorInfo']['actorId'])
+                        ->where('c.contract_id','=',$contractId)
+                        ->order('enterprise.name')->find();
+
+                }
+            }else{
+                $data['signing'][$k]['actorType'] = '个人';
+                $qsuser = Db::name('custom')->where('account','=',$v['actorInfo']['actorOpenId'])->order('name')->find();
+                if(!$qsuser){
+                    $qsuser = Db::name('contract_signing as c')
+                        ->join('custom','c.type_id = custom.id')
+                        ->where('TCN','=',$v['actorInfo']['actorId'])
+                        ->where('c.contract_id','=',$contractId)
+                        ->order('custom.name')->find();
+                }
+            }
+            $data['signing'][$k]['name'] = $qsuser['name'];
+
+            if($v['readStatus'] == 'no_read'){
+                $data['signing'][$k]['readStatus'] = '未读';
+            }else{
+                $data['signing'][$k]['readStatus'] = '已读';
+            }
+
+            if($v['joinStatus'] == 'no_read'){
+                $data['signing'][$k]['joinStatus'] = '未加入';
+            }else{
+                $data['signing'][$k]['joinStatus'] = '已加入';
+            }
+            if($v['signStatus'] == 'wait_sign'){
+                $data['signing'][$k]['signstatus'] = '待签署';
+            }else if($v['signStatus'] == 'signed'){
+                $data['signing'][$k]['signstatus'] = '已签署';
+            }
+            if($v['signTime']){
+                $data['signing'][$k]['signTime'] = date('Y-m-d H:i:s',$v['signTime']/1000);
+            }else{
+                $data['signing'][$k]['signTime']  = '无';
+            }
         }
 
-        $data['initiatorMemberName'] = $res['data']['initiatorMemberName'];
-        $data['startTime'] = date('Y-m-d H:i',$res['data']['startTime']);
-        $data['deadlineTime'] = date('Y-m-d H:i',$res['data']['deadlineTime']);
-        $data['autoFillFinalize'] = '自动定稿';
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
 
+    }
 
-        $data[''] = $res['data'][''];
-        $data[''] = $res['data'][''];
-        $data[''] = $res['data'][''];
-        $data[''] = $res['data'][''];
-        $data[''] = $res['data'][''];
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月19月 17:34:33
+     * ps:下载合同
+     * url:{{URL}}/index.php/api/contract/downloadcontract
+     */
+    public function downloadcontract(){
+        $contractId = input('param.contractId');
+        if(!$contractId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $commoncontract = new Commoncontract();
+        $url = $commoncontract->download($contractId);
+        if($url){
+            ajaxReturn(['code'=>200,'msg'=>'请求成功','url'=>$url]);
+        }else{
+            ajaxReturn(['code'=>301,'msg'=>'请求失败']);
+        }
+    }
 
-
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月20月 10:09:58
+     * ps:合同出证
+     * url:{{URL}}/index.php/api/contract/certification
+     */
+    public function certification(){
+        $contractId = input('param.contractId');
+        if(!$contractId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $commoncontract = new Commoncontract();
+        $res = $commoncontract->applicationreport($contractId);
+        if($res['code'] == 200){
+            ajaxReturn(['code'=>200,'msg'=>'获取成功','url'=>$res['url']]);
+        }else{
+            ajaxReturn(['code'=>301,'msg'=>'网络错误请稍后重试']);
+        }
     }
 }

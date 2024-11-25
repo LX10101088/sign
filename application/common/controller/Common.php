@@ -45,21 +45,30 @@ class Common extends Controller
      * ps:生成平台用户账户信息（1:服务商；2:个人用户；3：企业用户）
      */
     public function adduseraccount($typeId,$type){
-        $data = array();
-        $data['identifier'] = '';
-        if($type=='custom'){
-            $data['identifier'] = 'C';
-        }else if($type == 'enterprise'){
-            $data['identifier'] = 'E';
-        }else if($type == 'service'){
-            $data['identifier'] = 'S';
+        $account = Db::name('account')
+            ->where('type_id','=',$typeId)
+            ->where('type','=',$type)
+            ->find();
+        if($account){
+            $accountId = $account['id'];
+        }else{
+            $data = array();
+            $data['identifier'] = '';
+            if($type=='custom'){
+                $data['identifier'] = 'C';
+            }else if($type == 'enterprise'){
+                $data['identifier'] = 'E';
+            }else if($type == 'service'){
+                $data['identifier'] = 'S';
+            }
+
+            $data['identifier'] .= $this->accountNo();
+            $data['type'] = $type;
+            $data['type_id'] = $typeId;
+            $data['createtime'] = time();
+            $accountId = Db::name('account')->insertGetId($data);
         }
 
-        $data['identifier'] .= $this->accountNo();
-        $data['type'] = $type;
-        $data['type_id'] = $typeId;
-        $data['createtime'] = time();
-        $accountId = Db::name('account')->insertGetId($data);
         return $accountId;
     }
 
@@ -295,6 +304,24 @@ class Common extends Controller
             $data['contract'] = $contract;
             $data['updatetime'] = time();
             Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($data);
+        }
+        return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月19月 14:24:14
+     * ps:根据手机号增加账号合同数
+     */
+    public function increasecontract($phone,$code){
+        $contractnum = 5;
+        $custom = Db::name('custom')->where('phone','=',$phone)->find();
+        if($custom){
+            $account = Db::name('account')->where('type','=','custom')->where('type_id','=',$custom['id'])->find();
+            $data['contract'] = $account['contract']+$contractnum;
+            $data['updatetime'] = time();
+            Db::name('account')->where('id','=',$account['id'])->update($data);
         }
         return true;
     }

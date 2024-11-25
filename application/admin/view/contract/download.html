@@ -1,0 +1,17 @@
+<title>合同下载</title>
+<input  id="url" value="{$url}" style="display: none">
+<script>
+
+    var url = document.getElementById('url').value;
+    // 创建一个临时的<a>元素
+    var a = document.createElement('a');
+    // 设置<a>元素的href属性为文件的URL
+    a.href = url;
+    // 触发点击事件以下载文件
+    a.click();
+    // 设置一个延迟来尝试确保下载已经开始
+    // 注意：这个延迟时间需要根据实际情况调整
+    setTimeout(function() {
+        window.parent.location.reload();
+    }, 1000); // 例如，延迟3秒
+</script>

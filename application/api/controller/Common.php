@@ -12,7 +12,9 @@ use Endroid\QrCode\Writer\PngWriter;
 use think\Controller;
 use think\Db;
 use PhpOffice\PhpWord\Shared\ZipArchive;
-
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Shared\Html;
+use PhpOffice\PhpWord\Settings;
 
 /**
  * 公共接口
@@ -48,7 +50,7 @@ class Common extends Gathercontroller
         if ($file === null) {
             ajaxReturn(['code' => 300, 'msg' => '图片不能为空']);
         }
-        $info = $file->validate(['seize' => 2097152, 'ext' => 'jpg,png,gif,jpeg,pdf,doc,docx'])->move('./' . $path);
+        $info = $file->validate(['seize' => 2097152, 'ext' => 'jpg,png,gif,jpeg,pdf,doc,docx,xlsx,xls'])->move('./' . $path);
         if ($info) {
             $file_name = request()->domain()  . $path . $info->getSaveName();
 
@@ -314,7 +316,7 @@ class Common extends Gathercontroller
 
     public function test16(){
         $common = new Commonenter();
-        $common->getapienter(1);
+        $common->getapienter(73);
 
     }
 
@@ -331,7 +333,7 @@ class Common extends Gathercontroller
 
         $fadada = new Fadada();
         $cotecontent = Db::name('contract_template_content')->where('contract_id','=',$contract['id'])->select();
-        $taskdetail = $fadada->getcontenttaskdetail($contract['fileId']);
+        $taskdetail = $fadada->getcontenttaskdetail($contract['taskId']);
         if($taskdetail['code']==200){
             $docId = $taskdetail['docId'];
         }
@@ -341,9 +343,10 @@ class Common extends Gathercontroller
             $fillData[$k]['fieldName'] = $v['name'];
             $fillData[$k]['fieldValue'] = $v['content'];
         }
-        $rest = $fadada->fillvalues($contract['fileId'],$fillData);
-        dump($rest);exit;
-
+        $rest = $fadada->fillvalues($contract['taskId'],$fillData);
+        dump($rest);
+        $start = $fadada->startfill($contract['taskId']);
+        dump($start);exit;
     }
 
     public function test19(){
@@ -685,7 +688,7 @@ class Common extends Gathercontroller
     public function delmrn2(){
         $a = 0;
         for($i=1;$i<=2;$i++) {
-            $id = rand(1, 27377);
+            $id = rand(1, 27388);
             $mrn = Db::name('mrn')->where('id', '=', $id)->delete();
             if($mrn){
                 $a+=1;
@@ -803,4 +806,308 @@ class Common extends Gathercontroller
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$sign]);
 
     }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月19月 9:47:24
+     * ps:生成小程序二维码
+     * url:{{URL}}/index.php/api/common/appleterwm
+     */
+    public function appleterwm(){
+        $path = input('param.path');
+        $scene = input('param.scene');
+        $version = input('param.version');
+
+        $wxqrcode = new Wxqrcode();
+        $url = $wxqrcode->getqrcodelimit('wxa/getwxacodeunlimit',$path,$scene,$version);
+        if($url){
+            ajaxReturn(['code'=>200,'msg'=>'生成成功','url'=>$url]);
+        }else{
+            ajaxReturn(['code'=>300,'msg'=>'二维码生成失败，请稍后重试']);
+        }
+    }
+
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月20月 13:26:28
+     * ps:word转html操作
+     * url:{{URL}}/index.php/api/common/cwth
+     */
+    public function cwth(){
+
+
+        // Word文档的路径
+        $docPath = 'contract/委托合同.docx'; // 替换为你的Word文档的实际路径
+        // 加载Word文档
+        try {
+            $phpWord = IOFactory::load($docPath, 'Word2007'); // 对于.docx文件使用'Word2007'
+        } catch (\Exception $e) {
+            die('无法加载Word文档: ' . $e->getMessage());
+        }
+        // 创建一个临时文件来保存HTML输出，或者你可以直接输出到浏览器
+        $tempHtmlFile = 'temp_output.html';
+        // 保存为HTML格式，并尝试保留样式
+        $objWriter = IOFactory::createWriter($phpWord, 'HTML');
+        $objWriter->save($tempHtmlFile);
+        // 读取生成的HTML文件内容
+        $htmlContent = file_get_contents($tempHtmlFile);
+        //$cleanedHtmlContent = str_replace(["\t", "\n","\r"], '', $htmlContent);
+
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','content'=>$htmlContent]);
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月20月 15:38:49
+     * ps:随机删除mrnprice表
+     * url:{{URL}}/index.php/api/common/sjdelmrnprice
+     */
+    public function sjdelmrnprice(){
+
+        $a1 = strtotime('2017-12-30 00:00:01');
+        $a2 = strtotime('2017-1-1 00:00:01');
+//        dump('结束时间：'.$a1);
+//
+//        dump('开始时间：'.$a2);exit;
+        $startTime = '1483200001';
+        $endTime = '1514563201';
+        $mrn = Db::name('mrn_price')
+            ->where('id','<>',0)
+            ->select();
+        dump(count($mrn));exit;
+        shuffle($mrn);
+        $b = 0;
+        foreach($mrn as $k=>$v){
+            $del = array_rand([0,1]);
+            if($del == 1){
+                Db::name('mrn_price')->where('id','=',$v['id'])->delete();
+                $b+=1;
+            }
+            if($b == 203){
+                dump('删除完成');exit;
+            }
+        }
+        dump('循环完成，未删除完成');
+
+    }
+
+    public function editmrnprice(){
+
+        $mrn = Db::name('mrn_price')
+            ->where('id','<>',0)
+            ->select();
+
+
+        foreach($mrn as $k=>$v){
+            $arra = array_rand([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+
+            if($arra == 1){
+                $number = rand(20,5000).'.00';
+            }else if($arra == 2){
+                $randomInt = mt_rand(200 * 100, 5000 * 100); // 生成2000到500000之间的随机整数
+                $randomFloat = $randomInt / 100;            // 得到两位小数的浮点数
+                $number =  sprintf("%.1f", $randomFloat).'0';         // 格式化输出为两位小数
+            }else if($arra == 3){
+                $number = rand(200,2200).'.00';
+            }else if($arra == 4){
+                $randomInt = mt_rand(200 * 100, 2200 * 100); // 生成2000到500000之间的随机整数
+                $randomFloat = $randomInt / 100;            // 得到两位小数的浮点数
+                $number =  sprintf("%.1f", $randomFloat).'0';         // 格式化输出为两位小数
+            }else if($arra == 5){
+                $number = rand(200,2200).'.00';
+            }else if($arra == 6){
+                $randomInt = mt_rand(200 * 10, 2200 * 10); // 生成2000到500000之间的随机整数
+                $randomFloat = $randomInt / 100;            // 得到两位小数的浮点数
+                $number =  sprintf("%.1f", $randomFloat).'0';         // 格式化输出为两位小数
+            }else if($arra == 7){
+                $number = rand(200,2200).'.00';
+            }else if($arra == 8){
+                $randomInt = mt_rand(200 * 10, 2200 * 10); // 生成2000到500000之间的随机整数
+                $randomFloat = $randomInt / 100;            // 得到两位小数的浮点数
+                $number =  sprintf("%.1f", $randomFloat).'0';         // 格式化输出为两位小数
+            }else if($arra == 9){
+                $number = rand(20,253).'.00';
+            }else if($arra == 10){
+                $randomInt = mt_rand(200 * 10, 800 * 10); // 生成2000到500000之间的随机整数
+                $randomFloat = $randomInt / 100;            // 得到两位小数的浮点数
+                $number =  sprintf("%.1f", $randomFloat).'0';         // 格式化输出为两位小数
+            }else if($arra == 11){
+                $number = rand(20,150).'.00';
+            }else{
+                $number = rand(20,100).'.00';
+
+            }
+            $formattedNumber = number_format($number, 2, '.', ',');
+            $data['price'] = $formattedNumber;
+            Db::name('mrn_price')->where('id','=',$v['id'])->update($data);
+        }
+        $mrn = Db::name('mrn_price')
+            ->where('id','<>',0)
+            ->select();
+        $num = 0;
+        foreach($mrn as $k=>$v){
+            $num +=str_replace(',', '', $v['price']);
+        }
+        dump($num);exit;
+        dump('操作完成');
+    }
+
+    public function editmrnprice2(){
+
+        $mrn = Db::name('mrn_price')
+            ->where('id','<>',0)
+            ->select();
+
+        $previousPrices = array_fill(0, 3, null); // 用于存储最近三次的价格，初始化为null
+
+        foreach ($mrn as $k => $v) {
+            $rand  = rand(1,30);
+
+            $attempt = 0;
+            do {
+
+                $price = $this->sjis($rand);
+                $attempt++;
+
+                if (in_array($price, $previousPrices)) {
+
+                    continue;
+                }
+
+                $data['price'] = $price;
+                array_shift($previousPrices);
+                array_push($previousPrices, $price);
+                break;
+            } while ($attempt < PHP_INT_MAX && in_array($price, $previousPrices));
+
+            Db::name('mrn_price')->where('id', '=', $v['id'])->update($data);
+
+            //$attempt = 0;
+        }
+        $mrn = Db::name('mrn_price')
+            ->where('id','<>',0)
+            ->select();
+        $num = 0;
+        foreach($mrn as $k=>$v){
+            $num += $v['price'];
+        }
+        dump($num);exit;
+        dump('操作完成');
+    }
+
+    //随机数
+    public function sjis($rand){
+        $fruits1 = array("100", "110", "120", "130", "140", "150","165","170","1600", "1560", "1520", "1480", "1400", "1380","1280","1260","1200","1180","1140","1100","1080","1040","1000","998","980","970","960","950","940","920","910","900","890","880","870","860","850","840","830","820","810","800","510","520","530", "540", "550", "560", "580", "590","600","620","630", "640", "650", "660", "670", "680","690","700","710", "720", "740", "750", "760", "770","780","790","798");
+        $fruits4 = array("20", "30", "40", "60", "70", "80", "90","100", "110", "120", "130", "140", "150","165","170","180", "190", "200", "210", "220", "230","240","250","260", "270", "280", "290", "300", "320","340","350","360", "370", "380", "390", "400", "410","420","430","450", "460", "470", "480", "490", "500");
+        $fruits5 = array("20", "30", "40", "60", "70", "80", "90","100", "110", "120", "130", "140", "150","165","170","180", "190", "200");
+
+        $fruits2 = array(  "1620", "1680", "1700", "1780", "1996");
+        $fruits3 = array(  "2200", "2680", "2994", "3500", "3980", "3992", "4000", "4280", "4300", "4400", "4280", "4300", "4400", "4500", "4550", "4600", "4680", "4700", "4790", "4800", "4900", "5000");
+
+        switch ($rand){
+            case 1:
+                $fruits = $fruits1;
+                break;
+            case 2:
+                $fruits = $fruits4;
+                break;
+            case 3:
+                $fruits = $fruits4;
+                break;
+            case 4:
+                $fruits = $fruits4;
+                break;
+            case 5:
+                $fruits = $fruits3;
+                break;
+            case 6:
+                $fruits = $fruits2;
+                break;
+            case 7:
+                $fruits = $fruits5;
+                break;
+            case 8:
+                $fruits = $fruits4;
+                break;
+            case 9:
+                $fruits = $fruits5;
+                break;
+            case 10:
+                $fruits = $fruits4;
+                break;
+            case 11:
+                $fruits = $fruits5;
+                break;
+            case 12:
+                $fruits = $fruits4;
+                break;
+            case 13:
+                $fruits = $fruits5;
+                break;
+            case 15:
+                $fruits = $fruits4;
+                break;
+            case 14:
+                $fruits = $fruits5;
+                break;
+            case 16:
+                $fruits = $fruits4;
+                break;
+            case 17:
+                $fruits = $fruits5;
+                break;
+            case 18:
+                $fruits = $fruits4;
+                break;
+            case 19:
+                $fruits = $fruits5;
+                break;
+            case 20:
+                $fruits = $fruits4;
+                break;
+            case 21:
+                $fruits = $fruits5;
+                break;
+            case 22:
+                $fruits = $fruits4;
+                break;
+            case 23:
+                $fruits = $fruits5;
+                break;
+            case 24:
+                $fruits = $fruits4;
+                break;
+            case 25:
+                $fruits = $fruits5;
+                break;
+            case 26:
+                $fruits = $fruits4;
+                break;
+            case 27:
+                $fruits = $fruits5;
+                break;
+            case 28:
+                $fruits = $fruits4;
+                break;
+            case 29:
+                $fruits = $fruits5;
+                break;
+            case 30:
+                $fruits = $fruits4;
+                break;
+        }
+
+        $randomKey = array_rand($fruits);
+        $randomFruit = $fruits[$randomKey];
+        return $randomFruit;
+    }
+
+
+
+
+
 }

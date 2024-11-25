@@ -8,6 +8,8 @@ use app\common\controller\Commoncontract;
 use app\common\controller\Commoninfo;
 use app\common\controller\Commontemplate;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\exception\PDOException;
 use think\exception\ValidateException;
@@ -20,7 +22,7 @@ use think\response\Json;
  */
 class Template extends Backend
 {
-    protected $noNeedLogin = ['contenturl'];
+    protected $noNeedLogin = ['contenturl','del'];
 
     /**
      * Template模型对象
@@ -168,9 +170,21 @@ class Template extends Backend
                 $params['type'] = 'enterprise';
                 $params['type_id'] = $enterId;
             }
+            if(!$params['file']){
+                $this->error('请上传模版文件');
+            }
+            if(!$params['name']){
+                $this->error('请输入模版名称');
+            }
+            $extension = 'docx';
+            $lastDotPosition = strrpos($params['file'], '.');
+            // 如果找到了 '.'，则提取 '.' 后面的部分
+            if ($lastDotPosition !== false) {
+                $extension = substr($params['file'], $lastDotPosition + 1);
+            }
+            $params['filename'] = $params['name'].'.'.$extension;
             $commontemplate = new Commontemplate();
             $commontemplate->operatetemplate($params,$params['type'],$params['type_id']);
-
             $result = true;
             Db::commit();
         } catch (ValidateException|PDOException|Exception $e) {
@@ -230,24 +244,44 @@ class Template extends Backend
                 $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
                 $row->validateFailException()->validate($validate);
             }
-            if($this->auth->usertype != 'custom'){
-                if($row['state'] != 2){
-                    //发送短信
-                    $sms = new Csms();
-                    $sms->templateopen($row['id']);
-                }
-            }
-            Db::name('template_img')->where('template_id','=',$ids)->delete();
 
-            $array = explode(",", $preview);
-            foreach($array as $k=>$v){
-                if($v){
-                    $data['createtime'] = time();
-                    $data['img'] = $v;
-                    $data['template_id'] =$ids;
-                    Db::name('template_img')->insertGetId($data);
+            if($row['type_id'] !=0){
+                //查询是否扣费，如果没有进行扣费
+                if($params['state']== 2){
+                    if($row['charging'] == 0){
+                        $account = Db::name('account')->where('type','=',$row['type'])->where('type_id','=',$row['type_id'])->find();
+                        if($account['template'] < 1){
+                            $this->error('模板发布者，账户余额不足');
+                        }
+                        //扣除账户模版份数
+                        $acedit['template'] = $account['template'] -1;
+                        $acedit['usetemplate'] = $account['usetemplate'] +1;
+                        $acedit['updatetime'] = time();
+                        Db::name('account')->where('type','=',$row['type'])->where('type_id','=',$row['type_id'])->update($acedit);
+                        $params['charging'] = 1;
+                    }
+
+                }
+                if($this->auth->usertype != 'custom'){
+                    if($row['state'] != 2){
+                        //发送短信
+                        $sms = new Csms();
+                        $sms->templateopen($row['id']);
+                    }
                 }
             }
+
+//            Db::name('template_img')->where('template_id','=',$ids)->delete();
+//
+//            $array = explode(",", $preview);
+//            foreach($array as $k=>$v){
+//                if($v){
+//                    $data['createtime'] = time();
+//                    $data['img'] = $v;
+//                    $data['template_id'] =$ids;
+//                    Db::name('template_img')->insertGetId($data);
+//                }
+//            }
             $result = $row->allowField(true)->save($params);
             Db::commit();
         } catch (ValidateException|PDOException|Exception $e) {
@@ -316,5 +350,45 @@ class Template extends Backend
             $this->error($res['msg']);
         }
     }
+    /**
+     * 删除
+     *
+     * @param $ids
+     * @return void
+     * @throws DbException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     */
+    public function del($ids = null)
+    {
+        if (false === $this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ?: $this->request->post("ids");
+        if (empty($ids)) {
+            $this->error(__('Parameter %s can not be empty', 'ids'));
+        }
+        $pk = $this->model->getPk();
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            $this->model->where($this->dataLimitField, 'in', $adminIds);
+        }
+        $list = $this->model->where($pk, 'in', $ids)->select();
 
+        $count = 0;
+        Db::startTrans();
+        try {
+            foreach ($list as $item) {
+                $count += $item->delete();
+            }
+            Db::commit();
+        } catch (PDOException|Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage());
+        }
+        if ($count) {
+            $this->success();
+        }
+        $this->error(__('No rows were deleted'));
+    }
 }

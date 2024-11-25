@@ -51,13 +51,13 @@ class Template extends Controller
         if(!$file){
             ajaxReturn(['code'=>300,'msg'=>'请上传模板文件']);
         }
-        if(!$templateId){
-            //查询状态余额是否充足
-            $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
-            if($account['template'] < 1){
-                ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
-            }
-        }
+//        if(!$templateId){
+//            //查询状态余额是否充足
+//            $account = Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->find();
+//            if($account['template'] < 1){
+//                ajaxReturn(['code'=>330,'msg'=>'账户余额不足，无法生成合同']);
+//            }
+//        }
         $data['type_id'] = $typeId;
         $data['type'] = $type;
         $data['file'] = $file;
@@ -71,14 +71,16 @@ class Template extends Controller
 
         $commontemplate = new Commontemplate();
         if($templateId){
+            $tem = Db::name('template')->where('id','=',$templateId)->find();
+            if($tem['example'] == 1){
+                ajaxReturn(['code'=>300,'msg'=>'示例模版无法编辑']);
+            }
             $data['updatetime'] = time();
             $commontemplate->operatetemplate($data,$type,$typeId,$templateId);
         }else{
             $data['state'] = 0;
             $data['createtime'] = time();
             $templateId = $commontemplate->operatetemplate($data,$type,$typeId);
-
-
         }
         ajaxReturn(['code'=>200,'msg'=>'操作成功','templateId'=>$templateId]);
     }
@@ -173,6 +175,7 @@ class Template extends Controller
                 $data['preview'][$k] = $v['img'];
             }
         }
+        $data['previewpdf'] = $template['preview'];
 
         $data['contract'] = array();
         $data['signing'] = array();
@@ -296,16 +299,33 @@ class Template extends Controller
                 ->where($whereor)
                 ->where($where)
                 ->where('type_id','=',0)
+                ->where('state','=',2)
                 ->order('id desc')
                 ->page($page,$limit)
                 ->select();
             $count = Db::name('template')
                 ->where($whereor)
                 ->where($where)
+                ->where('state','=',2)
                 ->where('type_id','=',0)
                 ->count();
         }
         $data = array();
+        //用户模板列表，查询是否有示例模板
+        if($typeId !=0){
+            $example = Db::name('template')
+                ->where($whereor)
+//                ->where($where)
+                ->where('example','=',1)
+                ->find();
+           // dump($example);exit;
+            if($example){
+                $count +=1;
+            }
+        }else{
+            $example = '';
+        }
+
         foreach($template as $k=>$v){
             $data[$k]['templateId'] = $v['id'];
             $data[$k]['name'] = $v['name'];
@@ -330,6 +350,9 @@ class Template extends Controller
             $data[$k]['page'] = $v['page'];
             $data[$k]['sealpage'] = $v['sealpage'];
             $data[$k]['createtime'] = date('Y-m-d H:i:s',$v['createtime']);
+            $usenumber = Db::name('contract')->where('template_id','=',$v['id'])->count();
+            $data[$k]['usenumber'] = $v['usenumber']+$usenumber;
+
             $data[$k]['preview'] = array();
             $preview = Db::name('template_img')->where('template_id','=',$v['id'])->order('id asc')->field('img')->select();
             if($preview){
@@ -337,10 +360,52 @@ class Template extends Controller
                     $data[$k]['preview'][$kk] = $vv['img'];
                 }
             }
+            $data[$k]['previewpdf'] = $v['preview'];
+        }
+        $sumpage = 0;
+
+        $sumpage  = ceil($count/$limit);
+        if($example){
+            //判断是否最后一页才展示示例模板
+            if($page == $sumpage){
+                $numk = count($data);
+                $data[$numk]['templateId'] = $example['id'];
+                $data[$numk]['name'] = $example['name'];
+                $data[$numk]['templateNo'] = $example['templateNo'];
+                $data[$numk]['state'] = $example['state'];
+                switch($example['state']){
+                    case 0:
+                        $data[$numk]['stateName'] = '待生成';
+                        break;
+                    case 1:
+                        $data[$numk]['stateName'] = '生成中';
+                        break;
+                    case 2:
+                        $data[$numk]['stateName'] = '启用中';
+                        break;
+                    case 3:
+                        $data[$numk]['stateName'] = '已停用';
+                        break;
+                }
+                $data[$numk]['file'] = $example['file'];
+                $data[$numk]['imglist'] = $example['imglist'];
+                $data[$numk]['page'] = $example['page'];
+                $data[$numk]['sealpage'] = $example['sealpage'];
+                $data[$numk]['createtime'] = date('Y-m-d H:i:s',$example['createtime']);
+                $usenumber = Db::name('contract')->where('template_id','=',$example['id'])->count();
+                $data[$numk]['usenumber'] = $example['usenumber']+$usenumber;
+                $data[$numk]['previewpdf'] = $example['preview'];
+
+                $data[$numk]['preview'] = array();
+                $preview = Db::name('template_img')->where('template_id','=',$example['id'])->order('id asc')->field('img')->select();
+                if($preview){
+                    foreach($preview as $kk=>$vv){
+                        $data[$numk]['preview'][$kk] = $vv['img'];
+                    }
+                }
+            }
         }
 
-        $sumpage = 0;
-        $sumpage  = ceil($count/$limit);
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data,'page'=>$page,'limit'=>$limit,'sum_page'=>$sumpage]);
     }
 
@@ -441,4 +506,25 @@ class Template extends Controller
             ajaxReturn(['code'=>302,'msg'=>$res['msg']]);
         }
     }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月19月 10:33:31
+     * ps:删除模版
+     * url:{{URL}}/index.php/api/template/deltemplate
+     */
+    public function deltemplate(){
+        $templateId = input('param.templateId');
+        if(!$templateId){
+            ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
+        }
+        $template = Db::name('template')->where('id','=',$templateId)->find();
+        if($template['state'] == 2){
+            ajaxReturn(['code'=>301,'msg'=>'模板启用中，删除失败']);
+        }
+        Db::name('template')->where('id','=',$templateId)->delete();
+        ajaxReturn(['code'=>200,'msg'=>'删除成功']);
+    }
+
 }

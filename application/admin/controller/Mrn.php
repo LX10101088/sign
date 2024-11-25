@@ -10,7 +10,7 @@ use think\exception\ValidateException;
 use think\response\Json;
 
 /**
- * 
+ *
  *
  * @icon fa fa-circle-o
  */
@@ -50,10 +50,15 @@ class Mrn extends Backend
         }
         [$where, $sort, $order, $offset, $limit] = $this->buildparams();
         $list = $this->model
-            ->where($where)
+            // ->where($where)
             ->order('createtime desc')
             ->order($sort, $order)
             ->paginate($limit);
+        foreach($list as $k=>$v){
+            if(!$v['phone']){
+                $list[$k]['phone']= '-';
+            }
+        }
         $result = ['total' => $list->total(), 'rows' => $list->items()];
         return json($result);
     }
@@ -88,7 +93,7 @@ class Mrn extends Backend
                 $this->model->validateFailException()->validate($validate);
             }
             $params['createtime'] = strtotime($params['createtime']);
-
+            $params['jzys'] ='尚红英';
             $result = $this->model->allowField(true)->save($params);
             Db::commit();
         } catch (ValidateException|PDOException|Exception $e) {

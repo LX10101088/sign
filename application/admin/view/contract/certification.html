@@ -1,0 +1,13 @@
+<title>合同下载</title>
+<input  id="url" value="{$url}" style="display: none">
+<script>
+
+	var url = document.getElementById('url').value;
+	// 创建一个临时的<a>元素
+	var a = document.createElement('a');
+	// 设置<a>元素的href属性为文件的URL
+	a.href = url;
+	// 触发点击事件以下载文件
+	a.click();
+
+</script>

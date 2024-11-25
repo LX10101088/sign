@@ -68,7 +68,9 @@ class Fadada extends Controller
 
      public $OpenCorpId = "a71d3eefdf134499ab35f02c43599dbb";//测试参数
 
-
+//    public $debug = false;
+//    public $time_out = 60;
+//    public $service_url = 'https://api.fadada.com/api/v5/';
 //    public $app_id = '00001921';//正式参数
 //    public $app_secret = 'OOUS1CQ3ILHXY2BC8SECOI4KESWC9ABG';//正式参数
 //    public $OpenCorpId = "f463ac1db4c847f081f6513f5f09bc31";//正式参数
@@ -712,6 +714,7 @@ class Fadada extends Controller
         if($rest['code'] == 100000){
             $retu['code']=200;
             $retu['docId']=$rest['data']['docs'][0]['docId'];
+            $retu['docName']=$rest['data']['docs'][0]['docName'];
 
         }else{
             $retu['code'] = 300;
@@ -938,7 +941,7 @@ class Fadada extends Controller
 
         if($rest['code'] == 100000){
             $retu['code']=200;
-            $retu['url'] = $rest['data']['actorSignTaskEmbedUrl'];
+            $retu['url'] = $rest['data']['actorSignTaskEmbedUrl'];//actorSignTaskUrl
         }else{
             $retu['code'] = 300;
             $retu['msg'] = $rest['msg'];
@@ -993,14 +996,24 @@ class Fadada extends Controller
      * time:2024年9月18月 16:41:45
      * ps:下载合同
      */
-    public function downloadContract($SignTaskId){
+    public function downloadContract($SignTaskId,$customName,$openId,$idType){
         $SignTaskClient = new SignTaskClient($this->client);
         $DownloadFilesReq = new DownloadFilesReq();
-        $data['idType'] = 'corp';
-        $data['openId'] = 'a71d3eefdf134499ab35f02c43599dbb';
+        if(!$idType){
+            $data['idType'] = 'corp';
+        }else{
+            $data['idType'] = $idType;
+        }
+        if(!$openId){
+            $data['openId'] = $this->OpenCorpId;
+        }else{
+            $data['openId'] = $openId;
+        }
         $DownloadFilesReq->setOwnerId($data);
         $DownloadFilesReq->setSignTaskId($SignTaskId);
-        $DownloadFilesReq->setCompression('false');
+        $DownloadFilesReq->setCompression('true');
+        $DownloadFilesReq->setCustomName($customName);
+        $DownloadFilesReq->setFolderBySigntask('false');
 
         $res = $SignTaskClient->getOwnerDownloadUrl($this->gettoken(),$DownloadFilesReq);
         $rest = json_decode($res,true);
@@ -1246,10 +1259,16 @@ class Fadada extends Controller
         $SignTaskApplyReportReq->setReportType($reportType);
         $res = $SignTaskClient->applyReport($this->gettoken(),$SignTaskApplyReportReq);
         $rest = json_decode($res,true);
-        dump($rest);exit;
+
         if($rest['code'] == 100000){
             $retu['code']=200;
-            $retu['signTaskId'] = $rest['data']['signTaskId'];
+            $retu['reportDownLoadId'] = $rest['data']['reportDownLoadId'];
+            if($rest['data']['reportStatus'] == 'success'){
+                $reportrest=$this->downloadreport($rest['data']['reportDownLoadId']);
+                if($reportrest['code'] == 200){
+                    $retu['url'] = $reportrest['url'];
+                }
+            }
         }else{
             $retu['code'] = 300;
             $retu['msg'] = $rest['msg'];
@@ -1264,7 +1283,7 @@ class Fadada extends Controller
      * time:2024年9月27月 16:53:08
      * ps:申请出证地址
      */
-    public function downloadreport($setReportDownloadId='C24092717194764986'){
+    public function downloadreport($setReportDownloadId='C241120102128e0a26'){
         $SignTaskClient = new SignTaskClient($this->client);
         $SignTaskDownloadReportReq = new SignTaskDownloadReportReq();
         $SignTaskDownloadReportReq->setReportDownloadId($setReportDownloadId);
@@ -1278,7 +1297,7 @@ class Fadada extends Controller
             $retu['code'] = 300;
             $retu['msg'] = $rest['msg'];
         }
-        dump($retu);exit;
+
         return $retu;
     }
 

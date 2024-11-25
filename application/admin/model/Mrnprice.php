@@ -5,21 +5,21 @@ namespace app\admin\model;
 use think\Model;
 
 
-class Mrn extends Model
+class Mrnprice extends Model
 {
 
+    
 
-
-
+    
 
     // 表名
-    protected $name = 'mrn';
-
+    protected $name = 'mrn_price';
+    
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = 'integer';
 
     // 定义时间戳字段名
-    protected $createTime = false;
+    protected $createTime = 'createtime';
     protected $updateTime = false;
     protected $deleteTime = false;
 
@@ -27,9 +27,9 @@ class Mrn extends Model
     protected $append = [
 
     ];
+    
 
-
-
+    
 
 
 

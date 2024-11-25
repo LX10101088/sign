@@ -204,8 +204,8 @@ class Enterprise extends Backend
         $row = $this->model->get($ids);
 
         $commonattestation = new Commonattestation();
-        $redirectUrl ='https://'.$_SERVER['HTTP_HOST'].'/h5/#/pages/login/login';
-
+        //$redirectUrl ='https://'.$_SERVER['HTTP_HOST'].'/h5/#/pages/login/login';
+        $redirectUrl = '';//需要小程序链接
         $res = $commonattestation->enterprise($ids,$redirectUrl);
         if($res['code'] == 300){
             $this->error($res['msg']);

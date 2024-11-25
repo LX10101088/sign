@@ -98,11 +98,9 @@ class Fadadanotify extends Frontend
                 case 'seal-authorize-member':
                     //印章授权成员事件
                     $res = json_decode($rest['bizContent'],true);
-                    $this->userseal($res);
+                    $this->sealauthorize($res);
                     break;
             }
-
-
         }
         $datc['code'] = 200;
         $datc['msg'] = 'success';
@@ -229,6 +227,8 @@ class Fadadanotify extends Frontend
                     $data['encu_id'] = $encu['id'];
                     $data['signature_id'] = $seal['id'];
                     $data['createtime'] =time();
+                    $data['starttime'] = time();
+                    $data['endtime'] = $res['eventTime'];
                     $ids = Db::name('enterprise_custom_signature')->insertGetId($data);
                     $commonsignature = new Commonsignature();
                     $commonsignature->getsealauthorize($ids);

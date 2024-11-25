@@ -6,6 +6,7 @@ namespace app\common\controller;
 use app\api\controller\Csms;
 use app\api\controller\Fadada;
 use app\api\controller\Lovesigning;
+use PhpOffice\PhpWord\Shared\ZipArchive;
 use think\Controller;
 use think\Db;
 
@@ -493,16 +494,34 @@ class Commoncontract extends Controller
     public function download($ids){
         $contract = Db::name('contract')->where('id','=',$ids)->find();
 
-        $fadada = new Fadada();
-        $res = $fadada->downloadContract($contract['taskId']);
-        $url = '';
-        if($res['code'] == 200){
-            $url = $this->downloadPdfFromUrl($res['url'],$contract['contractNo']);
-            dump($url);exit;
-            $data['contractFile']  = $url;
-            $this->operatecontract($data,$contract['initiateType'],$contract['initiate_id'],$contract['id']);
+        $openId = '';
+        $idType = '';
+        if($contract['initiateType'] == 'enterprise'){
+            $idType='corp';
+            $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->field('account')->find();
+            $openId = $enter['account'];
+        }else{
+            $idType='person';
+            $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->field('account')->find();
+            $openId = $custom['account'];
+
         }
-        return $url;
+        $customName = $contract['contractName'];
+        $fadada = new Fadada();
+        $res = $fadada->downloadContract($contract['taskId'],$customName,$openId,$idType);
+
+        //dump($res);exit;
+
+        if($res['code'] == 200){
+//            $url = $this->xiaz($res['url'],$contract['contractNo']);
+//            dump($url);exit;
+//            $data['contractFile']  = $url;
+//            $this->operatecontract($data,$contract['initiateType'],$contract['initiate_id'],$contract['id']);
+
+            return $res['url'];
+        }
+        return false;
+
     }
     /**
      * Created by PhpStorm.
@@ -533,31 +552,45 @@ class Commoncontract extends Controller
            return '';
         }
     }
-    function downloadPdfFromUrl($url, $name) {
 
-        $saveTo = "contract/".$name; // 请替换为实际的路径和文件名
+    //下载合同
+   public function xiaz($fileUrl,$name){
+       // 文件下载的URL
+
+        // 本地保存文件的路径
+       $saveTo = '/contract/';
+
         // 初始化cURL会话
-        $ch = curl_init();
+       $ch = curl_init($fileUrl);
 
         // 设置cURL选项
-        curl_setopt($ch, CURLOPT_URL, $url); // 目标URL
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // 设置为1表示将curl_exec()获取的信息以文件流的形式返回，而不是直接输出。
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1); // 在启用 CURLOPT_RETURNTRANSFER 时候将获取到的数据以原生的形式返回。
-        curl_setopt($ch, CURLOPT_HEADER, 0); // 启用时会将头文件的信息作为数据流输出。
+       curl_setopt($ch, CURLOPT_RETURNTRANSFER, false); // 不返回数据，直接输出到文件
+       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // 允许重定向
+       curl_setopt($ch, CURLOPT_FAILONERROR, true);     // 失败时返回错误
+
+        // 将输出写入文件
+       $fp = fopen($saveTo, 'wb');
+       if ($fp === false) {
+           die('无法打开文件: ' . $saveTo);
+       }
+       curl_setopt($ch, CURLOPT_FILE, $fp);
 
         // 执行cURL会话
-        $file = curl_exec($ch);
+       $result = curl_exec($ch);
 
-        // 关闭cURL资源，并且释放系统资源
-        curl_close($ch);
+        // 检查是否有错误发生
+       if ($result === false) {
+           echo 'cURL错误: ' . curl_error($ch);
+       } else {
+           echo '文件下载成功: ' . $saveTo;
+       }
 
-        // 尝试将文件写入到本地
-        if (file_put_contents($saveTo, $file)) {
-            echo "PDF文件下载成功，并保存到: $saveTo";
-        } else {
-            echo "文件写入失败，请检查权限或路径是否正确。";
-        }
-    }
+        // 关闭文件句柄
+       fclose($fp);
+
+        // 关闭cURL会话
+       curl_close($ch);
+   }
 
     /**
      * Created by PhpStorm.
@@ -967,13 +1000,17 @@ class Commoncontract extends Controller
      */
     public function applicationreport($contractId=117){
         $contract = Db::name('contract')->where('id','=',$contractId)->find();
+        if($contract['fadadacertification']){
+            $fh['code']=200;
+            $fh['url'] = $contract['fadadacertification'];
+            return $fh;
+        }
         $fadada = new Fadada();
         $owner = array();
         if($contract['initiateType'] == 'enterprise'){
             $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->find();
             $owner['idType'] = 'corp';
             $owner['openId'] = $enter['account'];
-
         }else{
             $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->find();
             $owner['idType'] = 'corp';
@@ -982,7 +1019,27 @@ class Commoncontract extends Controller
         }
 
         $res = $fadada->signtaskapplyreport($contract['taskId'],$owner,'evidence_report');
-        dump($res);exit;
+//        $res['code']=200;
+//        $res['url'] = 1;
+        $fh['code'] = 300;
+        $fh['url'] = '';
+        if($res['code']==200){
+            if(isset($res['url'])){
+                $rest = $this->xiazchuz($res['url'],$contract['contractNo']);
+                if($rest){
+                    $rwxq = $fadada->getcontenttaskdetail($contract['taskId']);
+                    //获取存证报告并保存
+                    $wjres = $this->jyczbg($contract['contractNo'],$rwxq['docName']);
+                    if($wjres){
+                        $data['fadadacertification'] = $wjres;
+                        Db::name('contract')->where('id','=',$contractId)->update($data);
+                        $fh['code'] = 200;
+                        $fh['url'] = $wjres;
+                    }
+                }
+            }
+        }
+        return $fh;
     }
 
 
@@ -990,11 +1047,11 @@ class Commoncontract extends Controller
      * Created by PhpStorm.
      * User:lang
      * time:2024年9月04月 17:08:49
-     * ps:下载印章图片
+     * ps:下载出证报告
      */
-    public function xiazchuz($imageUrl='https://zip-test-os1.fadada.com/09ac59bfc8ca4f888a8acc68c15c1467/1727164952989133972.zip?sign=q-sign-algorithm%3Dsha1%26q-ak%3DAKIDUmoZ3GI3XkgKhmb9QP9dqlPmshFXXGit%26q-sign-time%3D1729585645%3B1729672045%26q-key-time%3D1729585645%3B1729672045%26q-header-list%3Dhost%26q-url-param-list%3Dresponse-cache-control%3Bresponse-content-disposition%3Bresponse-content-type%3Bresponse-expires%26q-signature%3D3c7dd024c6b882eb8fbc0a0054965a0d4c1ff06c&amp;response-cache-control=no-store%2C%20no-cache%2C%20must-revalidate&amp;response-content-disposition=attachment%3Bfilename%3D%221727164952989133972.zip%22&amp;response-expires=0&amp;response-content-type=application%2Fzip',$sealNo=123){
+    public function xiazchuz($imageUrl='',$name=''){
         // 要保存图片的本地路径和文件名
-        $localPath = 'signature/'.$sealNo.'.pdf';
+        $localPath = 'contractfile/'.$name.'.zip';
         // 尝试获取图片内容
         $imageContent = file_get_contents($imageUrl);
         if ($imageContent !== false) {
@@ -1010,6 +1067,49 @@ class Commoncontract extends Controller
         }
     }
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月21月 13:02:38
+     * ps:解压zip文件并取出出证文件
+     */
+    public function jyczbg($transSequenceIdn,$name){
+// 找到最后一个点的位置
+        $lastDotPos = strrpos($name, '.');
+
+// 如果找到了点，则截取字符串到点的位置之前
+        if ($lastDotPos !== false) {
+            $newFilename = substr($name, 0, $lastDotPos);
+        } else {
+            // 如果没有找到点，则原样返回字符串（或者根据需要进行其他处理）
+            $newFilename = $name;
+        }
+
+
+        //dump($transSequenceIdn);exit;
+        $localFile = './contractfile/'.$transSequenceIdn.'.zip';
+
+        $zip = new ZipArchive();
+
+       $zip->open($localFile);
+
+        //dump($res);exit;
+
+           // 尝试创建目录
+        if (mkdir('./contractfile/'.$transSequenceIdn.'/'.$newFilename, 0777, true)) {
+            $zip->extractTo('./contractfile/'.$transSequenceIdn);
+            $zip->close();
+
+        }
+        $items = scandir('./contractfile/'.$transSequenceIdn);
+        foreach ($items as $item) {
+            // 跳过'.'和'..'
+            if ($item !== '.' && $item !== '..') {
+                $uniqueFileName = $item;
+            }
+        }
+        return request()->domain().'/contractfile/'.$transSequenceIdn.'/'.$uniqueFileName.'/法大大电子签名存证报告.pdf';
+    }
     /**
      * Created by PhpStorm.
      * User:lang
@@ -1042,16 +1142,18 @@ class Commoncontract extends Controller
      * ps:删除合同
      */
     public function delcontract($ids){
-        $contract = Db::name('contract')->where('id','=',$ids)->field('taskId')->find();
-        Db::name('contract')->where('id','=',$ids)->delete();
-        Db::name('contract_annex')->where('contract_id','=',$ids)->delete();
-        Db::name('contract_signing')->where('contract_id','=',$ids)->delete();
-        Db::name('contract_macf')->where('contract_id','=',$ids)->delete();
-        Db::name('contract_template_content')->where('contract_id','=',$ids)->delete();
-        //操作法大大文件删除
-        if($contract['taskId']){
-            $fadada = new Fadada();
-            $fadada->delcontract($contract['taskId']);
+        $contract = Db::name('contract')->where('id','=',$ids)->field('taskId,state')->find();
+        if($contract['state'] ==10 || $contract['state'] == 3){
+            Db::name('contract')->where('id','=',$ids)->delete();
+            Db::name('contract_annex')->where('contract_id','=',$ids)->delete();
+            Db::name('contract_signing')->where('contract_id','=',$ids)->delete();
+            Db::name('contract_macf')->where('contract_id','=',$ids)->delete();
+            Db::name('contract_template_content')->where('contract_id','=',$ids)->delete();
+            //操作法大大文件删除
+            if($contract['taskId']){
+                $fadada = new Fadada();
+                $fadada->delcontract($contract['taskId']);
+            }
         }
         return true;
     }

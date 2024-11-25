@@ -74,18 +74,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                 //     extend:'data-area=\'["100%","100%"]\'',
                                 // },
 
-                                {
-                                    name:'details',
-                                    text:'详情',
-                                    title:'详情',
-                                    classname: 'btn btn-xs btn-success btn-dialog btn-change ',
-                                    icon: 'fa ',
-                                    url: 'contract/details',
-                                    refresh:true,
-                                    extend:'data-area=\'["100%","100%"]\'',
 
-
-                                },
                                 // {
                                 //     name:'cancel',
                                 //     text:'作废',
@@ -108,6 +97,37 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
                                 },
                                 {
+                                    name:'certification',
+                                    text:'出证',
+                                    title:'出证',
+                                    classname: 'btn btn-xs btn-success btn-dialog btn-change ',
+                                    icon: 'fa ',
+                                    url: 'contract/certification',
+                                    refresh:true,
+                                    extend:'data-area=\'["100%","100%"]\'',
+                                },
+                                {
+                                    name:'download',
+                                    text:'下载',
+                                    title:'下载',
+                                    classname: 'btn btn-xs btn-success btn-dialog btn-change ',
+                                    icon: 'fa ',
+                                    url: 'contract/download',
+                                    refresh:true,
+                                    extend:'data-area=\'["15%","15%"]\'',
+
+                                },
+
+                                {
+                                    name:'contractdel',
+                                    text:'删除',
+                                    title:'删除',
+                                    classname: 'btn btn-xs btn-success btn-view btn-ajax',
+                                    icon: 'fa ',
+                                    url: 'contract/del',
+                                    refresh:true,
+                                },
+                                {
                                     name:'initiate',
                                     text:'发起签约',
                                     title:'发起签约',
@@ -117,13 +137,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     refresh:true,
                                 },
                                 {
-                                    name:'contractdel',
-                                    text:'删除',
-                                    title:'删除',
-                                    classname: 'btn btn-xs btn-success btn-view btn-ajax',
+                                    name:'details',
+                                    text:'详情',
+                                    title:'详情',
+                                    classname: 'btn btn-xs btn-success btn-dialog btn-change ',
                                     icon: 'fa ',
-                                    url: 'contract/del',
+                                    url: 'contract/details',
                                     refresh:true,
+                                    extend:'data-area=\'["100%","100%"]\'',
                                 },
                                 // {
                                 //     name:'getcontract',
@@ -140,41 +161,75 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
                                     var that = $.extend({},this);
                                     var table = $(that.table).clone(true);
-                                    if(row.state != '待发起'){
-                                        $(table).data(
-                                            "operate-contractdel",null);
-                                        $(table).data(
-                                            "operate-initiate",null);
-                                    }else{
-                                        $(table).data(
-                                            "operate-signing",null);
+                                    if(row.state == '待发起'){
 
+                                        $(table).data(
+                                            "operate-revoke",null);//撤销
+                                        $(table).data(
+                                            "operate-download",null);//下载
+                                        $(table).data(
+                                            "operate-certification",null);//出证
+                                        $(table).data(
+                                            "operate-signing",null);//签约方
+
+                                    }else if(row.state == '待签约'){
+                                        $(table).data(
+                                            "operate-contractdel",null);//删除
+                                        $(table).data(
+                                            "operate-initiate",null);//发起
+                                        // $(table).data(
+                                        //     "operate-revoke",null);//撤销
+                                        // $(table).data(
+                                        //     "operate-download",null);//下载
+                                        $(table).data(
+                                            "operate-certification",null);//出证
+
+                                    }else if(row.state == '签约中'){
+                                        $(table).data(
+                                            "operate-contractdel",null);//删除
+                                        $(table).data(
+                                            "operate-initiate",null);//发起
+                                        // $(table).data(
+                                        //     "operate-revoke",null);//撤销
+                                        // $(table).data(
+                                        //     "operate-download",null);//下载
+                                        $(table).data(
+                                            "operate-certification",null);//出证
+
+                                    }else if(row.state == '已签约'){
+                                        $(table).data(
+                                            "operate-contractdel",null);//删除
+                                        $(table).data(
+                                            "operate-initiate",null);//发起
+                                        $(table).data(
+                                            "operate-revoke",null);//撤销
+
+                                    }else if(row.state == '已撤销'){
+                                        $(table).data(
+                                            "operate-contractdel",null);//删除
+                                        $(table).data(
+                                            "operate-initiate",null);//发起
+                                        $(table).data(
+                                            "operate-revoke",null);//撤销
+                                        // $(table).data(
+                                        //     "operate-download",null);//下载
+                                        $(table).data(
+                                            "operate-certification",null);//出证
+                                        $(table).data(
+                                            "operate-signing",null);//签约方
+                                    }else if(row.state == '已过期'){
+                                        $(table).data(
+                                            "operate-initiate",null);//发起
+                                        $(table).data(
+                                            "operate-revoke",null);//撤销
+                                        $(table).data(
+                                            "operate-download",null);//下载
+                                        $(table).data(
+                                            "operate-certification",null);//出证
+                                        $(table).data(
+                                            "operate-signing",null);//签约方
                                     }
 
-                                    if(row.state == '已撤销'){
-                                        $(table).data(
-                                            "operate-revoke",null);
-                                    }
-                                    if(row.state != '待发起'){
-                                        $(table).data(
-                                            "operate-initiatesigning",null);
-                                    }else{
-                                        $(table).data(
-                                            "operate-details",null);
-                                    }
-                                    if(row.state == '已签约'){
-                                        $(table).data(
-                                            "operate-revoke",null);
-                                        $(table).data(
-                                            "operate-getcontract",null);
-                                    }else{
-                                        $(table).data(
-                                            "operate-download",null);
-                                        $(table).data(
-                                            "operate-secure",null);
-                                        $(table).data(
-                                            "operate-cancel",null);
-                                    }
                                     $(table).data(
                                         "operate-del",null);
                                     $(table).data(
@@ -188,6 +243,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'contractName', title: __('ContractName'), operate: 'LIKE'},
 
                         {field: 'contractNo', title: __('ContractNo'), operate: 'LIKE'},
+                        {field: 'involvedName', title: __('签约方'),visible:false, operate: 'LIKE'},
+
                         {field: 'signinglist', title: __('签约方'), operate: false},
                         // {field: 'signing.type_id', title: __('签约方'), operate: 'LIKE'},
 

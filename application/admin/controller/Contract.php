@@ -407,39 +407,12 @@ class Contract extends Backend
     public function download($ids= null){
         $commoncontract = new Commoncontract();
         $url = $commoncontract->download($ids);
-        $contract = Db::name('contract')->where('id','=',$ids)->find();
-        if($contract['contractName']){
-            $name = $contract['contractName'];
-        }else{
-            $name = $contract['contractNo'];
-        }
+      //  $contract = Db::name('contract')->where('id','=',$ids)->find();
         if($url){
-                // 使用cURL获取文件内容
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $fileContent = curl_exec($ch);
-            curl_close($ch);
-
-            if ($fileContent !== false) {
-                // 设置文件类型（这里以PDF为例）
-                header('Content-Type: application/pdf');
-
-                // 设置下载头
-                header('Content-Disposition: attachment; filename="'.$name.'".pdf"');
-
-
-                // 发送文件内容
-                echo $fileContent;
-
-                // 终止脚本执行
-                $this->success('下载成功');
-            } else {
-                // 处理错误情况
-                $this->error('下载失败');
-            }
+            $this->assign('url',$url);
+            return $this->view->fetch();
         }else{
             $this->error('下载失败');
-
         }
 
     }
@@ -560,5 +533,27 @@ class Contract extends Backend
         $commoncontract = new Commoncontract();
         $commoncontract->initiatesign($ids);
         $this->success('发起成功');
+    }
+
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月22月 13:13:45
+     * ps:出证
+     */
+    public function certification($ids){
+        $commoncontract = new Commoncontract();
+        $rest = $commoncontract->applicationreport($ids);
+        if($rest['code']==200){
+            $this->assign('url',$rest['url']);
+
+            return $this->view->fetch();
+        }else{
+            $this->error('网络错误，请稍后重试');
+        }
+
+
+
     }
 }
