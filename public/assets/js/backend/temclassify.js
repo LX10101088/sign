@@ -30,6 +30,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {checkbox: true},
                         {field: 'name', title: __('Name'), operate: 'LIKE', table: table},
+                        {field: 'weigh', title: __('权重'), operate: 'LIKE', table: table},
+
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                     ]
                 ]

@@ -59,14 +59,14 @@ class Fadada extends Controller
 {
 
     public $service_url = 'https://uat-api.fadada.com/api/v5/';//测试地址
-     public $app_id = '80001899';//测试参数
-     public $app_secret = 'NYYP26BBPRTYC5TLQISV73DDONHOSTYY';//测试参数
+    public $app_id = '80001899';//测试参数
+    public $app_secret = 'NYYP26BBPRTYC5TLQISV73DDONHOSTYY';//测试参数
 
 
-     public $debug = false;
-     public $time_out = 60;
+    public $debug = false;
+    public $time_out = 60;
 
-     public $OpenCorpId = "a71d3eefdf134499ab35f02c43599dbb";//测试参数
+    public $OpenCorpId = "a71d3eefdf134499ab35f02c43599dbb";//测试参数
 
 //    public $debug = false;
 //    public $time_out = 60;
@@ -620,16 +620,18 @@ class Fadada extends Controller
         $CreateWithTemplateReq = new CreateWithTemplateReq();
         $CreateWithTemplateReq->setSignTemplateId($templateNo);
         $data = array();
-        if(!$openId){
-            $data['openId'] = '67da3a75ae474e2a9d11f182354eeb55';
-        }else{
-            $data['openId'] = $openId;
-        }
         if(!$idType){
             $data['idType'] = 'corp';
         }else{
             $data['idType'] = $idType;
         }
+        if(!$openId){
+            $data['openId'] = $this->OpenCorpId;
+            $data['idType'] = 'corp';
+        }else{
+            $data['openId'] = $openId;
+        }
+
         $CreateWithTemplateReq->setinitiator($data);
         $CreateWithTemplateReq->setsignTaskSubject($contractName);
        // $CreateWithTemplateReq->setbusinessCode($contractNo);
@@ -996,22 +998,31 @@ class Fadada extends Controller
      * time:2024年9月18月 16:41:45
      * ps:下载合同
      */
-    public function downloadContract($SignTaskId,$customName,$openId,$idType){
+    public function downloadContract($SignTaskId,$customName,$openId,$idType,$ywq){
         $SignTaskClient = new SignTaskClient($this->client);
         $DownloadFilesReq = new DownloadFilesReq();
-        if(!$idType){
+        if($ywq == 1){
             $data['idType'] = 'corp';
-        }else{
-            $data['idType'] = $idType;
-        }
-        if(!$openId){
             $data['openId'] = $this->OpenCorpId;
+
         }else{
-            $data['openId'] = $openId;
+            if(!$idType){
+                $data['idType'] = 'corp';
+            }else{
+                $data['idType'] = $idType;
+            }
+            if(!$openId){
+                $data['openId'] = $this->OpenCorpId;
+            }else{
+                $data['openId'] = $openId;
+            }
         }
+
+
+
         $DownloadFilesReq->setOwnerId($data);
         $DownloadFilesReq->setSignTaskId($SignTaskId);
-        $DownloadFilesReq->setCompression('true');
+        $DownloadFilesReq->setCompression('false');
         $DownloadFilesReq->setCustomName($customName);
         $DownloadFilesReq->setFolderBySigntask('false');
 
@@ -1106,18 +1117,21 @@ class Fadada extends Controller
         $SignTaskClient = new SignTaskClient($this->client);
         $CreateSignTaskReq = new CreateSignTaskReq();
         $data = array();
-        if(!$openId){
-            $data['openId'] = '67da3a75ae474e2a9d11f182354eeb55';
-        }else{
-            $data['openId'] = $openId;
-
-        }
         if(!$idType){
             $data['idType'] = 'corp';
         }else{
             $data['idType'] = $idType;
 
         }
+        if(!$openId){
+            $data['openId'] = $this->OpenCorpId;
+            $data['idType'] = 'corp';
+
+        }else{
+            $data['openId'] = $openId;
+
+        }
+
 
 
         $CreateSignTaskReq->setinitiator($data);
@@ -1258,12 +1272,14 @@ class Fadada extends Controller
         $SignTaskApplyReportReq->setOwnerId($owner);
         $SignTaskApplyReportReq->setReportType($reportType);
         $res = $SignTaskClient->applyReport($this->gettoken(),$SignTaskApplyReportReq);
+        //ajaxReturn(['code'=>200,'msg'=>$res]);
         $rest = json_decode($res,true);
 
         if($rest['code'] == 100000){
             $retu['code']=200;
             $retu['reportDownLoadId'] = $rest['data']['reportDownLoadId'];
             if($rest['data']['reportStatus'] == 'success'){
+                sleep(5);
                 $reportrest=$this->downloadreport($rest['data']['reportDownLoadId']);
                 if($reportrest['code'] == 200){
                     $retu['url'] = $reportrest['url'];

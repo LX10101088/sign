@@ -36,6 +36,11 @@ class Custom extends Gathercontroller
         $city = input('param.city');
         $area = input('param.area');
         $address = input('param.address');
+
+        $operationtype = input('param.operationtype');//操作类型(0:添加修改信息；1：实名认证）
+        if(!isset($operationtype)){
+            $operationtype = 0;
+        }
         $data['name'] = $name;
         $data['identityNo'] = $identityNo;
         $data['province'] = $province;
@@ -46,41 +51,47 @@ class Custom extends Gathercontroller
         if(!$phone){
             ajaxReturn(['code'=>300,'msg'=>'缺少参数']);
         }
-        if($identityNo){
-            $identityNoyz = $this->isValidIDCard($identityNo);
-            if(!$identityNoyz){
-                ajaxReturn(['code'=>301,'msg'=>'请输入正确的身份信息']);
-            }
-        }
+//        if($identityNo){
+//            $identityNoyz = $this->isValidIDCard($identityNo);
+//            if(!$identityNoyz){
+//                ajaxReturn(['code'=>301,'msg'=>'请输入正确的身份信息']);
+//            }
+//        }
         $commonuser = new Commonuser();
         if($customId){
-            $identityNocustom = Db::name('custom')->where('id','<>',$customId)->where('identityNo','=',$identityNo)->where('attestation','=',1)->find();
-            if($identityNocustom){
-                $cert = Db::name('cert')->where('type','=','custom')->where('type_id','=',$identityNocustom['id'])->order('id desc')->find();
-                if($cert){
-                    $url = $cert['certImg'];
-                }else{
-                    $commonsignature = new Commonsignature();
-                    $url = $commonsignature->getcertinfo('custom',$identityNocustom['id']);
+
+            if($operationtype == 1){
+                $identityNocustom = Db::name('custom')->where('id','<>',$customId)->where('identityNo','=',$identityNo)->where('attestation','=',1)->find();
+                if($identityNocustom){
+                    $cert = Db::name('cert')->where('type','=','custom')->where('type_id','=',$identityNocustom['id'])->order('id desc')->find();
+                    if($cert){
+                        $url = $cert['certImg'];
+                    }else{
+                        $commonsignature = new Commonsignature();
+                        $url = $commonsignature->getcertinfo('custom',$identityNocustom['id']);
+                    }
+                    ajaxReturn(['code'=>302,'msg'=>'该用户信息已实名','url'=>$url]);
                 }
-                ajaxReturn(['code'=>302,'msg'=>'该用户已认证','url'=>$url]);
             }
-            //传输customId代表修改
             $commonuser->operatecustom($data,$customId);
+            //传输customId代表修改
         }else{
-            $identityNocustom = Db::name('custom')->where('identityNo','=',$identityNo)->where('attestation','=',1)->find();
-            if($identityNocustom){
-                //获取用户数字证书
-                $cert = Db::name('cert')->where('type','=','custom')->where('type_id','=',$identityNocustom['id'])->order('id desc')->find();
-                if($cert){
-                    $url = $cert['certImg'];
-                }else{
-                    $commonsignature = new Commonsignature();
-                    $url = $commonsignature->getcertinfo('custom',$identityNocustom['id']);
-                }
-                ajaxReturn(['code'=>302,'msg'=>'该用户已认证','url'=>$url]);
-            }
             //不传代表添加
+
+            if($operationtype == 1) {
+                $identityNocustom = Db::name('custom')->where('identityNo', '=', $identityNo)->where('attestation', '=', 1)->find();
+                if ($identityNocustom) {
+                    //获取用户数字证书
+                    $cert = Db::name('cert')->where('type', '=', 'custom')->where('type_id', '=', $identityNocustom['id'])->order('id desc')->find();
+                    if ($cert) {
+                        $url = $cert['certImg'];
+                    } else {
+                        $commonsignature = new Commonsignature();
+                        $url = $commonsignature->getcertinfo('custom', $identityNocustom['id']);
+                    }
+                    ajaxReturn(['code' => 302, 'msg' => '该用户已认证', 'url' => $url]);
+                }
+            }
             $commonuser->operatecustom($data);
         }
         ajaxReturn(['code'=>200,'msg'=>'操作成功']);
@@ -255,4 +266,6 @@ class Custom extends Gathercontroller
             ajaxReturn(['code'=>301,'msg'=>'请求失败，请稍后重试']);
         }
     }
+
+
 }

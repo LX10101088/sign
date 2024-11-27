@@ -241,6 +241,9 @@ class Template extends Controller
             }
             $data['signing'][$k]['createtime'] = date('Y-m-d H:i:s',$v['createtime']);
         }
+        //添加用量
+        $addnum['usenumber'] = $template['usenumber']+1;
+        Db::name('template')->where('id','=',$template['id'])->update($addnum);
         ajaxReturn(['code'=>200,'msg'=>'获取成功','data'=>$data]);
     }
 
@@ -350,8 +353,8 @@ class Template extends Controller
             $data[$k]['page'] = $v['page'];
             $data[$k]['sealpage'] = $v['sealpage'];
             $data[$k]['createtime'] = date('Y-m-d H:i:s',$v['createtime']);
-            $usenumber = Db::name('contract')->where('template_id','=',$v['id'])->count();
-            $data[$k]['usenumber'] = $v['usenumber']+$usenumber;
+//            $usenumber = Db::name('contract')->where('template_id','=',$v['id'])->count();
+            $data[$k]['usenumber'] = $v['usenumber'];
 
             $data[$k]['preview'] = array();
             $preview = Db::name('template_img')->where('template_id','=',$v['id'])->order('id asc')->field('img')->select();
@@ -360,7 +363,7 @@ class Template extends Controller
                     $data[$k]['preview'][$kk] = $vv['img'];
                 }
             }
-            $data[$k]['previewpdf'] = $v['preview'];
+            $data[$k]['previewpdf'] = $v['file'];
         }
         $sumpage = 0;
 
@@ -425,10 +428,10 @@ class Template extends Controller
             $limit = 10;
         }
         if($typeId){
-            $classify = Db::name('template_classify')->where('type','=',$type)->where('type_id','=',$typeId)->page($page,$limit)->order('id desc')->select();
+            $classify = Db::name('template_classify')->where('type','=',$type)->where('type_id','=',$typeId)->page($page,$limit)->order('weigh desc,id desc')->select();
             $count = Db::name('template_classify')->where('type','=',$type)->where('type_id','=',$typeId)->count();
         }else{
-            $classify = Db::name('template_classify')->where('type_id','=',0)->page($page,$limit)->order('id desc')->select();
+            $classify = Db::name('template_classify')->where('type_id','=',0)->page($page,$limit)->order('weigh desc,id desc')->select();
             $count = Db::name('template_classify')->where('type_id','=',0)->count();
         }
         $data = array();

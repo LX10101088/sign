@@ -57,19 +57,19 @@ class Temclassify extends Backend
                 ->where('deletetime','=',0)
                 ->where('type','=','enterprise')
                 ->where('type_id','=',$enterId)
-                ->order($sort, $order)
+                ->order('weigh desc,id desc')
                 ->paginate($limit);
         }elseif($this->auth->usertype == 'service'){
             $list = $this->model
                 ->where($where)
                 ->where('deletetime','=',0)
-                ->order($sort, $order)
+                ->order('weigh desc,id desc')
                 ->paginate($limit);
         }else{
             $list = $this->model
                 ->where($where)
                 ->where('deletetime','=',0)
-                ->order($sort, $order)
+                ->order('weigh desc,id desc')
                 ->paginate($limit);
         }
 

@@ -67,7 +67,7 @@ class assesstoken   extends  Model
         }else{
             $times = 0;
         }
-        if($times < 5000){
+        if($times < 4000){
 
             return $rest['assess_token'];
         }else{

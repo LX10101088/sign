@@ -34,8 +34,21 @@ class Commonuser extends Controller
      */
     public function operatecustom($data,$customId=0){
         if(!$customId){
+            if(isset($data['name'])){
+                if(!$data['name']){
+                    $lastFourChars = '';
+                    if($data['phone']){
+                        $lastFourChars = mb_substr($data['phone'], -4, null, "UTF-8");
+                    }else{
+                        $lastFourChars = rand(1000,9999);
+                    }
+                    $data['name'] = '用户'.$lastFourChars;
+                }
+            }
             $data['createtime'] = time();
             $customId = Db::name('custom')->insertGetId($data);
+
+
             //添加企业后自动创建个人账户并关联企业
             $custom = Db::name('custom')->where('id','=',$customId)->find();
 
@@ -89,13 +102,20 @@ class Commonuser extends Controller
             $res['code'] =300;
             //用户未认证，查询认证状态
             if($custom['account']){
-
                 $res = $fadada->getuser($custom['account'],1,2);
             }else{
                 $res = $fadada->getuser($custom['identityNo'],3,2);
             }
 
                 if($res['code'] == 200){
+                    $customconunt = Db::name('custom')->where('identityNo','=',$custom['identityNo'])->count();
+                    if($customconunt > 1){
+                        $zqcustom = Db::name('custom')->where('phone','=',$res['phone'])->where('identityNo','=',$custom['identityNo'])->find();
+                        if($zqcustom){
+                            $custom = $zqcustom;
+                            $ids = $zqcustom['id'];
+                        }
+                    }
                     //获取个人信息并修改
                     $rescustomdata['account'] = $res['account'];
                     $rescustomdata['name'] = $res['name'];
@@ -107,7 +127,7 @@ class Commonuser extends Controller
                     $rescustomdata['serialNo'] = $res['serialNo'];
                     $this->operatecustom($rescustomdata,$custom['id']);
                     //查询印章信息
-                    $res = $fadada->getseals($custom['account'],'',2);
+                    $res = $fadada->getseals($res['account'],'',2);
 
                     if($res['code']==200){
                         $commonsignature = new Commonsignature();

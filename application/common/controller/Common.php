@@ -3,6 +3,7 @@
 namespace app\common\controller;
 
 
+use app\api\controller\Wxappletlogin;
 use Endroid\QrCode\QrCode;
 use think\Controller;
 use think\Db;
@@ -65,6 +66,8 @@ class Common extends Controller
             $data['identifier'] .= $this->accountNo();
             $data['type'] = $type;
             $data['type_id'] = $typeId;
+            $data['contract'] = 2;
+
             $data['createtime'] = time();
             $accountId = Db::name('account')->insertGetId($data);
         }
@@ -324,5 +327,40 @@ class Common extends Controller
             Db::name('account')->where('id','=',$account['id'])->update($data);
         }
         return true;
+    }
+
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月25月 16:49:06
+     * ps:生成小程序跳转链接方法
+     */
+    function generateMiniProgramURLLink( $path, $query=null,$isPermanent = false) {
+        $wxLogin = new Wxappletlogin();
+
+        $accessToken  = $wxLogin->getAccessToken();
+        $url = "https://api.weixin.qq.com/wxa/generate_urllink?access_token={$accessToken}";
+        $newTimestamp = strtotime('+30 days', time());//30天有效
+        $postData = [
+            'path' => $path,
+            'query' => $query,
+            'expire_time'=>$newTimestamp,
+        ];
+        $options = [
+            'http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/json',
+                'content' => json_encode($postData),
+            ],
+        ];
+        $context  = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        $json = json_decode($result, true);
+
+        if (isset($json['url_link'])) {
+            return $json['url_link'];
+        }else{
+            return false;
+        }
     }
 }

@@ -67,6 +67,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                 function(value,row,index){
                                     var that = $.extend({},this);
                                     var table = $(that.table).clone(true);
+
+                                    if(row.enter != 1){
+                                        $(table).data(
+                                            "operate-sealaccredit",null);
+                                        $(table).data(
+                                            "operate-sealmanage",null);
+                                    }
                                     if(row.custom.attestation == '已认证'){
                                         $(table).data(
                                             "operate-attestation",null);

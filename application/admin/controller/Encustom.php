@@ -59,7 +59,9 @@ class Encustom extends Backend
         if(!$enterId || $enterId == "null ") {
 
             $enterId = $this->getenter();
-
+            $purview = $this->getuserauth();
+        }else{
+            $purview = 1;
         }
 
         //如果发送的来源是 Selectpage，则转发到 Selectpage
@@ -73,8 +75,8 @@ class Encustom extends Backend
             ->where('enterprise_id','=',$enterId)
             ->order($sort, $order)
             ->paginate($limit);
-        $purview = $this->getuserauth();
 
+        $enter = Db::name('enterprise')->where('id','=',$enterId)->find();
         foreach($list as $k=>$v){
             if($v['custom']['attestation'] == 0){
                 $list[$k]['custom']['attestation'] = '未认证';
@@ -84,6 +86,7 @@ class Encustom extends Backend
                 $list[$k]['custom']['attestation'] = '已认证';
             }
             $list[$k]['dqauth'] = $purview;
+            $list[$k]['enter'] = $enter['attestation'];
         }
         $result = ['total' => $list->total(), 'rows' => $list->items()];
         return json($result);

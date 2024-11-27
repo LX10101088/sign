@@ -124,15 +124,16 @@ class Commoncontract extends Controller
      */
     public function operatecontract($data,$type,$typeId,$ids=null){
 
+
         $data['initiateType'] = $type;
         $data['initiate_id'] = $typeId;
         if($ids){
             $data['updatetime'] = time();
             Db::name('contract')->where('id','=',$ids)->update($data);
         }else{
+
             $data['createtime'] = time();
             $ids = Db::name('contract')->insertGetId($data);
-
         }
 
         return $ids;
@@ -508,90 +509,100 @@ class Commoncontract extends Controller
         }
         $customName = $contract['contractName'];
         $fadada = new Fadada();
-        $res = $fadada->downloadContract($contract['taskId'],$customName,$openId,$idType);
-
+        $res = $fadada->downloadContract($contract['taskId'],$customName,$openId,$idType,$contract['ywq']);
         //dump($res);exit;
 
         if($res['code'] == 200){
-//            $url = $this->xiaz($res['url'],$contract['contractNo']);
-//            dump($url);exit;
-//            $data['contractFile']  = $url;
-//            $this->operatecontract($data,$contract['initiateType'],$contract['initiate_id'],$contract['id']);
-
-            return $res['url'];
+            $char = "zip";
+            if (strstr($res['url'], $char) !== false) {
+                $lx = 'zip';
+            } else {
+                $lx = 'pdf';
+            }
+            $url = $this->xiazcontract($res['url'],$contract['contractNo'].'.'.$lx);
+            if($lx == 'zip'){
+                //进行解压
+                $rwxq = $fadada->getcontenttaskdetail($contract['taskId']);
+                //获取合同并保存
+                $url = $this->jyhtwj($contract['contractNo'],$rwxq['docName']);
+            }
+            $data['contractFile']  = $url;
+            $this->operatecontract($data,$contract['initiateType'],$contract['initiate_id'],$contract['id']);
+            return $url;
         }
         return false;
 
     }
+
+
+    //下载合同
+   public function xiazcontract($fileUrl,$name){
+
+       // 要保存图片的本地路径和文件名
+       $localPath = 'contract/'.$name;
+       // 尝试获取图片内容
+       $imageContent = file_get_contents($fileUrl);
+       if ($imageContent !== false) {
+           // 尝试将图片内容写入到本地文件
+           if (file_put_contents($localPath, $imageContent)) {
+               return  request()->domain().'/'.$localPath;
+
+           } else {
+               return '';
+           }
+       } else {
+           return '';
+       }
+   }
     /**
      * Created by PhpStorm.
      * User:lang
-     * time:2024年9月04月 17:08:49
-     * ps:下载合同文件
+     * time:2024年11月26月 13:53:22
+     * ps:解压zip文件并取出合同文件
      */
-    public function xiazcontract($base64String,$name){
-// 解码Base64字符串
+    public function jyhtwj($transSequenceIdn,$name){
 
-//        $binaryData = base64_decode($base64String);
-        $binaryData =$base64String;
-
-// 指定保存的文件名和路径
-        $savePath = "contract/".$name.".pdf"; // 请替换为实际的路径和文件名
-
-// 确保目录存在
-        if (!file_exists(dirname($savePath))) {
-            mkdir(dirname($savePath), 0777, true); // 创建目录，根据需要调整权限
+        //dump($transSequenceIdn);exit;
+        $localFile = './contract/'.$transSequenceIdn.'.zip';
+        $zip = new ZipArchive();
+        $zip->open($localFile);
+        if (is_dir('./contract/'.$transSequenceIdn)) {
+            $this->deleteDirectory('./contract/'.$transSequenceIdn);
+        }
+        // 尝试创建目录
+        if (mkdir('./contract/'.$transSequenceIdn, 0777, true)) {
+            $zip->extractTo('./contract/'.$transSequenceIdn);
+            $zip->close();
         }
 
-// 写入文件
-        if (file_put_contents($savePath, $binaryData)) {
-
-            return  request()->domain().'/'.$savePath;
-
-        } else {
-           return '';
-        }
+        return request()->domain().'/contract/'.$transSequenceIdn.'/'.$name;
     }
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月26月 14:08:09
+     * ps:删除指定目录
+     */
+    function deleteDirectory($dirPath) {
+        if (!is_dir($dirPath)) {
+            throw new \InvalidArgumentException("$dirPath must be a directory");
+        }
 
-    //下载合同
-   public function xiaz($fileUrl,$name){
-       // 文件下载的URL
+        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+            $dirPath .= '/';
+        }
 
-        // 本地保存文件的路径
-       $saveTo = '/contract/';
+        $files = glob($dirPath . '*', GLOB_MARK);
+        foreach ($files as $file) {
+            if (is_dir($file)) {
+                $this->deleteDirectory($file);
+            } else {
+                unlink($file);
+            }
+        }
 
-        // 初始化cURL会话
-       $ch = curl_init($fileUrl);
-
-        // 设置cURL选项
-       curl_setopt($ch, CURLOPT_RETURNTRANSFER, false); // 不返回数据，直接输出到文件
-       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // 允许重定向
-       curl_setopt($ch, CURLOPT_FAILONERROR, true);     // 失败时返回错误
-
-        // 将输出写入文件
-       $fp = fopen($saveTo, 'wb');
-       if ($fp === false) {
-           die('无法打开文件: ' . $saveTo);
-       }
-       curl_setopt($ch, CURLOPT_FILE, $fp);
-
-        // 执行cURL会话
-       $result = curl_exec($ch);
-
-        // 检查是否有错误发生
-       if ($result === false) {
-           echo 'cURL错误: ' . curl_error($ch);
-       } else {
-           echo '文件下载成功: ' . $saveTo;
-       }
-
-        // 关闭文件句柄
-       fclose($fp);
-
-        // 关闭cURL会话
-       curl_close($ch);
-   }
-
+        rmdir($dirPath);
+    }
     /**
      * Created by PhpStorm.
      * User:lang
@@ -623,14 +634,24 @@ class Commoncontract extends Controller
             if($v['type'] == 'enterprise'){
                 $actors[$k]['actor']['actorType'] = 'corp';
                 $enter = Db::name('enterprise')->where('id','=',$v['type_id'])->find();
-                $actors[$k]['actor']['actorName'] = $enter['name'];
+                if($enter['name']){
+                    $actors[$k]['actor']['actorName'] = $enter['name'];
+                }else{
+                    $actors[$k]['actor']['actorName'] = '普通企业';
+                }
                 if($enter['account']){
                     $actors[$k]['actor']['actorOpenId'] = $enter['account'];
                 }
             }else{
                 $actors[$k]['actor']['actorType'] = 'person';
                 $custom = Db::name('custom')->where('id','=',$v['type_id'])->find();
-                $actors[$k]['actor']['actorName'] = $custom['name'];
+                if($custom['name']){
+                    $actors[$k]['actor']['actorName'] = $custom['name'];
+
+                }else{
+                    $actors[$k]['actor']['actorName'] = '普通用户';
+
+                }
 
                 if($custom['account']){
                     $actors[$k]['actor']['actorOpenId'] = $custom['account'];
@@ -701,6 +722,7 @@ class Commoncontract extends Controller
 
             //法大大上传附件
             $fadada->addattach($res['signTaskId'],$addattach);
+            //$fadada->docfinalize($res['signTaskId']);
             $resurl = $this->getapicontracturl($contractId);
             if($resurl['code'] == 200){
                 $res['url'] = $resurl['url'];
@@ -743,14 +765,24 @@ class Commoncontract extends Controller
                         if($v['type'] == 'enterprise'){
                             $data[$k]['actor']['actorType'] = 'corp';
                             $enter = Db::name('enterprise')->where('id','=',$v['type_id'])->find();
-                            $data[$k]['actor']['actorName'] = $enter['name'];
+                            if($enter['name']){
+                                $data[$k]['actor']['actorName'] = $enter['name'];
+
+                            }else{
+                                $data[$k]['actor']['actorName'] = '普通企业';
+
+                            }
                             if($enter['account']){
                                 $data[$k]['actor']['actorOpenId'] = $enter['account'];
                             }
                         }else{
                             $data[$k]['actor']['actorType'] = 'person';
                             $custom = Db::name('custom')->where('id','=',$v['type_id'])->find();
-                            $data[$k]['actor']['actorName'] = $custom['name'];
+                            if($custom['name']){
+                                $data[$k]['actor']['actorName'] = $custom['name'];
+                            }else{
+                                $data[$k]['actor']['actorName'] = '普通用户';
+                            }
 
                             if($custom['account']){
                                 $data[$k]['actor']['actorOpenId'] = $custom['account'];
@@ -887,14 +919,22 @@ class Commoncontract extends Controller
             if($v['type'] == 'enterprise'){
                 $data[$k]['actor']['actorType'] = 'corp';
                 $enter = Db::name('enterprise')->where('id','=',$v['type_id'])->find();
-                $data[$k]['actor']['actorName'] = $enter['name'];
+                if($enter['name']){
+                    $data[$k]['actor']['actorName'] = $enter['name'];
+                }else{
+                    $data[$k]['actor']['actorName'] = '普通企业';
+                }
                 if($enter['account']){
                     $data[$k]['actor']['actorOpenId'] = $enter['account'];
                 }
             }else{
                 $data[$k]['actor']['actorType'] = 'person';
                 $custom = Db::name('custom')->where('id','=',$v['type_id'])->find();
-                $data[$k]['actor']['actorName'] = $custom['name'];
+                if($custom['name']){
+                    $data[$k]['actor']['actorName'] = $custom['name'];
+                }else{
+                    $data[$k]['actor']['actorName'] = '普通用户';
+                }
 
                 if($custom['account']){
                     $data[$k]['actor']['actorOpenId'] = $custom['account'];
@@ -1013,7 +1053,7 @@ class Commoncontract extends Controller
             $owner['openId'] = $enter['account'];
         }else{
             $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->find();
-            $owner['idType'] = 'corp';
+            $owner['idType'] = 'person';
             $owner['openId'] = $custom['account'];
 
         }

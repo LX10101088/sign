@@ -213,7 +213,7 @@ class Contract extends Backend
         $condata['initiateType'] = $template['type'];
         $condata['initiate_id'] = $template['type_id'];
         $condata['createtime'] = time();
-        $condata['state'] = 0;
+        $condata['state'] = 10;
         $condata['template'] = 1;
         $contractId = $commoncontract->operatecontract($condata,$condata['initiateType'],$condata['initiate_id'] );
         //添加合同签署人

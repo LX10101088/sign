@@ -55,14 +55,14 @@ class Enterprise extends Controller
 
         $commonenter = new Commonenter();
         if($enterId){
-            $enterproveNo = Db::name('enterprise')->where('id','<>',$enterId)->where('proveNo','=',$proveNo)->find();
+            $enterproveNo = Db::name('enterprise')->where('id','<>',$enterId)->where('name','=',$name)->find();
             if($enterproveNo){
                 ajaxReturn(['code'=>301,'msg'=>'企业信息已存在平台']);
             }
             //传输$enterId代表修改
             $commonenter->operateenter($data,$enterId,0);
         }else{
-            $enterproveNo = Db::name('enterprise')->where('proveNo','=',$proveNo)->find();
+            $enterproveNo = Db::name('enterprise')->where('id','<>',$enterId)->where('name','=',$name)->find();
 
             if($enterproveNo){
                 ajaxReturn(['code'=>301,'msg'=>'企业信息已存在平台']);

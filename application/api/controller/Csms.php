@@ -42,7 +42,7 @@ class Csms extends Controller
      * time:2024年10月25月 13:06:38
      * ps:添加模版
      */
-    public function addtemplate($temId){
+    public function addtemplate($temId,$type =1){
         $templateId = '304696';
         $template = Db::name('template')->where('id','=',$temId)->find();
         if($template){
@@ -74,8 +74,7 @@ class Csms extends Controller
      * time:2024年10月25月 13:06:38
      * ps:启用模版
      */
-    public function templateopen($temId){
-        $templateId = '304698';
+    public function templateopen($temId,$type =1){
         $template = Db::name('template')->where('id','=',$temId)->find();
         $sign = $this->sign;
         $platformId = 0;
@@ -104,7 +103,26 @@ class Csms extends Controller
                 }
             }
             if($phone){
-                $content = $name.'##'.$template['name']."##".$platformId;
+                if($type == 1){
+                    $common = new \app\common\controller\Common();
+                    $path='pages/login/login';
+                    $qurey = 'platformId='.$platformId;
+                    $url = $common->generateMiniProgramURLLink($path,$qurey);
+
+                    if($url){
+                        $substringToRemove = "https://wxaurl.cn/";
+                        $url = str_replace($substringToRemove, '', $url);
+                    }
+                    //小程序短信
+                    //小程序短信
+                    $templateId = '307327';
+                    $content = $name.'##'.$template['name']."##".'https://wxaurl.cn/'."##".$url;
+                }else{
+                    $templateId = '304698';
+                    $content = $name.'##'.$template['name']."##".$platformId;
+
+                }
+
                 $this->sendSMS($phone,$content,$templateId,$sign);
             }
         }
@@ -117,8 +135,8 @@ class Csms extends Controller
      * time:2024年10月25月 13:06:25
      * ps:发起合同
      */
-    public function initiatecontract($contractId){
-        $templateId = '304697';
+    public function initiatecontract($contractId,$type =1){
+
         $signing = Db::name('contract_signing')->where('contract_id','=',$contractId)->select();
         $contract = Db::name('contract')->where('id','=',$contractId)->field('initiateType,initiate_id,contractName')->find();
         $name = '平台';
@@ -152,7 +170,23 @@ class Csms extends Controller
                         $khname = $kh['name'];
                     }
                 }
-                $content = $khname."##".$name."##".$contract['contractName']."##".$platformId."##".$contractId;
+                if($type == 1){
+                    $common = new \app\common\controller\Common();
+                    $path='pages/login/login';
+                    $qurey = 'platformId='.$platformId.'&contractId='.$contractId;
+                    $url = $common->generateMiniProgramURLLink($path,$qurey);
+                    if($url){
+                        $substringToRemove = "https://wxaurl.cn/";
+                        $url = str_replace($substringToRemove, '', $url);
+                    }
+                    //小程序短信
+                    $templateId = '307325';
+                    $content = $khname."##".$name."##".$contract['contractName']."##".'https://wxaurl.cn/'."##".$url;
+                }else{
+                    $templateId = '304697';
+                    $content = $khname."##".$name."##".$contract['contractName']."##".$platformId."##".$contractId;
+
+                }
                 $this->sendSMS($custom['phone'],$content,$templateId,$sign);
             }
         }
@@ -165,8 +199,7 @@ class Csms extends Controller
      * time:2024年10月25月 13:06:08
      * ps:合同完成
      */
-    public function contractfinish($contractId){
-        $templateId = '304711';
+    public function contractfinish($contractId,$type =1){
         $contract = Db::name('contract')->where('id','=',$contractId)->field('initiateType,initiate_id,contractName')->find();
         $sign = $this->sign;
         $platformId = 0;
@@ -176,7 +209,7 @@ class Csms extends Controller
             if($plat['smsign']){
                 $sign = $plat['smsign'];
             }
-            $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->field('name')->find();
+            $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->field('name,phone')->find();
             if($enter['name']){
                 $name = $enter['name'];
             }
@@ -188,12 +221,29 @@ class Csms extends Controller
             }
 
         }else{
-            $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->field('name')->find();
+            $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->field('name,phone')->find();
             $name = $custom['name'];
             $phone = $custom['phone'];
         }
-        $content = $name.'##'.$contract['contractName'].'##'.$platformId;
         if($phone){
+            if($type == 1){
+                $common = new \app\common\controller\Common();
+                $path='pages/login/login';
+                $qurey = 'platformId='.$platformId;
+                $url = $common->generateMiniProgramURLLink($path,$qurey);
+                if($url){
+                    $substringToRemove = "https://wxaurl.cn/";
+                    $url = str_replace($substringToRemove, '', $url);
+                }
+                //小程序短信
+                $templateId = '307324';
+                $content = $name.'##'.$contract['contractName']."##".'https://wxaurl.cn/'.'##'.$url;
+            }else{
+                $templateId = '304711';
+                $content = $name.'##'.$contract['contractName'].'##'.$platformId;
+
+            }
+
             $this->sendSMS($phone,$content,$templateId,$sign);
         }
     }
@@ -243,7 +293,7 @@ class Csms extends Controller
      */
     function sendSMS($phone, $content, $templateId,$sign)
     {
-        return true;
+        //return true;
         $data['accesskey'] = $this->accesskey;
         $data['secret'] = $this->secret;
         $data['sign'] =$sign;
@@ -307,7 +357,7 @@ class Csms extends Controller
         $file = 'sms/' . $phone . '_smsApp.log';            //日志名
         //日志内容
         $data['time_ct_' . $phone] = time();
-        $data['time_ct_' . $this->ip] = time();
+        //$data['time_ct_' . $this->ip] = time();
         $data['code_ct_' . $phone] = $code;
         $log = json_encode($data);
         file_put_contents($file, $log);

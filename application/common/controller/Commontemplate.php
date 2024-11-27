@@ -50,7 +50,7 @@ class Commontemplate extends Controller
 //            Db::name('account')->where('type','=',$type)->where('type_id','=',$typeId)->update($acedit);
             //发送短信
 
-            $this->wordzpdf($ids);
+            //$this->wordzpdf($ids);
         }
 
         return $ids;

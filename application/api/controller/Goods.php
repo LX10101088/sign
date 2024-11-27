@@ -31,7 +31,7 @@ class Goods extends Gathercontroller
         $goods = Db::name('goods')
             ->where('deletetime','=',0)
             ->where('grounding','=',1)
-            ->order('id desc')
+            ->order('price asc,id desc')
             ->select();
         $data = array();
         foreach($goods as $k=>$v){

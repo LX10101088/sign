@@ -18,7 +18,6 @@ class Wxqrcode   extends  Common
     public   function getqrcodelimit($urlc='wxa/getwxacodeunlimit',$path='pages/login/login',$scene='',$env_version='release'){
         $wxLogin = new Wxappletlogin();
         //$scene = "platformId=36&contract=12";
-
         $token  = $wxLogin->getAccessToken();
         $url=$this->wxurl.$urlc.'?access_token='.$token;
         $postdata['page']  = $path;

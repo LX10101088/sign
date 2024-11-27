@@ -362,7 +362,7 @@ class Common extends Gathercontroller
 
     }
 
-    public function applicationreport($contractId=117){
+    public function applicationreport($contractId=287){
         $contract = Db::name('contract')->where('id','=',$contractId)->find();
         $fadada = new Fadada();
         $owner = array();
@@ -370,12 +370,10 @@ class Common extends Gathercontroller
             $enter = Db::name('enterprise')->where('id','=',$contract['initiate_id'])->find();
             $owner['idType'] = 'corp';
             $owner['openId'] = $enter['account'];
-
         }else{
             $custom = Db::name('custom')->where('id','=',$contract['initiate_id'])->find();
-            $owner['idType'] = 'corp';
+            $owner['idType'] = 'person';
             $owner['openId'] = $custom['account'];
-
         }
 
         $res = $fadada->signtaskapplyreport($contract['taskId'],$owner,'evidence_report');
@@ -818,10 +816,16 @@ class Common extends Gathercontroller
         $path = input('param.path');
         $scene = input('param.scene');
         $version = input('param.version');
-
+        $contractId = input('param.contractId');
+        $contract = Db::name('contract')->where('id','=',$contractId)->field('qrcode')->find();
+        if($contract['qrcode']){
+            ajaxReturn(['code'=>200,'msg'=>'生成成功','url'=>$contract['qrcode']]);
+        }
         $wxqrcode = new Wxqrcode();
         $url = $wxqrcode->getqrcodelimit('wxa/getwxacodeunlimit',$path,$scene,$version);
         if($url){
+            $data['qrcode'] = $url;
+            Db::name('contract')->where('id','=',$contractId)->update($data);
             ajaxReturn(['code'=>200,'msg'=>'生成成功','url'=>$url]);
         }else{
             ajaxReturn(['code'=>300,'msg'=>'二维码生成失败，请稍后重试']);
@@ -1107,7 +1111,23 @@ class Common extends Gathercontroller
     }
 
 
+    /**
+     * Created by PhpStorm.
+     * User:lang
+     * time:2024年11月25月 17:16:23
+     * ps:小程序连接
+     */
+    public function getappleturl(){
+        $common = new \app\common\controller\Common();
+        $path='pages/login/login';
+        $url = $common->generateMiniProgramURLLink($path);
+        ajaxReturn(['code'=>200,'msg'=>'获取成功','url'=>$url]);
+    }
 
 
-
+    public function testcsms(){
+        $csms = new Csms();
+        $res = $csms->initiatecontract();
+        dump($res);exit;
+    }
 }
